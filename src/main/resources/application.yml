@@ -32,6 +32,9 @@ spring:
         web-allow-others: true
 
 logging:
+  file:
+    path: "log"
+    filename: "was.log"
   level:
     root: INFO
     com.ntiple: DEBUG

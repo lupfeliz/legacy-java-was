@@ -42,3 +42,4 @@ demo-app.db.mv.db
 /src/main/resources/static/*
 /src/main/resources/application-my.yml
 test.log
+/log
