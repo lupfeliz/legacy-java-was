@@ -1,0 +1,37 @@
+## @File        : application
+## @Author      : 정재백
+## @Since       : 2024-07-28
+## @Description : 환경설정파일
+## @Site        : https://devlog.ntiple.com
+debug: false
+spring:
+  application:
+    name: demo
+  mvc:
+    static-path-pattern: "/**"
+  web:
+    resources:
+      static-locations: "classpath:/static/"
+  servlet:
+    multipart:
+      maxFileSize: "1GB"
+      maxRequestSize: "1GB"
+  datasource:
+    driverClassName: org.h2.Driver
+    ##  메모리 전용 DB 사용시 아래 설정 사용
+    url: jdbc:h2:mem:test
+    # url: jdbc:h2:./demo-app.db
+    username: sa
+    password: 
+  ## H2 Console 설정
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+logging:
+  level:
+    root: INFO
+    com.ntiple: DEBUG

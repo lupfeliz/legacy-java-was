@@ -1,0 +1,6 @@
+## @File        : application-*.yml
+## @Author      : 정재백
+## @Since       : 2024-07-28
+## @Description : 환경설정파일
+## @Site        : https://devlog.ntiple.com
+debug: false

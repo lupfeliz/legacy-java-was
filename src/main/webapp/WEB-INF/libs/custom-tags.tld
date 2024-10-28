@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+@File        : custom-tags.tld
+@Author      : 정재백
+@Since       : 2024-10-26 
+@Description : 커스텀 태그 샘플
+@Site        : https://devlog.ntiple.com
+-->
+<taglib version="2.0" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd">
+  <tlib-version>1.0</tlib-version>
+  <short-name>custom-tld</short-name>
+  <tag>
+    <name>hello</name>
+    <tag-class>com.ntiple.commons.tags.HelloTag</tag-class>
+    <body-content>scriptless</body-content>
+    <attribute>
+      <name>message</name>
+      <!--
+      name	The name element defines the name of an attribute. Each attribute name must be unique for a particular tag.
+      required	This specifies if this attribute is required or optional. It would be false for optional.
+      rtexprvalue	Declares if a runtime expression value for a tag attribute is valid
+      type	Defines the Java class-type of this attribute. By default it is assumed as String
+      description	Informational description can be provided.
+      fragment	Declares if this attribute value should be treated as a JspFragment.
+      -->
+    </attribute>
+  </tag>
+</taglib>

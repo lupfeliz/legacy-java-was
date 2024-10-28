@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+@File        : tiles.xml
+@Author      : 정재백
+@Since       : 2024-10-26 
+@Description : 타일즈 설정
+@Site        : https://devlog.ntiple.com
+-->
+<!DOCTYPE tiles-definitions PUBLIC
+      "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+      "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+  <!-- main -->
+  <definition name="default" template="/WEB-INF/views/common/layout.jsp">
+    <put-attribute name="assets" value="/WEB-INF/views/common/assets-define.jsp" />
+    <put-attribute name="launch" value="/WEB-INF/views/common/launch-script.jsp" />
+    <put-attribute name="header" value="/WEB-INF/views/common/header.jsp" />
+    <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />
+    <put-attribute name="body" value="" />
+  </definition>
+  <definition name="/*" extends="default">
+    <put-attribute name="body" value="/WEB-INF/views/pages/{1}.jsp" />
+  </definition>
+  <definition name="/*/*" extends="default">
+    <put-attribute name="body" value="/WEB-INF/views/pages/{1}/{2}.jsp" />
+  </definition>
+  <definition name="/*/*/*" extends="default">
+    <put-attribute name="body" value="/WEB-INF/views/pages/{1}/{2}/{3}.jsp" />
+  </definition>
+</tiles-definitions>
