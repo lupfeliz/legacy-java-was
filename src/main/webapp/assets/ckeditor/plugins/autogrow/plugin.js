@@ -93,7 +93,8 @@
       var height = 0;
       if (marker && doc) {
         try {
-          height = marker.getDocumentPosition(doc)?.y || 0;
+          var o = undefined;
+          height = (o = marker.getDocumentPosition(doc)) ? o.y : 0;
           marker.remove();
         } catch (e) { }
         height = height + marker.$.offsetHeight

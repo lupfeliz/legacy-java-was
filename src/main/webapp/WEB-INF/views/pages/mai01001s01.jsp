@@ -16,25 +16,25 @@ AAAA
 <script>
 setTimeout(function() {
   var editor = CKEDITOR.replace($(`#editor`)[0], {
-    width: 'auto',
+    width: "auto",
     on: { pluginsLoaded: function(e) { } },
     toolbar : [
-      ['Undo', 'Redo', 'Format', 'Font', 'FontSize', 'Bold', 'Italic', 'Underline',
-      'TextColor', 'BGColor', 'RemoveFormat', 'BulletedList', 'NumberedList',
-      'Copy', 'Cut', 'Indent', 'Outdent', 'Link', 'Table', 'Source'],
+      ["Undo", "Redo", "Format", "Font", "FontSize", "Bold", "Italic", "Underline",
+      "TextColor", "BGColor", "RemoveFormat", "BulletedList", "NumberedList",
+      "Copy", "Cut", "Indent", "Outdent", "Link", "Table", "Source"],
     ],
-    extraPlugins: 'autogrow, colorbutton, font',
+    extraPlugins: "autogrow, colorbutton, font",
     height: 160,
     autoGrow_minHeight: 160,
     autoGrow_maxHeight: 400,
     // autoGrow_bottomSpace: 10,
     autoGrow_onStartup: true,
-    // contentsCss: '/assets/styles/editor.css',
-    extraAllowedContent: 'span{*}[*],img{*}[*]',
+    // contentsCss: "/assets/styles/editor.css",
+    extraAllowedContent: "span{*}[*],img{*}[*]",
     /** resize 가 있으면 autogrow 기능을 사용 못함 */
-    removePlugins: 'resize, elementspath',
+    removePlugins: "resize, elementspath",
     sourceAreaTabSize: 2,
-    // font_names: ectx?.fontNames || '',
-  })
-}, 1000)
+    // font_names: ectx?.fontNames || "",
+  });
+}, 1000);
 </script>
