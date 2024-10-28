@@ -1,6 +1,6 @@
 <%!
 /**
- * @File        : assets.jsp
+ * @File        : init.jsp
  * @Author      : 정재백
  * @Since       : 2024-10-26 
  * @Description : 스크립트 적재 공통 스크립트
