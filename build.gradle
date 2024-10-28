@@ -1,8 +1,7 @@
 plugins {
-	// id 'org.springframework.boot' version '2.7.18'
-	id 'org.springframework.boot' version '2.7.18'
-	id 'io.spring.dependency-management' version '1.1.5'
-	id 'java'
+  id 'org.springframework.boot' version '2.7.18'
+  id 'io.spring.dependency-management' version '1.1.5'
+  id 'java'
   id 'war'
 }
 
@@ -11,63 +10,74 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '8'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
 }
 
 repositories {
-	mavenCentral()
+  mavenCentral()
   maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
-	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
-	implementation 'org.apache.httpcomponents:httpclient:4.5.7'
-	implementation 'org.springframework:spring-mock:2.0.8'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
+  implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+  implementation 'org.apache.httpcomponents:httpclient:4.5.7'
+  implementation 'org.springframework:spring-mock:2.0.8'
+  implementation 'javax.validation:validation-api:2.0.1.Final'
 
-	/** JSP, JSTL */
-	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
-	implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
-	implementation 'jakarta.servlet:jakarta.servlet-api'
-	implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
-	
-	/** Tiles */
-	implementation 'org.apache.tiles:tiles-jsp:3.0.1'
-	implementation 'org.apache.tiles:tiles-servlet:3.0.1'
-	implementation 'org.apache.tiles:tiles-core:3.0.1'
-	
-	/** log4jdbc */
-	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16' 
+  /** JSP, JSTL */
+  implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+  implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+  implementation 'jakarta.servlet:jakarta.servlet-api'
+  implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
+  
+  /** OpenAPI (swagger) */
+  implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
 
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
-	implementation 'org.apache.commons:commons-lang3:3.0'
+  /** Tiles */
+  implementation 'org.apache.tiles:tiles-jsp:3.0.1'
+  implementation 'org.apache.tiles:tiles-servlet:3.0.1'
+  implementation 'org.apache.tiles:tiles-core:3.0.1'
+  
+  /** log4jdbc */
+  implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16' 
 
-	runtimeOnly 'org.postgresql:postgresql'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-aop'
+  implementation 'org.apache.commons:commons-lang3:3.0'
+
+  runtimeOnly 'org.postgresql:postgresql'
   runtimeOnly 'com.h2database:h2'
-	// compileOnly 'jdbc.tibero:tibero:6'
+  // compileOnly 'jdbc.tibero:tibero:6'
 
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	developmentOnly 'org.springframework.boot:spring-boot-starter-tomcat'
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	annotationProcessor 'org.projectlombok:lombok'
+  compileOnly 'org.projectlombok:lombok'
+  developmentOnly 'org.springframework.boot:spring-boot-devtools'
+  developmentOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+  annotationProcessor 'org.projectlombok:lombok'
 
   implementation 'org.yaml:snakeyaml:2.2'
   implementation 'org.json:json:20230618'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  // implementation 'com.vaadin:vaadin-sass-compiler:0.9.13'
+  // implementation 'ro.isdc.wro4j:wro4j-maven-plugin:2.1.1'
 
-	implementation fileTree(dir: 'libs', include: ['*.jar'])
+  // implementation 'com.ntiple:ntiple-utils-jdk8:0.0.2-10'
 
-	testImplementation ('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage:junit-vintage0engine'
-	}
+  testImplementation 'org.projectlombok:lombok'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testAnnotationProcessor 'org.projectlombok:lombok'
+
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+  testImplementation ('org.springframework.boot:spring-boot-starter-test') {
+    exclude group: 'org.junit.vintage:junit-vintage0engine'
+  }
 }
 
 test {
-	useJUnitPlatform()
+  useJUnitPlatform()
 }

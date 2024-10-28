@@ -7,4 +7,8 @@
  * @Site        : https://devlog.ntiple.com
  **/
 %>
-<div>HEADER</div>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<header class="container">
+  HEADER
+  <jsp:include page="aside.jsp"/>
+</header>

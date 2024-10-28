@@ -4,3 +4,7 @@
 ## @Description : 환경설정파일
 ## @Site        : https://devlog.ntiple.com
 debug: false
+
+logging:
+  level:
+    root: WARN

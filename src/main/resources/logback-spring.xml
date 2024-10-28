@@ -98,5 +98,10 @@
     <appender-ref ref="FILE"/>
     <appender-ref ref="Error"/>
   </logger>
+  <logger name="com.ntiple" level="DEBUG" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="Error"/>
+  </logger>
 <!-- 출처: https://goddaehee.tistory.com/206 [갓대희의 작은공간:티스토리] -->
 </configuration>

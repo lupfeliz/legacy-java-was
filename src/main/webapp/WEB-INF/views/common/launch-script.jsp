@@ -7,17 +7,21 @@
  * @Site        : https://devlog.ntiple.com
  **/
 %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/WEB-INF/views/common/init.jsp" %>
 <script>
-{
-  var createApp = Vue.createApp;
-  var ref = Vue.ref;
-  Vue.createApp({
-    setup() {
-      const message = ref("Hello vue!")
-      return {
-        message
-      }
-    }
-  }).mount("#app");
-}
+setTimeout(function() {
+Vue.createApp({
+  setup() {
+    // const message = Vue.ref("Hello vue!")
+    // return { message }
+  },
+  mounted() {
+    <ex:script-names var="scripts"/>
+    <c:forEach items="${scripts}" var="itm">
+    { <ex:script name="${itm}" /> }
+    </c:forEach>
+  }
+}).mount("#page-main");
+}, 0)
 </script>

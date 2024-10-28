@@ -10,11 +10,12 @@
   <tlib-version>1.0</tlib-version>
   <short-name>custom-tld</short-name>
   <tag>
-    <name>hello</name>
-    <tag-class>com.ntiple.commons.tags.HelloTag</tag-class>
+    <name>script</name>
+    <tag-class>com.ntiple.commons.tags.CustomTags$LaunchScript</tag-class>
     <body-content>scriptless</body-content>
     <attribute>
-      <name>message</name>
+      <name>name</name>
+      <rtexprvalue>true</rtexprvalue>
       <!--
       name	The name element defines the name of an attribute. Each attribute name must be unique for a particular tag.
       required	This specifies if this attribute is required or optional. It would be false for optional.
@@ -24,5 +25,19 @@
       fragment	Declares if this attribute value should be treated as a JspFragment.
       -->
     </attribute>
+  </tag>
+  <tag>
+    <name>script-names</name>
+    <tag-class>com.ntiple.commons.tags.CustomTags$LaunchScriptNames</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <name>var</name>
+    </attribute>
+  </tag>
+  <tag>
+    <!-- 단순 페이지 구분용 비기능 태그 -->
+    <name>page</name>
+    <tag-class>com.ntiple.commons.tags.CustomTags$SimpleTag</tag-class>
+    <body-content>scriptless</body-content>
   </tag>
 </taglib>
