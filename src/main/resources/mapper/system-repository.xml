@@ -1,0 +1,757 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.ntiple.work.sys.SystemRepositor'>
+  <!--
+  @File        : system-repository.xml
+  @Author      : 정재백
+  @Since       : 2024-10-29
+  @Description : 공통 sqlmap
+  @Site        : https://devlog.ntiple.com
+  -->
+
+  <!-- ################################################################################ -->
+  <!-- [관리자정보 (TB_MNGR) -->
+  <!-- [관리자정보 수량조회 -->
+  <select id='countMngr' parameterType='map' resultType='Integer'>
+  SELECT
+    COUNT(*)
+  FROM TB_MNGR
+  <where>
+    <include refid="findMngrWhere"/>
+  </where>
+  </select>
+  <!-- ]관리자정보 수량조회 -->
+
+  <!-- [관리자정보 검색 -->
+  <select id='findMngr' parameterType='map' resultType='Mngr'>
+  SELECT * FROM (
+    SELECT
+      *, 
+      ROW_NUMBER () OVER (ORDER BY rgsde) as rownum
+    FROM TB_MNGR
+    <where>
+      <include refid="findMngrWhere"/>
+    </where>
+    ORDER BY
+      rgsde ASC
+  ) A
+  WHERE
+    <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm != null and prm.rowCount != null'>
+        <choose>
+          <when test='prm.rowStart != null'>
+            AND rownum &gt;= #{prm.rowStart}
+            AND rownum &lt; (#{prm.rowStart} + #{prm.rowCount})
+          </when>
+          <otherwise>
+            AND rownum &lt; #{prm.rowCount}
+          </otherwise>
+        </choose>
+      </when>
+      <otherwise>
+        0 = 1
+      </otherwise>
+    </choose>
+    </trim>
+  </select>
+  <!-- ]관리자정보 검색 -->
+
+  <!-- [관리자정보 검색 조건 -->
+  <sql id="findMngrWhere">
+    <trim prefixOverrides='AND|OR'>
+      <if test='prm.mngrId != null'>
+        AND LOWER(mngr_id) = LOWER(#{prm.mngrId})
+      </if>
+      <if test='prm.dateSc != null'>
+        <choose>
+          <when test='prm.dateSc != null and prm.dateSc.size() > 1 and prm.dateSc[0] != ""'>
+            AND rgsde &gt;= TO_DATE('${prm.dateSc[0]}', 'YYYYMMDD')
+            AND rgsde &lt;= TO_DATE('${prm.dateSc[1]}', 'YYYYMMDD')
+          </when>
+          <when test='prm.dateSc != null and prm.dateSc.size() == 1 and prm.dateSc[0] != ""'>
+            AND rgsde &gt;= TO_DATE('${prm.dateSc[0]}', 'YYYYMMDD')
+          </when>
+        </choose>
+      </if>
+      <if test='prm.sttus != null and prm.sttus != ""'>
+        AND sttus = #{prm.sttus}
+      </if>
+      <if test='prm.keyword != null and prm.keyword != ""'>
+        AND (
+          (LOWER(mngr_nm) LIKE '%' || LOWER(#{prm.keyword}) || '%') OR
+          (LOWER(mngr_id) LIKE '%' || LOWER(#{prm.keyword}) || '%')
+        )
+      </if>
+    </trim>
+  </sql>
+  <!-- ]관리자정보 검색 조건 -->
+
+  <!-- [관리자정보 조회 -->
+  <select id='getMngr' parameterType='map' resultType='Mngr'>
+  SELECT * FROM TB_MNGR
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.mngrId != null and prm.mngrId != ""'>
+        <!-- 사용자 ID로 조회 -->
+        AND LOWER(mngr_id) = LOWER(#{prm.mngrId})
+      </when>
+      <otherwise>
+        AND 1 = 0
+      </otherwise>
+    </choose>
+  </trim>
+  </select>
+  <!-- ]관리자정보 조회 -->
+
+  <!-- [관리자정보 저장 -->
+  <update id='saveMngr' parameterType='map'>
+    INSERT INTO TB_MNGR (
+      mngr_id,
+      mngr_nm,
+      password,
+      cttpc,
+      email,
+      rgsde,
+      register_id,
+      last_updusr_id,
+      last_updde,
+      sttus
+    ) VALUES (
+      LOWER(#{prm.mngrId}),
+      #{prm.mngrNm},
+      #{prm.password},
+      #{prm.cttpc},
+      #{prm.email},
+      now(),
+      #{prm.registerId},
+      #{prm.lastUpdusrId},
+      now(),
+      #{prm.sttus}
+    )
+  </update>
+  <!-- ]관리자정보 저장 -->
+
+  <!-- [관리자정보 수정 -->
+  <update id='updateMngr' parameterType='map'>
+  UPDATE TB_MNGR
+  SET
+    mngr_nm = #{prm.mngrNm},
+    password = #{prm.password},
+    cttpc = #{prm.cttpc},
+    email = #{prm.email},
+    register_id = #{prm.registerId},
+    last_updusr_id = #{prm.lastUpdusrId},
+    last_updde = now(),
+    sttus = #{prm.sttus}
+  WHERE
+    LOWER(mngr_id) = LOWER(#{mngrId})
+  </update>
+  <!-- ]관리자정보 수정 -->
+
+  <!-- [관리자정보 삭제 -->
+  <update id='deleteMngr' parameterType='map'>
+  DELETE
+    FROM TB_MNGR
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.mngrId != null and prm.mngrId !=""'>
+        AND LOWER(mngr_id) = LOWER(#{prm.mngrId})
+      </when>
+      <otherwise>
+        AND 0 = 1
+      </otherwise>
+    </choose>
+  </trim>
+  </update>
+  <!-- ]관리자정보 삭제 -->
+  <!-- ]관리자정보 (TB_MNGR) -->
+  <!-- ################################################################################ -->
+
+  <!-- ################################################################################ -->
+  <!-- [메뉴정보 (TB_MENU) -->
+  <!-- [메뉴정보 수량조회 -->
+  <select id='countMenu' parameterType='map' resultType='Integer'>
+  SELECT
+    COUNT(*)
+  FROM TB_MENU
+  <where>
+    <include refid="findMenuWhere"/>
+  </where>
+  </select>
+  <!-- ]메뉴정보 수량조회 -->
+
+  <!-- [메뉴정보 검색 -->
+  <select id='findMenu' parameterType='map' resultType='Menu'>
+  SELECT * FROM (
+    SELECT
+      *, 
+      ROW_NUMBER () OVER (ORDER BY sn) as rownum
+    FROM TB_MENU
+    <where>
+      <include refid="findMenuWhere"/>
+    </where>
+    ORDER BY
+      sn ASC
+  ) A
+  WHERE
+    <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm != null and prm.rowCount != null'>
+        <choose>
+          <when test='prm.rowStart != null'>
+            AND rownum &gt;= #{prm.rowStart}
+            AND rownum &lt; (#{prm.rowStart} + #{prm.rowCount})
+          </when>
+          <when test='prm.rowCount == -1'>
+            1 = 1
+          </when>
+          <otherwise>
+            AND rownum &lt; #{prm.rowCount}
+          </otherwise>
+        </choose>
+      </when>
+      <otherwise>
+        0 = 1
+      </otherwise>
+    </choose>
+    </trim>
+  </select>
+  <!-- ]메뉴정보 검색 -->
+
+  <!-- [메뉴정보 검색 조건 -->
+  <sql id="findMenuWhere">
+    <trim prefixOverrides='AND|OR'>
+    </trim>
+  </sql>
+  <!-- ]메뉴정보 검색 조건 -->
+
+  <!-- [메뉴정보 조회 -->
+  <select id='getMenu' parameterType='map' resultType='Menu'>
+  SELECT
+    * 
+  FROM
+    TB_MENU
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.menuSn != null'>
+        <!-- 사용자 ID로 조회 -->
+        AND menu_sn = #{prm.menuSn}
+      </when>
+      <otherwise>
+        AND 1 = 0
+      </otherwise>
+    </choose>
+  </trim>
+  </select>
+  <!-- ]메뉴정보 조회 -->
+
+  <!-- [메뉴정보 저장 -->
+  <update id='saveMenu' parameterType='map'>
+    INSERT INTO TB_MENU (
+      menu_sn,
+      menu_nm,
+      menu_url,
+      menu_dc,
+      hide_at,
+      sn
+    ) VALUES (
+      #{prm.menuSn},
+      #{prm.menuNm},
+      #{prm.menuUrl},
+      #{prm.menuDc},
+      #{prm.hideAt},
+      #{prm.sn}
+    )
+  </update>
+  <!-- ]메뉴정보 저장 -->
+
+  <!-- [메뉴정보 수정 -->
+  <update id='updateMenu' parameterType='map'>
+  UPDATE TB_MENU
+  SET
+    menu_nm = #{prm.menuNm},
+    menu_url = #{prm.menuUrl},
+    menu_dc = #{prm.menuDc},
+    hide_at = #{prm.hideAt},
+    sn = #{prm.sn}
+  WHERE
+    menu_sn = #{menuSn}
+  </update>
+  <!-- ]메뉴정보 수정 -->
+
+  <!-- [메뉴정보 삭제 -->
+  <update id='deleteMenu' parameterType='map'>
+  DELETE
+    FROM TB_MENU
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.menuSn != null'>
+        AND menu_sn = #{prm.menuSn}
+      </when>
+      <otherwise>
+        AND 0 = 1
+      </otherwise>
+    </choose>
+  </trim>
+  </update>
+  <!-- ]메뉴정보 삭제 -->
+  <!-- ]메뉴정보 (TB_MENU) -->
+  <!-- ################################################################################ -->
+
+  <!-- ################################################################################ -->
+  <!-- [메뉴권한정보 (TB_MENU_AUTHOR) -->
+  <!-- [메뉴권한정보 검색 -->
+  <select id='findMenuAuthor' parameterType='map' resultType='MenuAuthor'>
+  SELECT
+    *
+  FROM TB_MENU_AUTHOR
+  <where>
+    <trim prefixOverrides='AND|OR'>
+      <if test='prm.menuSn != null'>
+        AND menu_sn = #{prm.menuSn}
+      </if>
+      <if test='prm.groupSn != null'>
+        AND group_sn = #{prm.groupSn}
+      </if>
+      <choose>
+        <when test='prm.menuSc != null'>
+          AND CAST(menu_sn AS VARCHAR) IN 
+          <foreach collection='prm.menuSc' item='menuSn' open='(' close=')' separator=','>
+            CAST(#{menuSn} AS VARCHAR)
+          </foreach>
+        </when>
+        <when test='prm.groupSc != null'>
+          AND CAST(group_sn AS VARCHAR) IN 
+          <foreach collection='prm.groupSc' item='groupSn' open='(' close=')' separator=','>
+            CAST(#{groupSn} AS VARCHAR)
+          </foreach>
+        </when>
+      </choose>
+    </trim>
+  </where>
+  ORDER BY
+    menu_sn ASC
+  </select>
+  <!-- ]메뉴권한정보 검색 -->
+
+  <!-- [메뉴권한정보 조회 -->
+  <select id='getMenuAuthor' parameterType='map' resultType='MenuAuthor'>
+  SELECT * FROM TB_MENU_AUTHOR
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.menuSn != null and prm.groupSn != null'>
+        AND menu_sn = #{prm.menuSn}
+        AND group_sn = #{prm.groupSn}
+      </when>
+      <otherwise>
+        AND 1 = 0
+      </otherwise>
+    </choose>
+  </trim>
+  </select>
+  <!-- ]메뉴권한정보 조회 -->
+
+  <!-- [메뉴권한정보 저장 -->
+  <update id='saveMenuAuthor' parameterType='map'>
+    INSERT INTO TB_MENU_AUTHOR (
+      menu_sn,
+      group_sn,
+      author,
+      author_dc
+    ) VALUES (
+      #{prm.menuSn},
+      #{prm.groupSn},
+      #{prm.author},
+      #{prm.authorDc}
+    )
+  </update>
+  <!-- ]메뉴권한정보 저장 -->
+
+  <!-- [메뉴권한정보 수정 -->
+  <update id='updateMenuAuthor' parameterType='map'>
+  UPDATE TB_MENU_AUTHOR
+  SET
+    author = #{prm.author},
+    author_dc = #{prm.authorDc}
+  WHERE
+    menu_sn = #{menuSn} AND
+    group_sn = #{groupSn}
+  </update>
+  <!-- ]메뉴권한정보 수정 -->
+
+  <!-- [메뉴권한정보 삭제 -->
+  <update id='deleteMenuAuthor' parameterType='map'>
+  DELETE
+    FROM TB_MENU_AUTHOR
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.menuSn != null and prm.groupSn != null'>
+        AND menu_sn = #{prm.menuSn}
+        AND group_sn = #{prm.groupSn}
+      </when>
+      <otherwise>
+        AND 0 = 1
+      </otherwise>
+    </choose>
+  </trim>
+  </update>
+  <!-- ]메뉴권한정보 삭제 -->
+  <!-- ]메뉴권한정보 (TB_MENU_AUTHOR) -->
+  <!-- ################################################################################ -->
+
+  <!-- ################################################################################ -->
+  <!-- [그룹정보 (TB_GROUP) -->
+  <!-- [그룹정보 수량조회 -->
+  <select id='countGroup' parameterType='map' resultType='Integer'>
+  SELECT
+    COUNT(*)
+  FROM
+    TB_GROUP G
+  LEFT JOIN
+    TB_GROUP_USER U ON (G.group_sn = U.group_sn)
+  <where>
+    <include refid="findGroupWhere"/>
+  </where>
+  </select>
+  <!-- ]그룹정보 수량조회 -->
+
+  <!-- [그룹정보 검색 -->
+  <select id='findGroup' parameterType='map' resultType='Group'>
+  SELECT * FROM (
+    SELECT
+      G.*, 
+      (SELECT COUNT(*) FROM TB_GROUP_USER U WHERE G.group_sn = U.group_sn) AS user_cnt,
+      ROW_NUMBER () OVER (ORDER BY G.rgsde) as rownum
+    FROM
+      TB_GROUP G
+    <where>
+      <include refid="findGroupWhere"/>
+    </where>
+    ORDER BY
+      rgsde ASC
+  ) A
+  WHERE
+    <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm != null and prm.rowCount != null'>
+        <choose>
+          <when test='prm.rowStart != null'>
+            AND rownum &gt;= #{prm.rowStart}
+            AND rownum &lt; (#{prm.rowStart} + #{prm.rowCount})
+          </when>
+          <when test='prm.rowCount == -1'>
+            1 = 1
+          </when>
+          <otherwise>
+            AND rownum &lt; #{prm.rowCount}
+          </otherwise>
+        </choose>
+      </when>
+      <otherwise>
+        0 = 1
+      </otherwise>
+    </choose>
+    </trim>
+  </select>
+  <!-- ]그룹정보 검색 -->
+
+  <!-- [그룹정보 검색 조건 -->
+  <sql id="findGroupWhere">
+    <trim prefixOverrides='AND|OR'>
+      <if test='prm.groupSn != null'>
+        AND G.group_sn = #{prm.groupSn}
+      </if>
+      <if test='prm.dateSc != null'>
+        <choose>
+          <when test='prm.dateSc != null and prm.dateSc.size() > 1 and prm.dateSc[0] != ""'>
+            AND G.rgsde &gt;= TO_DATE('${prm.dateSc[0]}', 'YYYYMMDD')
+            AND G.rgsde &lt;= TO_DATE('${prm.dateSc[1]}', 'YYYYMMDD')
+          </when>
+          <when test='prm.dateSc != null and prm.dateSc.size() == 1 and prm.dateSc[0] != ""'>
+            AND G.rgsde &gt;= TO_DATE('${prm.dateSc[0]}', 'YYYYMMDD')
+          </when>
+        </choose>
+      </if>
+      <if test='prm.keyword != null and prm.keyword != ""'>
+        AND (
+          (LOWER(G.group_nm) LIKE '%' || LOWER(#{prm.keyword}) || '%')
+        )
+      </if>
+      <if test='prm.groupSc != null and prm.groupSc.size() > 0'>
+        AND CAST(G.group_sn AS VARCHAR) IN
+        <foreach collection='prm.groupSc' item='groupSn' open='(' close=')' separator=','>
+          CAST(#{groupSn} AS VARCHAR)
+        </foreach>
+      </if>
+      <if test='prm.userSc != null and prm.userSc.size() > 0'>
+        AND G.group_sn IN (
+          SELECT
+            U.group_sn
+          FROM
+            TB_GROUP_USER U
+          WHERE
+            CAST(U.mngr_id AS VARCHAR) IN
+            <foreach collection='prm.userSc' item='mngrId' open='(' close=')' separator=','>
+              CAST(#{mngrId} AS VARCHAR)
+            </foreach>
+        )
+      </if>
+      <if test='prm.menuSc != null and prm.menuSc.size() > 0'>
+        AND G.group_sn IN (
+          SELECT
+            A.group_sn
+          FROM
+            TB_MENU_AUTHOR A
+          WHERE
+            CAST(A.menu_sn AS VARCHAR) IN
+            <foreach collection='prm.menuSc' item='menuSn' open='(' close=')' separator=','>
+              CAST(#{menuSn} AS VARCHAR)
+            </foreach>
+        )
+      </if>
+    </trim>
+  </sql>
+  <!-- ]그룹정보 검색 조건 -->
+
+  <!-- [그룹정보 조회 -->
+  <select id='getGroup' parameterType='map' resultType='Group'>
+  SELECT * FROM TB_GROUP
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.groupSn != null and prm.groupSn != ""'>
+        AND group_sn = #{prm.groupSn}
+      </when>
+      <otherwise>
+        AND 1 = 0
+      </otherwise>
+    </choose>
+  </trim>
+  </select>
+  <!-- ]그룹정보 조회 -->
+
+  <!-- [그룹정보 저장 -->
+  <update id='saveGroup' parameterType='map'>
+    INSERT INTO TB_GROUP (
+      group_sn,
+      group_nm,
+      dc,
+      rgsde,
+      register_id,
+      last_updusr_id,
+      last_updde
+    ) VALUES (
+      #{prm.groupSn},
+      #{prm.groupNm},
+      #{prm.dc},
+      now(),
+      #{prm.registerId},
+      #{prm.lastUpdusrId},
+      now() 
+    )
+  </update>
+  <!-- ]그룹정보 저장 -->
+
+  <!-- [그룹정보 수정 -->
+  <update id='updateGroup' parameterType='map'>
+  UPDATE TB_GROUP
+  SET
+    group_nm = #{prm.groupNm},
+    dc = #{prm.dc},
+    register_id = #{prm.registerId},
+    last_updusr_id = #{prm.lastUpdusrId},
+    last_updde = now()
+  WHERE
+    group_sn = #{groupSn}
+  </update>
+  <!-- ]그룹정보 수정 -->
+
+  <!-- [그룹정보 삭제 -->
+  <update id='deleteGroup' parameterType='map'>
+  DELETE
+    FROM TB_GROUP
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.groupSn != null and prm.groupSn !=""'>
+        AND group_sn = #{prm.groupSn}
+      </when>
+      <otherwise>
+        AND 0 = 1
+      </otherwise>
+    </choose>
+  </trim>
+  </update>
+  <!-- ]그룹정보 삭제 -->
+  <!-- ]그룹정보 (TB_GROUP) -->
+  <!-- ################################################################################ -->
+
+  <!-- ################################################################################ -->
+  <!-- [그룹사용자정보 (TB_GROUP_USER) -->
+  <!-- [그룹사용자정보 갯수 -->
+  <select id='countGroupUser' parameterType='map' resultType='Integer'>
+  SELECT
+    COUNT(*) AS cnt
+  FROM
+    TB_GROUP_USER U
+  <where>
+    <include refid="findGroupUserWhere"/>
+  </where>
+  </select>
+  <!-- ]그룹사용자정보 갯수 -->
+  <!-- [그룹사용자정보 검색 -->
+  <select id='findGroupUser' parameterType='map' resultType='GroupUser'>
+  SELECT
+    U.*,
+    (
+      SELECT
+        M.mngr_nm
+      FROM
+        TB_MNGR M 
+      WHERE
+        M.mngr_id = U.mngr_id
+    ) AS mngr_nm
+  FROM
+    TB_GROUP_USER U
+  <where>
+    <include refid="findGroupUserWhere"/>
+  </where>
+  ORDER BY
+    U.group_sn ASC
+  </select>
+  <!-- ]그룹사용자정보 검색 -->
+
+  <sql id="findGroupUserWhere">
+    <trim prefixOverrides='AND|OR'>
+      <if test='prm.groupSn != null'>
+        AND U.group_sn = #{prm.groupSn}
+      </if>
+      <if test='prm.mngrId != null'>
+        AND LOWER(U.mngr_id) = LOWER(#{prm.mngrId})
+      </if>
+      <choose>
+        <when test='prm.groupSc != null and prm.groupSc.size() > 0'>
+          AND CAST(U.group_sn AS VARCHAR) IN 
+          <foreach collection='prm.groupSc' item='groupSn' open='(' close=')' separator=','>
+            CAST(#{groupSn} AS VARCHAR)
+          </foreach>
+        </when>
+        <when test='prm.mngrSc != null and prm.mngrSc.size() > 0'>
+          AND LOWER(U.mngr_id) IN 
+          <foreach collection='prm.mngrSc' item='mngrId' open='(' close=')' separator=','>
+            LOWER(#{mngrId})
+          </foreach>
+        </when>
+      </choose>
+    </trim>
+  </sql>
+
+  <!-- [그룹사용자정보 조회 -->
+  <select id='getGroupUser' parameterType='map' resultType='GroupUser'>
+  SELECT * FROM TB_GROUP_USER
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.mngrId != null and prm.groupSn != null'>
+        AND group_sn = #{prm.groupSn}
+        AND LOWER(mngr_id) = LOWER(#{prm.mngrId})
+      </when>
+      <otherwise>
+        AND 1 = 0
+      </otherwise>
+    </choose>
+  </trim>
+  </select>
+  <!-- ]그룹사용자정보 조회 -->
+
+  <!-- [그룹사용자정보 저장 -->
+  <update id='saveGroupUser' parameterType='map'>
+    INSERT INTO TB_GROUP_USER (
+      group_sn,
+      mngr_id
+    ) VALUES (
+      #{prm.groupSn},
+      #{prm.mngrId}
+    )
+  </update>
+  <!-- ]그룹사용자정보 저장 -->
+
+  <!-- [그룹사용자정보 삭제 -->
+  <update id='deleteGroupUser' parameterType='map'>
+  DELETE
+    FROM TB_GROUP_USER
+  WHERE
+  <trim prefixOverrides='AND|OR'>
+    <choose>
+      <when test='prm.groupSn != null and prm.mngrId != null'>
+        AND group_sn = #{prm.groupSn}
+        AND LOWER(mngr_id) = LOWER(#{prm.mngrId})
+      </when>
+      <when test='prm.groupSn != null'>
+        AND group_sn = #{prm.groupSn}
+      </when>
+      <when test='prm.mngrId != null'>
+        AND LOWER(mngr_id) = LOWER(#{prm.mngrId})
+      </when>
+      <otherwise>
+        AND 0 = 1
+      </otherwise>
+    </choose>
+  </trim>
+  </update>
+  <!-- ]그룹사용자정보 삭제 -->
+  <!-- ]그룹사용자정보 (TB_GROUP_USER) -->
+  <!-- ################################################################################ -->
+
+  <!-- [로그인기록 입력 -->
+  <update id='saveMngrLoginHist' parameterType='map'>
+  INSERT INTO 
+    TB_MNGR_LOGIN_HIST (
+    mngr_login_sn,
+    mngr_id,
+    succes_at,
+    conect_ip,
+    login_dt,
+    rm
+  ) VALUES (
+    #{prm.mngrLoginSn},
+    LOWER(#{prm.mngrId}),
+    #{prm.succesAt},
+    #{prm.conectIp},
+    #{prm.loginDt},
+    #{prm.rm}
+  )
+  </update>
+  <!-- ]로그인기록 입력 -->
+
+  <select id='curMenuSn' parameterType='map' resultType='Integer'>
+  SELECT currval('seq_menu_sn')
+  </select>
+
+  <select id='incMenuSn' parameterType='map' resultType='Integer'>
+  SELECT nextval('seq_menu_sn')
+  </select>
+
+  <select id='curGroupSn' parameterType='map' resultType='Integer'>
+  SELECT currval('seq_group_sn')
+  </select>
+
+  <select id='incGroupSn' parameterType='map' resultType='Integer'>
+  SELECT nextval('seq_group_sn')
+  </select>
+
+  <select id='curSeqMngrLoginSn' parameterType='map' resultType='Integer'>
+  SELECT currval('seq_mngr_login_sn')
+  </select>
+
+  <select id='incSeqMngrLoginSn' parameterType='map' resultType='Integer'>
+  SELECT nextval('seq_mngr_login_sn')
+  </select>
+</mapper>

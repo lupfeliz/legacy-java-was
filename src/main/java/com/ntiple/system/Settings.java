@@ -12,9 +12,7 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.ConvertUtil.asList;
 import static com.ntiple.commons.ConvertUtil.cat;
-import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.IOUtils.openResourceStream;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
@@ -30,6 +28,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ntiple.Application;
+import com.ntiple.work.cmn.CommonEntity.SystemInfo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +40,15 @@ public class Settings {
 
   @Value("${spring.profiles.active}") private String profile;
 
+  /** dbcrypto 관련 파라메터 */
+  @Value("${security.dbcrypt.cipher:aes}") private String dbcCipher;
+  @Value("${security.dbcrypt.encode:base64}") private String dbcEncode;
+  @Value("${security.dbcrypt.secret:}") private String dbcSecret;
+  @Value("${security.dbcrypt.charset:utf-8}") private String dbcCharset;
+
+    /** 저장소 경로 */
+  @Value("${storage.path:/tmp}") private String storagePath;
+
   /** 기본URL 주소 */
   private List<String> hostNames;
 
@@ -49,6 +57,9 @@ public class Settings {
 
   /** JNDI */
   @Value("${spring.datasource.jndi-name:}") private String jndiName;
+
+  /** SYSTEM-ADM */
+  private SystemInfo admInfo;
 
   @Value("${system.timediff:0}") private Long systemTimeDiff;
 
@@ -76,38 +87,5 @@ public class Settings {
 
   public static void sleep(long time) {
     try { Thread.sleep(time); } catch (Exception ignore) { }
-  }
-
-  public static boolean checkIpMatch(String ipAddr, String filter) {
-    boolean ret = false;
-    List<String> frgdata = asList(ipAddr.split("[.]"));
-    List<String> fltdata = asList(filter.split("[.]"));
-    for (int inx = fltdata.size(); inx < frgdata.size(); inx++) {
-      fltdata.add("*");
-    }
-    int inx = 0;
-    LOOP:
-    for (; inx < fltdata.size(); inx++) {
-      String frg = String.valueOf(frgdata.get(inx)).trim();
-      String flt = String.valueOf(fltdata.get(inx)).trim();
-      log.trace("FRG:{} / FLT:{}", frg, flt);
-      if (frg.equals(flt)) { continue LOOP; }
-      if (flt.equals("*")) { continue LOOP; }
-      if (flt.contains("-")) {
-        int num = parseInt(frg, -1);
-        if (num == -1) { break LOOP; }
-        String[] tmp = flt.split("[-]");
-        if (tmp.length != 2) { break LOOP; }
-        int[] rng = new int[tmp.length];
-        rng[0] = parseInt(tmp[0]);
-        rng[1] = parseInt(tmp[1]);
-        log.trace("CHECK:{} : {}~{}", num, rng[0], rng[1]);
-        if (num >= rng[0] && num <= rng[1]) { continue LOOP; }
-      }
-      break LOOP;
-    }
-    if (inx >= fltdata.size()) { ret = true; }
-    log.trace("CHECK:{} / {} / {}", inx, fltdata.size(), ret);
-    return ret;
   }
 }

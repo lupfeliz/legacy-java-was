@@ -16,6 +16,11 @@
   <typeAliases>
     <typeAlias type="com.ntiple.work.cmn.CommonEntity$CamelMap" alias="cmap"/>
     <typeAlias type="com.ntiple.work.cmn.CommonEntity$Code" alias="Code"/>
+    <typeAlias type="com.ntiple.work.cmn.CommonEntity$Mngr" alias="Mngr"/>
+    <typeAlias type="com.ntiple.work.cmn.CommonEntity$Menu" alias="Menu"/>
+    <typeAlias type="com.ntiple.work.cmn.CommonEntity$MenuAuthor" alias="MenuAuthor"/>
+    <typeAlias type="com.ntiple.work.cmn.CommonEntity$GroupUser" alias="GroupUser"/>
+    <typeAlias type="com.ntiple.work.cmn.CommonEntity$Group" alias="Group"/>
   </typeAliases>
   <typeHandlers>
     <typeHandler handler="com.ntiple.system.DbDateHandler" javaType="java.util.Date" jdbcType="DATE"/>

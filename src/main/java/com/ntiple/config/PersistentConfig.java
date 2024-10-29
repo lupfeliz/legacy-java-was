@@ -52,7 +52,7 @@ public class PersistentConfig {
 
   @Bean @Qualifier(DATASOURCE)
   @ConfigurationProperties(prefix = "spring.datasource")
-  DataSource datasourceKcdfm() {
+  DataSource datasource() {
     DataSource ret = null;
     String jndiName = settings.getJndiName();
     if (!"".equals(jndiName)) {
@@ -69,9 +69,9 @@ public class PersistentConfig {
   }
 
   @Bean @Qualifier(SQLFACTORY)
-  SqlSessionFactory sqlSessionFactoryKcdfm() throws Exception {
+  SqlSessionFactory sqlSessionFactory() throws Exception {
     SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
-    fb.setDataSource(datasourceKcdfm());
+    fb.setDataSource(datasource());
     fb.setVfs(SpringBootVFS.class);
     fb.setConfigLocation(appctx.getResource("classpath:mybatis-config.xml"));
     ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -87,7 +87,7 @@ public class PersistentConfig {
   }
 
   @Bean @Qualifier(SQLTEMPLTE)
-  SqlSessionTemplate sqlSessionTemplateKcdfm(
+  SqlSessionTemplate sqlSessionTemplate(
     @Autowired @Qualifier(SQLFACTORY) SqlSessionFactory fac) {
     return new SqlSessionTemplate(fac);
   }

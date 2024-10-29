@@ -13,15 +13,21 @@ import static com.ntiple.commons.Constants.S_HTTP;
 import static com.ntiple.commons.Constants.S_HTTPS;
 import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.Constants.X_FORWARDED_FOR;
+import static com.ntiple.commons.ConvertUtil.asList;
 import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.ConvertUtil.cat;
+import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.IOUtils.passthrough;
+import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -150,6 +158,15 @@ public class WebUtil {
     }
     return ret;
   }
+
+  public static List<String> codeSplit(Object v, String delim) {
+    List<String> ret = null;
+    if (v != null) {
+      String[] split = String.valueOf(v).replaceAll("\\s*", "").split(delim);
+      ret = Arrays.asList(split);
+    }
+    return ret;
+  }
   
   public static class XSSInputStream extends ServletInputStream {
     private InputStream delegator;
@@ -237,5 +254,65 @@ public class WebUtil {
       }
       return ret;
     }
+  }
+
+  public static boolean checkIpMatch(String ipAddr, String filter) {
+    boolean ret = false;
+    List<String> frgdata = asList(ipAddr.split("[.]"));
+    List<String> fltdata = asList(filter.split("[.]"));
+    for (int inx = fltdata.size(); inx < frgdata.size(); inx++) {
+      fltdata.add("*");
+    }
+    int inx = 0;
+    LOOP:
+    for (; inx < fltdata.size(); inx++) {
+      String frg = String.valueOf(frgdata.get(inx)).trim();
+      String flt = String.valueOf(fltdata.get(inx)).trim();
+      log.trace("FRG:{} / FLT:{}", frg, flt);
+      if (frg.equals(flt)) { continue LOOP; }
+      if (flt.equals("*")) { continue LOOP; }
+      if (flt.contains("-")) {
+        int num = parseInt(frg, -1);
+        if (num == -1) { break LOOP; }
+        String[] tmp = flt.split("[-]");
+        if (tmp.length != 2) { break LOOP; }
+        int[] rng = new int[tmp.length];
+        rng[0] = parseInt(tmp[0]);
+        rng[1] = parseInt(tmp[1]);
+        log.trace("CHECK:{} : {}~{}", num, rng[0], rng[1]);
+        if (num >= rng[0] && num <= rng[1]) { continue LOOP; }
+      }
+      break LOOP;
+    }
+    if (inx >= fltdata.size()) { ret = true; }
+    log.trace("CHECK:{} / {} / {}", inx, fltdata.size(), ret);
+    return ret;
+  }
+
+  public static <T> T readObject(Object src, Class<T> type) {
+    T ret = null;
+    Reader reader = null;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      if (src instanceof Reader) {
+        ret = mapper.readValue((Reader) src, type);
+      } else if (src instanceof InputStream) {
+        reader = reader((InputStream) src, UTF8);
+        ret = mapper.readValue(reader, type);
+      } else if (src instanceof File) {
+        File file = (File) src;
+        if (file.exists()) {
+          reader = reader(file, UTF8);
+          ret = mapper.readValue(reader, type);
+        }
+      } else if (src instanceof byte[]) {
+        ret = mapper.readValue((byte[]) src, type);
+      }
+    } catch (Exception e) {
+      log.error("", e);
+    } finally {
+      safeclose(reader);
+    }
+    return ret;
   }
 }
