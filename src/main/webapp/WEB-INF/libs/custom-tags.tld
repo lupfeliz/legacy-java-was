@@ -11,7 +11,7 @@
   <short-name>custom-tld</short-name>
   <tag>
     <name>script</name>
-    <tag-class>com.ntiple.commons.tags.CustomTags$LaunchScript</tag-class>
+    <tag-class>com.ntiple.system.CustomTags$LaunchScript</tag-class>
     <body-content>scriptless</body-content>
     <attribute>
       <name>name</name>
@@ -28,7 +28,7 @@
   </tag>
   <tag>
     <name>script-names</name>
-    <tag-class>com.ntiple.commons.tags.CustomTags$LaunchScriptNames</tag-class>
+    <tag-class>com.ntiple.system.CustomTags$LaunchScriptNames</tag-class>
     <body-content>empty</body-content>
     <attribute>
       <name>var</name>
@@ -37,7 +37,7 @@
   <tag>
     <!-- 단순 페이지 구분용 비기능 태그 -->
     <name>page</name>
-    <tag-class>com.ntiple.commons.tags.CustomTags$SimpleTag</tag-class>
+    <tag-class>com.ntiple.system.CustomTags$SimpleTag</tag-class>
     <body-content>scriptless</body-content>
   </tag>
 </taglib>

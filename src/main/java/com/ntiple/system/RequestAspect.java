@@ -5,9 +5,9 @@
  * @Description : 공통적으로 사용할 Aspect, 인증 및 오류처리 등에 관련된 사항들을 처리한다.
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.commons;
+package com.ntiple.system;
 
-import static com.ntiple.commons.utils.WebUtil.curRequest;
+import static com.ntiple.system.WebUtil.curRequest;
 
 import javax.servlet.http.HttpServletRequest;
 

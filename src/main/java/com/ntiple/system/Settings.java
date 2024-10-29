@@ -9,7 +9,7 @@
  * Autowired 해서 사용한다.
  **/
 
-package com.ntiple.commons;
+package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.ConvertUtil.asList;
@@ -50,7 +50,7 @@ public class Settings {
   /** JNDI */
   @Value("${spring.datasource.jndi-name:}") private String jndiName;
 
-  @Value("${system.timediff:32400000}") private Long systemTimeDiff;
+  @Value("${system.timediff:0}") private Long systemTimeDiff;
 
   @PostConstruct public void init() {
     log.trace("INIT:{}", Settings.class);

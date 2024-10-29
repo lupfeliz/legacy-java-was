@@ -76,6 +76,32 @@ dependencies {
   }
 }
 
-test {
+tasks.named('test') {
   useJUnitPlatform()
+}
+
+task prebuildHook() {
+  dependsOn(build)
+  dependsOn(bootRun)
+}
+
+build {
+}
+
+test {
+  String tstlvl = System.properties['build.test']
+  if (tstlvl == null || ''.equals(tstlvl)) { tstlvl = 'SIMPLE' }
+  systemProperty('build.test', tstlvl)
+  reports.html.required = false
+}
+
+bootRun {
+  String profile = System.properties['spring.profiles.active']
+  if (profile == null || ''.equals(profile)) { profile = 'local' }
+  systemProperty('spring.profiles.active', profile)
+
+  println('================================================================================')
+  println('LEGACY-JAVA-WEB APPLICATION SYSTEM')
+  println('PROFILE:' + profile)
+  println('================================================================================')
 }

@@ -5,7 +5,7 @@
  * @Description : Mybatis 날자 형태 핸들러
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.commons;
+package com.ntiple.system;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

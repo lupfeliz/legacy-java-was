@@ -6,7 +6,7 @@
  * @Description : http 통신모듈
  * @Site        : https://gitlab.ntiple.com/developers
  **/
-package com.ntiple.commons.utils;
+package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.S_HTTP;
 import static com.ntiple.commons.Constants.S_HTTPS;

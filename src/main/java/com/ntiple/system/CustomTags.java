@@ -5,10 +5,10 @@
  * @Description : Custom taglib sample (hello)
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.commons.tags;
+package com.ntiple.system;
 
 import static com.ntiple.commons.ConvertUtil.cast;
-import static com.ntiple.commons.utils.WebUtil.curRequest;
+import static com.ntiple.system.WebUtil.curRequest;
 
 import java.io.IOException;
 import java.io.StringWriter;

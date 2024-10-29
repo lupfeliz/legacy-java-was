@@ -6,7 +6,7 @@
  * @Description : 웹유틸
  * @Site        : https://gitlab.ntiple.com/developers
  **/
-package com.ntiple.commons.utils;
+package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.REFERER;
 import static com.ntiple.commons.Constants.S_HTTP;
@@ -66,7 +66,6 @@ public class WebUtil {
     }
     return url;
   }
-  
   
   public static HttpServletRequest curRequest() {
     return (cast(RequestContextHolder.getRequestAttributes(), ServletRequestAttributes.class))

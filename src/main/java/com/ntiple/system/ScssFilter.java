@@ -1,11 +1,11 @@
 /**
- * @File        : CommonFilter.java
+ * @File        : ScssFilter.java
  * @Author      : 정재백
  * @Since       : 2024-04-16 
  * @Description : 공통적으로 사용할 웹필터
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.commons;
+package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.ConvertUtil.cast;
@@ -41,7 +41,7 @@ import de.larsgrefer.sass.embedded.SassCompilerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component
-public class CommonnFilter implements Filter {
+public class ScssFilter implements Filter {
 
   private static final Pattern PTN_SCSS = Pattern.compile("^(.*[.]scss)([?].+){0,1}$");
 

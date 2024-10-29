@@ -1,5 +1,5 @@
 /**
- * @File        : PersistendConfig.java
+ * @File        : PersistentConfig.java
  * @Author      : 정재백
  * @Since       : 2024-10-26 
  * @Description : 데이터베이스 스프링부트 설정
@@ -29,7 +29,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 
-import com.ntiple.commons.Settings;
+import com.ntiple.system.Settings;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +52,7 @@ public class PersistentConfig {
 
   @Bean @Qualifier(DATASOURCE)
   @ConfigurationProperties(prefix = "spring.datasource")
-  public DataSource datasourceKcdfm() {
+  DataSource datasourceKcdfm() {
     DataSource ret = null;
     String jndiName = settings.getJndiName();
     if (!"".equals(jndiName)) {
@@ -69,7 +69,7 @@ public class PersistentConfig {
   }
 
   @Bean @Qualifier(SQLFACTORY)
-  public SqlSessionFactory sqlSessionFactoryKcdfm() throws Exception {
+  SqlSessionFactory sqlSessionFactoryKcdfm() throws Exception {
     SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
     fb.setDataSource(datasourceKcdfm());
     fb.setVfs(SpringBootVFS.class);
@@ -81,13 +81,13 @@ public class PersistentConfig {
   }
 
   @Bean @Qualifier(SQLTRANSCT)
-  public DataSourceTransactionManager transactionManager(
+  DataSourceTransactionManager transactionManager(
     @Autowired @Qualifier(DATASOURCE) DataSource dataSource) {
     return new DataSourceTransactionManager(dataSource);
   }
 
   @Bean @Qualifier(SQLTEMPLTE)
-  public SqlSessionTemplate sqlSessionTemplateKcdfm(
+  SqlSessionTemplate sqlSessionTemplateKcdfm(
     @Autowired @Qualifier(SQLFACTORY) SqlSessionFactory fac) {
     return new SqlSessionTemplate(fac);
   }

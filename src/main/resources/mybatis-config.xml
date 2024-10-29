@@ -18,7 +18,7 @@
     <typeAlias type="com.ntiple.work.cmn.CommonEntity$Code" alias="Code"/>
   </typeAliases>
   <typeHandlers>
-    <typeHandler handler="com.ntiple.commons.DbDateHandler" javaType="java.util.Date" jdbcType="DATE"/>
-    <typeHandler handler="com.ntiple.commons.DbDateHandler" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    <typeHandler handler="com.ntiple.system.DbDateHandler" javaType="java.util.Date" jdbcType="DATE"/>
+    <typeHandler handler="com.ntiple.system.DbDateHandler" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
   </typeHandlers>
 </configuration>

@@ -18,16 +18,13 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @OpenAPIDefinition
 @Configuration public class OpenAPIConfig {
   @Value("${springdoc.server.url:/}") private String svurl;
   @Value("${springdoc.server.description:기본URL}") private String description;
-  @Bean public OpenAPI customOpenAPI() {
-    final String secureScheme = "인증전송자(Bearer)";
+  @Bean OpenAPI customOpenAPI() {
     List<Server> servers = new ArrayList<>();
     Server server = new Server();
     server.setUrl(svurl);
@@ -35,13 +32,7 @@ import io.swagger.v3.oas.models.servers.Server;
     servers.add(server);
     return new OpenAPI()
       .servers(servers)
-      .addSecurityItem(new SecurityRequirement().addList(secureScheme))
-      .components(new Components()
-        .addSecuritySchemes(secureScheme, new SecurityScheme()
-          .name(secureScheme)
-          .type(SecurityScheme.Type.HTTP)
-          .scheme("bearer")
-          .bearerFormat("JWT")))
+      .components(new Components())
       .info(new Info().title("데모 프로그램"));
   }
 }

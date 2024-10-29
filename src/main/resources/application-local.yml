@@ -12,6 +12,12 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+
+spring:
+  jackson:
+    ## 로컬에서는 디버깅을 위해 모든 속성을 조회한다
+    default-property-inclusion: always 
+
 logging:
   level:
     root: INFO
