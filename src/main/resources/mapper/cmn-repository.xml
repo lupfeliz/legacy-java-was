@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.ntiple.work.cmn.CommonRepository'>
+  <!--
+  @File        : cmn-repository.xml
+  @Author      : 정재백
+  @Since       : 2024-10-29
+  @Description : 공통 sqlmap
+  @Site        : https://devlog.ntiple.com
+  -->
+  <!-- [코드조회 칼럼만 조회 -->
+  <select id='findCode' parameterType='map' resultType='Code'>
+  </select>
+  <!-- ]코드조회 칼럼만 조회 -->
+
+  <!-- [코드조회 전체 칼럼 조회 -->
+  <select id='findCodeDetail' parameterType='map' resultType='Code'>
+  <trim prefixOverrides='AND|OR'>
+  </trim> 
+  </select>
+  <!-- ]코드조회 전체 칼럼 조회 -->
+
+  <!-- [코드 저장 -->
+  <update id='saveCode' parameterType='map'>
+  </update>
+  <!-- ]코드 저장 -->
+
+  <!-- [코드 수정 -->
+  <update id='updateCode' parameterType='map'>
+  </update>
+  <!-- ]코드 수정 -->
+
+  <!-- [DB암호화(pgcrypto) -->
+  <select id='dbEncrypt' parameterType='map' resultType='string'>
+  </select>
+  <!-- ]DB암호화(pgcrypto) -->
+
+  <!-- [DB복호화(pgcrypto) -->
+  <select id='dbDecrypt' parameterType='map' resultType='string'>
+  </select>
+  <!-- ]DB복호화(pgcrypto) -->
+
+  <select id='dbCurrent' parameterType='map' resultType='date'>
+  SELECT NOW()
+  </select>
+</mapper>

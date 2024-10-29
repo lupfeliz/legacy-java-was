@@ -5,8 +5,9 @@
  * @Description : 공통적으로 사용할 DTO Entity
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.commons;
+package com.ntiple.work.cmn;
 
+import static com.ntiple.commons.ConvertUtil.camelCase;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -16,6 +17,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
@@ -159,5 +161,42 @@ public class CommonEntity {
   public static class AuthExtra {
     private String ipAddr;
     private String userNm;
+  }
+
+  /** TB_CODE */
+  @Schema(title = "공통코드 (TB_CODE / Code)")
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @Getter @Setter @ToString @Builder
+  public static class Code {
+    @Schema(title = "분류코드 (cl_cd)")
+    public String clCd;
+    @Schema(title = "코드 (cd)")
+    public String cd;
+    @Schema(title = "일련번호 (sn)")
+    public String sn;
+    @Schema(title = "코드명 (cd_nm)")
+    public String cdNm;
+    @Schema(title = "코드설명 (cd_dc)")
+    public String cdDc;
+    @Schema(title = "깊이 (dp)")
+    public Integer dp;
+    @Schema(title = "상위코드 (parnts_cd)")
+    public String parntsCd;
+    @Schema(title = "생성일시 (creat_dt)")
+    public String creatDt;
+    @Schema(title = "최종수정일시 (last_up_dt)")
+    public String lastUpDt;
+
+    /** 조회용 */
+    @Schema(hidden = true) public Object clCdLst;
+    @Schema(hidden = true) public Object cdLst;
+  }
+
+  @Schema(title = "MYBATIS camelcase 매핑 (내부사용)", hidden = true)
+  public static class CamelMap<K, V> extends HashMap<String, V> {
+    @Override public V put(String k, V v) {
+      return super.put(camelCase(k), v);
+    }
   }
 }
