@@ -7,6 +7,11 @@
  **/
 package com.ntiple;
 
+import static com.ntiple.commons.ConvertUtil.cat;
+
+import java.io.File;
+import java.net.URL;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -36,6 +41,43 @@ public class TestUtil {
       log.info("LEVEL CHECK:{} / {}[{}] / {}[{}], {}, {}", testName,
         target, target.name(), lvl, lvl.name(), enabled, ret);
     } catch (Exception ignore) { }
+    return ret;
+  }
+
+  public static File getResource(Class<?> cls, String uri) throws Exception {
+    File ret = null;
+    try {
+      String[] paths = {
+        "/build/classes/java/test/",
+        "/build/classes/java/main/",
+        "/build/resources/test/",
+        "/build/resources/main/",
+        "/build/webapps/",
+        "/src/main/webapp/"
+      };
+      URL url = cls.getClassLoader().getResource("");
+      if (url == null) { return ret; }
+
+      String buildpath = url.getFile();
+      buildpath = buildpath.replaceAll("\\\\", "/");
+      if (buildpath.endsWith(paths[0])) {
+        buildpath = cat(buildpath.substring(0, buildpath.length() - paths[0].length()));
+      } else if (buildpath.endsWith(paths[1])) {
+        buildpath = cat(buildpath.substring(0, buildpath.length() - paths[1].length()));
+      }
+      for (String p : paths) {
+        File file = new File(cat(buildpath, "/", p, "/", uri).replaceAll("[/]+", "/"));
+        log.debug("FILE:{}", file.getAbsolutePath());
+        if (file.exists()) {
+          ret = file;
+          break;
+        }
+      }
+      log.debug("BUILDPATH:{} / {}", buildpath, ret);
+      // ret = new File(path);
+    } catch (Exception e) {
+      log.debug("E:", e);
+    }
     return ret;
   }
 }

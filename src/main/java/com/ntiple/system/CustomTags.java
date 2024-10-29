@@ -71,7 +71,12 @@ public class CustomTags  {
       } else {
         content = store.get(name);
         // log.debug("STORE:{} / {}", name, store);
-        if (content == null) { content = ""; }
+        if (content == null) {
+          content = "";
+        } else {
+          log.trace("MINIFYING..{}", content);
+          content = JSMinifier.getInstance().minify(content);
+        }
       }
       out.print(content);
     }

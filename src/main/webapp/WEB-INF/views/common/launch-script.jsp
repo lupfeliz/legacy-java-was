@@ -9,6 +9,7 @@
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
+<ex:script name="#launcher#">
 <script>
 setTimeout(function() {
 const vars = Vue.ref({
@@ -16,21 +17,22 @@ const vars = Vue.ref({
   test: false
 });
 Vue.createApp({
-  setup() {
-    return { vars }
+  setup: function() {
+    return { vars: vars }
   },
-  mounted() {
+  mounted: function() {
     setTimeout(function() {
       vars.value.test = true;
-      console.log('OK')
     }, 3000)
     {
       <ex:script-names var="scripts"/>
       <c:forEach items="${scripts}" var="itm">
-      { <ex:script name="${itm}" /> }
+      <c:if test="${itm != '#launcher#'}"> { <ex:script name="${itm}" /> } </c:if>
       </c:forEach>
     }
   }
 }).mount("#page-main");
 }, 0)
 </script>
+</ex:script>
+<script> <ex:script name="#launcher#" /> </script>

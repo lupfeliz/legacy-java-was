@@ -15,7 +15,7 @@
 </ex:page>
 <ex:script>
 <script>
-var editor = CKEDITOR.replace($(`#editor`)[0], {
+var editor = CKEDITOR.replace($('#editor')[0], {
   width: "auto",
   on: { pluginsLoaded: function(e) { } },
   toolbar : [

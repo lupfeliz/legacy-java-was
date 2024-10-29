@@ -7,16 +7,19 @@
  **/
 package com.ntiple;
 
+import static com.ntiple.commons.Constants.UTF8;
+import static com.ntiple.commons.IOUtils.istream;
+import static com.ntiple.commons.IOUtils.reader;
+import static com.ntiple.commons.IOUtils.safeclose;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.util.List;
+import java.io.Writer;
 import java.util.regex.Pattern;
 
 import javax.script.Bindings;
+import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -27,7 +30,6 @@ import org.junit.Test;
 import de.larsgrefer.sass.embedded.CompileSuccess;
 import de.larsgrefer.sass.embedded.SassCompiler;
 import de.larsgrefer.sass.embedded.SassCompilerFactory;
-import de.larsgrefer.sass.embedded.importer.WebjarsImporter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,7 +53,7 @@ public class SimpleTest {
 
   @Test public void testByNashornScript() throws Exception {
     // final String LANG_VER = "TypeScript.LanguageVersion.EcmaScript5";
-    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    // ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     // engine.eval("print('OK');");
     // engine.eval("var Sass = require('./sass.sync-0.11.1.min.js');");
     // engine.eval(
@@ -108,5 +110,76 @@ public class SimpleTest {
     // } catch (Exception e) {
     //   log.debug("E:", e);
     // }
+  }
+
+  @Test
+  public void testMinifyJS() throws Exception {
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    ScriptContext context = new SimpleScriptContext();
+    context.getBindings(ScriptContext.GLOBAL_SCOPE);
+    context.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
+    Bindings bindings = context.getBindings(ScriptContext.GLOBAL_SCOPE); 
+    // Bindings bindings = new SimpleBindings();
+    bindings.put("console", System.console());
+    engine.setContext(context);
+    BufferedReader reader = null;
+    Writer writer = null;
+    String charset = "UTF-8";
+    File scrFile = null;
+    File srcFile = null;
+    File tgtFile = null;
+    try {
+      Invocable invocable = (Invocable) engine;
+      scrFile = TestUtil.getResource(Application.class, "/scripts/uglify.min.js");
+      reader = reader(istream(scrFile), UTF8);
+      engine.eval(reader);
+      safeclose(reader);
+      scrFile = TestUtil.getResource(Application.class, "/scripts/do-minify.js");
+      reader = reader(istream(scrFile), UTF8);
+      engine.eval(reader);
+      safeclose(reader);
+      // srcFile = TestUtil.getResource(Application.class, "/assets/scripts/entry.js");
+      // srcFile = new File("/home/coder/documents/tmp/minify-7196260321170045552.script");
+      srcFile = new File("/home/coder/documents/tmp/test.js");
+      // tgtFile = new File("/tmp/test.js");
+      tgtFile = new File("/home/coder/documents/tmp/test.script");
+      log.debug("minify src:{} / tgt:{}", srcFile, tgtFile);
+      invocable.invokeFunction("minify", srcFile.getAbsolutePath(), tgtFile.getAbsolutePath(), charset);
+      // srcFile = new File(basePath, "src/main/resources/static/assets/js/test.js");
+      // StringBuilder code = new StringBuilder();
+
+      // srcFile = new File(basePath, "src/main/resources/static/assets/js/test.js");
+      // reader = reader(new FileReader(srcFile));
+      // for (String rl; (rl = reader.readLine()) != null;) {
+      //   code.append(rl).append("\n");
+      // }
+      // Object obj = invocable.invokeFunction("minifyCode", code);
+      // log.debug("OBJ:{}", obj);
+      // reader.close();
+      // srcFile = new File(basePath, "src/main/resources/static/assets/js/test.js");
+      // reader = new BufferedReader(new FileReader(srcFile));
+      // writer = new StringWriter();
+      // {
+      //   ErrorReporter reporter = null;
+      //   JavaScriptCompressor compressor = new JavaScriptCompressor(reader, reporter);
+      //   compressor.compress(writer, 16384, false, false, false, false);
+      // }
+      // log.debug("OBJ:{}", writer);
+      // reader.close();
+      // writer.close();
+      // srcFile = new File(basePath, "src/main/resources/static/assets/css/test.css");
+      // reader = new BufferedReader(new FileReader(srcFile));
+      // writer = new StringWriter();
+      // {
+      //   CssCompressor compressor = new CssCompressor(reader);
+      //   compressor.compress(writer, 16384);
+      // }
+      // log.debug("OBJ:{}", writer);
+      // reader.close();
+      // writer.close();
+    } finally {
+      safeclose(reader);
+      safeclose(writer);
+    }
   }
 }
