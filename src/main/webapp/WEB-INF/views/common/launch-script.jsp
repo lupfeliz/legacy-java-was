@@ -11,16 +11,25 @@
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <script>
 setTimeout(function() {
+const vars = Vue.ref({
+  message: "hello!",
+  test: false
+});
 Vue.createApp({
   setup() {
-    // const message = Vue.ref("Hello vue!")
-    // return { message }
+    return { vars }
   },
   mounted() {
-    <ex:script-names var="scripts"/>
-    <c:forEach items="${scripts}" var="itm">
-    { <ex:script name="${itm}" /> }
-    </c:forEach>
+    setTimeout(function() {
+      vars.value.test = true;
+      console.log('OK')
+    }, 3000)
+    {
+      <ex:script-names var="scripts"/>
+      <c:forEach items="${scripts}" var="itm">
+      { <ex:script name="${itm}" /> }
+      </c:forEach>
+    }
   }
 }).mount("#page-main");
 }, 0)

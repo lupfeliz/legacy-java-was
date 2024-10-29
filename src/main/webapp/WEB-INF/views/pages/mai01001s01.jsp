@@ -2,7 +2,10 @@
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <ex:page>
   메인페이지
-  <div>{{ message }}</div>
+  <div>{{ vars.message }}</div>
+  <template v-if="vars.test">
+  ABCD
+  </template>
   <button class="btn btn-primary">
     OK
   </button>

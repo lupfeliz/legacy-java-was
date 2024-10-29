@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -23,6 +24,10 @@ import javax.script.SimpleScriptContext;
 
 import org.junit.Test;
 
+import de.larsgrefer.sass.embedded.CompileSuccess;
+import de.larsgrefer.sass.embedded.SassCompiler;
+import de.larsgrefer.sass.embedded.SassCompilerFactory;
+import de.larsgrefer.sass.embedded.importer.WebjarsImporter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,9 +50,14 @@ public class SimpleTest {
   }
 
   @Test public void testByNashornScript() throws Exception {
-    final String LANG_VER = "TypeScript.LanguageVersion.EcmaScript5";
+    // final String LANG_VER = "TypeScript.LanguageVersion.EcmaScript5";
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-    engine.eval("print('Hello World!');");
+    // engine.eval("print('OK');");
+    // engine.eval("var Sass = require('./sass.sync-0.11.1.min.js');");
+    // engine.eval(
+    //   "const Sass = require('./sass.sync-0.11.1.min.js');\r" +
+    //   "Sass.compile(`div { border: 1px solid #f00; > div { background: #f00; } }`, function(r) { console.log(r.text); });"
+    // );
     // if (launchForBuild) { return; }
     // ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     // ScriptContext context = new SimpleScriptContext();
@@ -74,6 +84,29 @@ public class SimpleTest {
     //   assertTrue(true);
     // } finally {
     //   if (reader != null) try { reader.close(); } catch (Exception ignore) { }
+    // }
+  }
+
+  @Test
+  public void testSassCompile() throws Exception {
+    try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
+      String content = "div { border: 1px solid #ccc; > div { background: #f00; } }";
+      // CompileSuccess res = sassCompiler.compileCssString(content);
+      // CompileSuccess res = sassCompiler.compileSassString(content);
+      CompileSuccess res = sassCompiler.compileScssString(content);
+      // log.debug("RESULT:\n{}", res.getCompileResponse());
+      log.debug("RESULT:\n{}", res.getCss());
+    } catch (Exception e) {
+      log.debug("E:", e);
+    }
+    // try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
+    //   sassCompiler.registerImporter(new WebjarsImporter().autoCanonicalize());
+    //   URL resource = getClass().getResource("/custom-bootstrap.scss");
+    //   CompileSuccess compileSuccess = sassCompiler.compile(resource);
+    //   // custom Bootstrap css
+    //   String css = compileSuccess.getCss();
+    // } catch (Exception e) {
+    //   log.debug("E:", e);
     // }
   }
 }
