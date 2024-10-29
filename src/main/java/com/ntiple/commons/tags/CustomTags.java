@@ -7,6 +7,7 @@
  **/
 package com.ntiple.commons.tags;
 
+import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.utils.WebUtil.curRequest;
 
 import java.io.IOException;
@@ -32,14 +33,13 @@ public class CustomTags  {
 
   private static final Map<String, String> getStore() {
     Map<String, String> store = null;
-    store = (Map) curRequest().getAttribute(ATTR_KEY_SCRIPT_STORE);
+    store = cast(curRequest().getAttribute(ATTR_KEY_SCRIPT_STORE), store);
     if (store == null) { curRequest().setAttribute(ATTR_KEY_SCRIPT_STORE, store = new LinkedHashMap<>()); }
     return store;
   }
 
   public static class SimpleTag extends SimpleTagSupport {
     public void doTag() throws JspException, IOException {
-      String content = "";
       JspFragment body = this.getJspBody();
       JspWriter out = this.getJspContext().getOut();
       if (body != null) {

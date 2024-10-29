@@ -9,12 +9,17 @@ package com.ntiple.work.mai;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.bind.annotation.GetMapping;
 
-@Controller @RequestMapping("/")
+@Slf4j @Controller @RequestMapping("/")
 public class MainController {
 
-  @GetMapping("/") public String requestMethodName() {
+  @GetMapping("/")
+  public String main() {
+    log.debug("MAIN Request");
     return "/mai01001s01";
   }
 }
