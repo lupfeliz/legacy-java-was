@@ -1,17 +1,12 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.IOUtils.deleteFile;
 import static com.ntiple.commons.IOUtils.file;
 import static com.ntiple.commons.IOUtils.istream;
-import static com.ntiple.commons.IOUtils.ostream;
-import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 
@@ -84,31 +79,14 @@ public class JSMinifier {
     return this;
   }
 
-  public String minify(String inp) {
-    String ret = inp;
-    InputStream istream = null;
-    OutputStream ostream = null;
-    File f1 = null;
-    File f2 = null;
+  public String minify(String content) {
+    String ret = content;
     try {
-      f1 = File.createTempFile("minify-", ".script");
-      f2 = File.createTempFile("minify-", ".script");
-      ostream = ostream(f1);
-      ostream.write(inp.getBytes(UTF8));
-      safeclose(ostream);
-      log.debug("INPUT-FILE:{}", f1.getAbsolutePath());
-      ivc.invokeFunction("minify", f1.getAbsolutePath(), f2.getAbsolutePath(), UTF8);
-      istream = istream(f2);
-      ret = readAsString(istream);
-
+      Object c = ivc.invokeFunction("minifyCode", content);
+      if (c != null) { ret = String.valueOf(c); }
     } catch (Exception e) {
       log.debug("E:", e);
-      ret = inp;
-    } finally {
-      safeclose(istream);
-      safeclose(ostream);
-      deleteFile(f1);
-      deleteFile(f2);
+      ret = content;
     }
     return ret;
   }

@@ -40,10 +40,17 @@ function minify (sourcePath, targetPath, charset) {
 }
 
 function minifyCode (code) {
-  var ast = UglifyJS.parse(code.toString());
-  ast.figure_out_scope();
-  compressor = UglifyJS.Compressor();
-  ast = ast.transform(compressor);
-  code = ast.print_to_string();
-  return code;
+  try {
+    var ast = UglifyJS.parse(code.toString());
+    ast.figure_out_scope();
+    compressor = UglifyJS.Compressor();
+    ast = ast.transform(compressor);
+    code = ast.print_to_string();
+    return code;
+  } catch (e) {
+    out.print(e.stack)
+    out.print(e.lineNumber)
+    out.print(e.columnNumber)
+    out.print(e.fileName)
+  }
 }

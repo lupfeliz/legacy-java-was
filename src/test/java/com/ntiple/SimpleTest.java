@@ -8,7 +8,9 @@
 package com.ntiple;
 
 import static com.ntiple.commons.Constants.UTF8;
+import static com.ntiple.commons.IOUtils.file;
 import static com.ntiple.commons.IOUtils.istream;
+import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +29,8 @@ import javax.script.SimpleScriptContext;
 
 import org.junit.Test;
 
+import com.ntiple.TestUtil.TestLevel;
+
 import de.larsgrefer.sass.embedded.CompileSuccess;
 import de.larsgrefer.sass.embedded.SassCompiler;
 import de.larsgrefer.sass.embedded.SassCompilerFactory;
@@ -41,6 +45,7 @@ public class SimpleTest {
   }
 
   @Test public void testPattern() throws Exception {
+    if (!TestUtil.isEnabled("testPattern", TestLevel.MANUAL)) { return; }
     Pattern PTN_ST_SCRIPT = Pattern.compile("^[<]script[^>]*>");
     Pattern PTN_ED_SCRIPT = Pattern.compile("[<]/script[^>]*>$");
     String str = "<script> TEST </script>";
@@ -52,6 +57,7 @@ public class SimpleTest {
   }
 
   @Test public void testByNashornScript() throws Exception {
+    if (!TestUtil.isEnabled("testByNashornScript", TestLevel.MANUAL)) { return; }
     // final String LANG_VER = "TypeScript.LanguageVersion.EcmaScript5";
     // ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     // engine.eval("print('OK');");
@@ -91,6 +97,7 @@ public class SimpleTest {
 
   @Test
   public void testSassCompile() throws Exception {
+    if (!TestUtil.isEnabled("testSassCompile", TestLevel.MANUAL)) { return; }
     try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
       String content = "div { border: 1px solid #ccc; > div { background: #f00; } }";
       // CompileSuccess res = sassCompiler.compileCssString(content);
@@ -114,6 +121,7 @@ public class SimpleTest {
 
   @Test
   public void testMinifyJS() throws Exception {
+    if (!TestUtil.isEnabled("testMinifyJS", TestLevel.MANUAL)) { return; }
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     ScriptContext context = new SimpleScriptContext();
     context.getBindings(ScriptContext.GLOBAL_SCOPE);
@@ -124,10 +132,8 @@ public class SimpleTest {
     engine.setContext(context);
     BufferedReader reader = null;
     Writer writer = null;
-    String charset = "UTF-8";
     File scrFile = null;
     File srcFile = null;
-    File tgtFile = null;
     try {
       Invocable invocable = (Invocable) engine;
       scrFile = TestUtil.getResource(Application.class, "/scripts/uglify.min.js");
@@ -138,45 +144,53 @@ public class SimpleTest {
       reader = reader(istream(scrFile), UTF8);
       engine.eval(reader);
       safeclose(reader);
-      // srcFile = TestUtil.getResource(Application.class, "/assets/scripts/entry.js");
-      // srcFile = new File("/home/coder/documents/tmp/minify-7196260321170045552.script");
-      srcFile = new File("/home/coder/documents/tmp/test.js");
-      // tgtFile = new File("/tmp/test.js");
-      tgtFile = new File("/home/coder/documents/tmp/test.script");
-      log.debug("minify src:{} / tgt:{}", srcFile, tgtFile);
-      invocable.invokeFunction("minify", srcFile.getAbsolutePath(), tgtFile.getAbsolutePath(), charset);
-      // srcFile = new File(basePath, "src/main/resources/static/assets/js/test.js");
-      // StringBuilder code = new StringBuilder();
+      srcFile = file("/home/coder/documents/tmp/test.js");
+      String content = readAsString(srcFile);
+      content = content.replaceAll("`", "｀");
+      Object obj = invocable.invokeFunction("minifyCode", content);
+      if (obj != null) {
+        content = String.valueOf(obj).replaceAll("｀", "`");
+      }
+      log.debug("RESULT:{}", content);
+    } finally {
+      safeclose(reader);
+      safeclose(writer);
+    }
+  }
 
-      // srcFile = new File(basePath, "src/main/resources/static/assets/js/test.js");
-      // reader = reader(new FileReader(srcFile));
-      // for (String rl; (rl = reader.readLine()) != null;) {
-      //   code.append(rl).append("\n");
+  @Test
+  public void testBabel() throws Exception {
+    if (!TestUtil.isEnabled("testBabel", TestLevel.MANUAL)) { return; }
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    ScriptContext context = new SimpleScriptContext();
+    context.getBindings(ScriptContext.GLOBAL_SCOPE);
+    context.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
+    Bindings bindings = context.getBindings(ScriptContext.GLOBAL_SCOPE); 
+    // Bindings bindings = new SimpleBindings();
+    bindings.put("console", System.console());
+    engine.setContext(context);
+    BufferedReader reader = null;
+    Writer writer = null;
+    File scrFile = null;
+    File srcFile = null;
+    try {
+      Invocable invocable = (Invocable) engine;
+      scrFile = TestUtil.getResource(Application.class, "/scripts/babel-core-6.1.19.min.js");
+      reader = reader(istream(scrFile), UTF8);
+      engine.eval(reader);
+      safeclose(reader);
+      // scrFile = TestUtil.getResource(Application.class, "/scripts/do-minify.js");
+      // reader = reader(istream(scrFile), UTF8);
+      // engine.eval(reader);
+      // safeclose(reader);
+      // srcFile = file("/home/coder/documents/tmp/test.js");
+      // String content = readAsString(srcFile);
+      // content = content.replaceAll("`", "｀");
+      // Object obj = invocable.invokeFunction("minifyCode", content);
+      // if (obj != null) {
+      //   content = String.valueOf(obj).replaceAll("｀", "`");
       // }
-      // Object obj = invocable.invokeFunction("minifyCode", code);
-      // log.debug("OBJ:{}", obj);
-      // reader.close();
-      // srcFile = new File(basePath, "src/main/resources/static/assets/js/test.js");
-      // reader = new BufferedReader(new FileReader(srcFile));
-      // writer = new StringWriter();
-      // {
-      //   ErrorReporter reporter = null;
-      //   JavaScriptCompressor compressor = new JavaScriptCompressor(reader, reporter);
-      //   compressor.compress(writer, 16384, false, false, false, false);
-      // }
-      // log.debug("OBJ:{}", writer);
-      // reader.close();
-      // writer.close();
-      // srcFile = new File(basePath, "src/main/resources/static/assets/css/test.css");
-      // reader = new BufferedReader(new FileReader(srcFile));
-      // writer = new StringWriter();
-      // {
-      //   CssCompressor compressor = new CssCompressor(reader);
-      //   compressor.compress(writer, 16384);
-      // }
-      // log.debug("OBJ:{}", writer);
-      // reader.close();
-      // writer.close();
+      // log.debug("RESULT:{}", content);
     } finally {
       safeclose(reader);
       safeclose(writer);

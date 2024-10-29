@@ -89,7 +89,7 @@ build {
 }
 
 test {
-  String tstlvl = System.properties['build.test']
+  String tstlvl = System.properties['project.build.test']
   if (tstlvl == null || ''.equals(tstlvl)) { tstlvl = 'SIMPLE' }
   systemProperty('build.test', tstlvl)
   reports.html.required = false
