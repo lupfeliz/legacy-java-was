@@ -73,7 +73,7 @@ public class Settings {
     Yaml yaml = new Yaml();
     Reader reader = null;
     Map<String, Object> map;
-    Object o;
+    // Object o;
     try {
       reader = reader(openResourceStream(Application.class, cat("/application-", profile, ".yml")), UTF8);
       map = yaml.load(reader);

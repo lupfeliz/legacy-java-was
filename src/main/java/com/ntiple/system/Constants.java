@@ -7,14 +7,13 @@
  **/
 package com.ntiple.system;
 
-import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.ConvertUtil.convert;
+import static com.ntiple.commons.ConvertUtil.newMap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
-
 
 public class Constants {
   public static final String STATIC_ACCESS = "static-access";
@@ -28,7 +27,6 @@ public class Constants {
   public static final String RESCD_FAIL = "9999";
   public static final String RESCD_OK = "0000";
   public static final String RESCD = "rescd";
-
 
   public static final String USER_AGENT = "User-Agent";
   public static final String AUTH = "auth";
@@ -63,11 +61,9 @@ public class Constants {
 
   public static final String COMMA = ",";
   public static final String I = "/";
+  public static final String NL = "\n";
+  public static final String CRNL = "\r\n";
 
-  // static final HttpMethod MTD_GET = HttpMethod.GET;
-  // static final HttpMethod MTD_POST = HttpMethod.POST;
-  // static final HttpMethod MTD_PUT = HttpMethod.PUT;
-  // static final HttpMethod MTD_DELETE = HttpMethod.DELETE;
   public static final String C_GET = "GET";
   public static final String C_POST = "POST";
   public static final String C_PUT = "PUT";
