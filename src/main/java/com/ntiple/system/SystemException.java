@@ -1,5 +1,5 @@
 /**
- * @File        : ApiException.java
+ * @File        : SystemException.java
  * @Author      : 정재백
  * @Since       : 2024-10-29
  * @Description : 공통 오류

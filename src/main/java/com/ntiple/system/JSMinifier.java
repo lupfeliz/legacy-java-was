@@ -1,3 +1,10 @@
+/**
+ * @File        : JSMinifier.java
+ * @Author      : 정재백
+ * @Since       : 2024-10-29
+ * @Description : 자바스크립트 minify
+ * @Site        : https://devlog.ntiple.com
+ **/
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;

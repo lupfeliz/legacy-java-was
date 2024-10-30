@@ -46,6 +46,8 @@ public class Settings {
   @Value("${security.dbcrypt.secret:}") private String dbcSecret;
   @Value("${security.dbcrypt.charset:utf-8}") private String dbcCharset;
 
+  @Value("${system.scss.cache.dir:}") private String scssCacheDir;
+
     /** 저장소 경로 */
   @Value("${storage.path:/tmp}") private String storagePath;
 

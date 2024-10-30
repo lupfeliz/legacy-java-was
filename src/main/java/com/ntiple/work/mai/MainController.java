@@ -14,10 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
-@Slf4j @Controller @RequestMapping("/")
+@Slf4j @Controller @RequestMapping({"/"})
 public class MainController {
 
-  @GetMapping("/")
+  @GetMapping({"/", "/mai/mai01001s01"})
   public String main() {
     log.debug("MAIN Request");
     return "/mai01001s01";

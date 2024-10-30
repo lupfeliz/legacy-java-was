@@ -1,10 +1,9 @@
 /**
  * @File        : HttpUtil.java
- * @Version     : $Rev$
  * @Author      : 정재백
- * @History     : 2023-09-04 최초 작성
+ * @Since       : 2023-09-04
  * @Description : http 통신모듈
- * @Site        : https://gitlab.ntiple.com/developers
+ * @Site        : https://devlog.ntiple.com
  **/
 package com.ntiple.system;
 

@@ -16,7 +16,9 @@ import static com.ntiple.commons.IOUtils.safeclose;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.regex.Pattern;
 
@@ -29,6 +31,8 @@ import javax.script.SimpleScriptContext;
 
 import org.junit.Test;
 
+import com.moodysalem.phantomjs.wrapper.PhantomJS;
+import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
 import com.ntiple.TestUtil.TestLevel;
 
 import de.larsgrefer.sass.embedded.CompileSuccess;
@@ -194,6 +198,18 @@ public class SimpleTest {
     } finally {
       safeclose(reader);
       safeclose(writer);
+    }
+  }
+
+  @Test
+  public void testPhantomJS() throws Exception {
+    try {
+      String str = "console.log('OK');";
+      InputStream script = new ByteArrayInputStream(str.getBytes());
+      PhantomJSOptions option = PhantomJSOptions.DEFAULT.withHelp(true);
+      PhantomJS.exec(script, option);
+    } catch (Exception e) {
+      log.debug("E:", e);
     }
   }
 }

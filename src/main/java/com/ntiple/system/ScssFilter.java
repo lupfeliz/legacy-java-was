@@ -33,6 +33,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.larsgrefer.sass.embedded.CompileSuccess;
@@ -42,6 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component
 public class ScssFilter implements Filter {
+
+  @Autowired private Settings settings;
 
   private static final Pattern PTN_SCSS = Pattern.compile("^(.*[.]scss)([?].+){0,1}$");
 
@@ -65,7 +68,9 @@ public class ScssFilter implements Filter {
         if (rfile.exists()) {
           String content = "";
           // File cache = file(Application.class.getClassLoader().getResource("").getFile(), "log", uri);
-          File cache = file(rfile.getParentFile(), cat(rfile.getName(), ".cache"));
+          File cbase = rfile.getParentFile();
+          if (!"".equals(settings.getScssCacheDir())) { cbase = file(settings.getScssCacheDir()); }
+          File cache = file(cbase, cat(rfile.getName(), ".cache"));
           log.debug("PATH:{}, {}, {} [{}/{}]", uri, rfile, cache, (curtime - cache.lastModified()), CACHE_INTERVAL);
           if (!cache.exists() ||
             (curtime - cache.lastModified()) > CACHE_INTERVAL ||

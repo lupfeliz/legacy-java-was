@@ -12,25 +12,24 @@
 <ex:script name="#launcher#">
 <script>
 setTimeout(function() {
-const vars = Vue.ref({
-  message: "hello!",
-  test: false
-});
 Vue.createApp({
-  setup: function() {
-    return { vars: vars }
-  },
-  mounted: function() {
-    setTimeout(function() {
-      vars.value.test = true;
-    }, 3000)
-    {
+  setup: function(props, context) {
+    $(document.body).removeClass('hide-onload');
+    const vars = Vue.ref({
+      message: "hello!",
+      test: false,
+    });
+    initEntryScript(function($$ctx$$) {
+      const log = $$ctx$$.log
       <ex:script-names var="scripts"/>
       <c:forEach items="${scripts}" var="itm">
-      <c:if test="${itm != '#launcher#'}"> { <ex:script name="${itm}" /> } </c:if>
+        <c:if test="${itm != '#launcher#'}">
+        try { <ex:script name="${itm}" /> } catch (e) { log.debug("E:", e); }
+        </c:if>
       </c:forEach>
-    }
-  }
+    });
+    return { vars: vars };
+  },
 }).mount("#page-main");
 }, 0)
 </script>

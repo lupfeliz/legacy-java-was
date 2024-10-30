@@ -50,4 +50,4 @@ logging:
     root: INFO
 
 ## 기타 프로젝트 일반 설정
-commons:
+system:

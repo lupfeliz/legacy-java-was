@@ -109,7 +109,10 @@ public class SecurityConfig {
 
     reqWebLst.addAll(asList(
       /** 기타 GET 메소드로 접근하는 모든 웹 리소스 URL */
-      matcher(GET, "/**")
+      // matcher(GET, "/**")
+      matcher(GET, "/"),
+      matcher(GET, "/mai/**"),
+      matcher(GET, "/assets/**")
     ));
 
     final RequestMatcher[] reqPub = reqPubLst.toArray(new RequestMatcher[]{ });
@@ -134,9 +137,9 @@ public class SecurityConfig {
           /** xss 보호 */
           .xssProtection(xss -> xss.disable())
       )
-      /** 세션 사용하지 않음 */
+      /** 세션 사용 */
       .sessionManagement(mng -> mng
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
       /** URI별 인가설정 */
       .authorizeHttpRequests(req -> req
         // .anyRequest().permitAll()
@@ -149,10 +152,10 @@ public class SecurityConfig {
         .anyRequest()
           .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
       )
-      /** 폼 로그인 불가 */
-      .formLogin(login -> login.disable())
-      /** 폼 로그아웃 불가 */
-      .logout(logout -> logout.disable())
+      // /** 폼 로그인 불가 */
+      // .formLogin(login -> login.disable())
+      // /** 폼 로그아웃 불가 */
+      // .logout(logout -> logout.disable())
       /** 임의유저 불가 */
       .anonymous(anon -> anon.disable())
       ;
@@ -174,7 +177,8 @@ public class SecurityConfig {
   @Component public static class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override public void commence(HttpServletRequest req, HttpServletResponse res,
       AuthenticationException e) throws IOException, ServletException {
-      log.debug("AUTH-ERR:{} {}", req.getRequestURI(), e.getMessage());
+      /** TODO: 페이지 리퀘스트인 경우 인증오류 또는 로그인 페이지로 인도 */
+      log.debug("AUTH-ERR:{} / {} / {}", req.getRequestURI(), req.getContentType(),  e.getMessage());
       res.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name());
     }
   }

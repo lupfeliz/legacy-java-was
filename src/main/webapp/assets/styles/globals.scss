@@ -6,7 +6,12 @@
  * @Site        : https://devlog.ntiple.com
  **/
 html#project {
-  body {
+  > body {
     font-family: 'Courier New', Courier, monospace;
+    transition: opacity 0.15s 0.15s ease;
+    display: block;
+    &.hide-onload {
+      opacity: 0;
+    }
   }
 }

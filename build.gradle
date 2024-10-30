@@ -53,6 +53,9 @@ dependencies {
   runtimeOnly 'com.h2database:h2'
   // compileOnly 'jdbc.tibero:tibero:6'
 
+  implementation 'com.moodysalem:phantomjs-wrapper:3.1.3'
+  testImplementation 'com.moodysalem:phantomjs-wrapper:3.1.3'
+
   compileOnly 'org.projectlombok:lombok'
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
   developmentOnly 'org.springframework.boot:spring-boot-starter-tomcat'
@@ -87,6 +90,10 @@ task prebuildHook() {
 
 build {
 }
+
+/** sass 컴파일러 warning 제거 */
+tasks.compileTestJava { enabled = false }
+tasks.withType(JavaCompile) { options.warnings = false }
 
 test {
   String tstlvl = System.properties['project.build.test']

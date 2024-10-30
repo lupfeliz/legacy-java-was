@@ -15,7 +15,7 @@
     <tiles:insertAttribute name="defines" />
     <tiles:insertAttribute name="assets" />
   </head>
-  <body>
+  <body class="hide-onload">
     <tiles:insertAttribute name="header"/>
     <main id="page-main" class="container">
       <tiles:insertAttribute name="body"/>

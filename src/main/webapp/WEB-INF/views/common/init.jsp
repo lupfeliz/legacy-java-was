@@ -10,7 +10,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%-- <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %> --%>
 <%@ taglib prefix="ex" uri="/WEB-INF/libs/custom-tags.tld" %>
 <%!
 // <c:set>	변수명에 값을 할당
@@ -23,4 +22,3 @@
 // <c:if test=""></c:if>
 // <c:forEach items=""></c:forEach>
 %>
-<%-- <jsp:include page=""> --%>
