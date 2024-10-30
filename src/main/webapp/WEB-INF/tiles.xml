@@ -10,7 +10,7 @@
   "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
   "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 <tiles-definitions>
-  <!-- main -->
+  <!-- 기본페이지에 들어갈 요소들 나열 (순서무관) -->
   <definition name="default" template="/WEB-INF/views/common/layout.jsp">
     <put-attribute name="defines" value="/WEB-INF/views/common/meta-define.jsp" />
     <put-attribute name="assets" value="/WEB-INF/views/common/assets-define.jsp" />
@@ -21,6 +21,7 @@
     <put-attribute name="aside" value="/WEB-INF/views/common/aside.jsp" />
     <put-attribute name="body" value="" />
   </definition>
+  <!-- 경로에 따른 바인드 규칙 (3-depth 까지) -->
   <definition name="/*" extends="default">
     <put-attribute name="body" value="/WEB-INF/views/pages/{1}.jsp" />
   </definition>

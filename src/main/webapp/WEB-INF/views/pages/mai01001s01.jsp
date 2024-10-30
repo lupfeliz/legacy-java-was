@@ -8,7 +8,7 @@
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
   </form>
-  <button class="btn btn-primary" @click="vars.clicked">
+  <button class="btn btn-primary" @click="vars.clicked()">
     OK
   </button>
   <div>

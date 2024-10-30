@@ -11,14 +11,46 @@
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <ex:script name="#launcher#">
 <script>
+<%-- window 에 중요 변수들이 바인드 되지 않도록 setTimeout 상에서 실행한다. --%>
 setTimeout(function() {
 Vue.createApp({
   setup: function(props, context) {
-    $(document.body).removeClass('hide-onload');
-    const vars = Vue.ref({
-      message: "hello!",
-      test: false,
-    });
+    const vars = Vue.ref({ });
+    <%-- [ 리소스 구동적재 대기 스크립트 --%>
+    setTimeout(function() {
+      var body = document.body;
+      function fnunload() {
+        window.removeEventListener('beforeunload', fnunload);
+        body.classList.add('hide-onload');
+      }
+      <%-- [ CSS 적재 완료 판단 --%>
+      function findcss () {
+        var s = false;
+        var o = false;
+        for (var i = document.styleSheets.length; i >= 0; i--) {
+          if (!(s = document.styleSheets[i])) { continue; }
+          if (!(s = s.rules)) { continue; }
+          for (var j = 0; j < s.length; j++) {
+            if (!(o = s[j])) { continue; }
+            if (String(o.selectorText).startsWith('html#project')) { return true; }
+          }
+        }
+        return false;
+      }
+      <%-- ] CSS 적재 완료 판단 --%>
+      function fnload() {
+        if (findcss() || ((c = c + 1) > 1000)) {
+          window.addEventListener('beforeunload', fnunload);
+          document.removeEventListener('DOMContentLoaded', fnload);
+          body.classList.remove('hide-onload');
+        } else {
+          setTimeout(fnload, 10);
+        }
+      }
+      fnload();
+    }, 0);
+    <%-- ] 리소스 구동적재 대기 스크립트 --%>
+    <%-- [ 페이지 스크립트 실행 --%>
     initEntryScript(function(context) {
       const log = context.log
       <ex:script-names var="scripts"/>
@@ -28,10 +60,12 @@ Vue.createApp({
         </c:if>
       </c:forEach>
     });
+    <%-- ] 페이지 스크립트 실행 --%>
     return { vars: vars };
   },
 }).mount("#page-main");
 }, 0)
 </script>
 </ex:script>
-<script> <ex:script name="#launcher#" /> </script>
+<%-- 실제 #launcher# 스크립트 가 브라우저에 뿌려지는 곳 --%>
+<script><ex:script name="#launcher#" /></script>
