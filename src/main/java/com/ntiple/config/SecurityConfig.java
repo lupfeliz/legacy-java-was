@@ -112,6 +112,7 @@ public class SecurityConfig {
       // matcher(GET, "/**")
       matcher(GET, "/"),
       matcher(GET, "/mai/**"),
+      matcher(POST, "/mai/**"),
       matcher(GET, "/assets/**")
     ));
 

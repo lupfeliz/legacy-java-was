@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -314,5 +315,17 @@ public class WebUtil {
       safeclose(reader);
     }
     return ret;
+  }
+
+  public static JSONObject params(HttpServletRequest req) {
+    return params(req, new JSONObject());
+  }
+
+  public static <T> T params(HttpServletRequest req, T t) {
+    Object ret = null;
+    if (t != null) {
+
+    }
+    return cast(ret, t);
   }
 }

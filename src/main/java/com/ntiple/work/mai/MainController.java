@@ -7,19 +7,26 @@
  **/
 package com.ntiple.work.mai;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.web.bind.annotation.GetMapping;
-
 @Slf4j @Controller @RequestMapping({"/"})
 public class MainController {
 
-  @GetMapping({"/", "/mai/mai01001s01"})
-  public String main() {
-    log.debug("MAIN Request");
-    return "/mai01001s01";
+  @Autowired MainService service;
+
+  @RequestMapping({"/", "/mai/mai01001s01"})
+  public String mai01001s01(HttpServletRequest req) throws Exception {
+    return service.mai01001s01(req);
+  }
+
+  @RequestMapping({"/mai/mai01001s02"})
+  public String mai01001s02(HttpServletRequest req) throws Exception {
+    return service.mai01001s02(req);
   }
 }

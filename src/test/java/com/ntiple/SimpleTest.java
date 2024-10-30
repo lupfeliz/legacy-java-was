@@ -4,6 +4,8 @@
  * @Since       : 2024-10-26 
  * @Description : 간단한 테스트 케이스들
  * @Site        : https://devlog.ntiple.com
+ * 
+ * sh gradlew cleanTest test -Dproject.build.test=MANUAL -Dspring.profiles.active=local -i --no-watch-fs --tests "com.ntiple.SimpleTest.testSimple"
  **/
 package com.ntiple;
 
@@ -13,12 +15,10 @@ import static com.ntiple.commons.IOUtils.istream;
 import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.Writer;
 import java.util.regex.Pattern;
 
@@ -29,22 +29,23 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleScriptContext;
 
-import org.junit.Test;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
-import com.moodysalem.phantomjs.wrapper.PhantomJS;
-import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
+// import com.moodysalem.phantomjs.wrapper.PhantomJS;
+// import com.moodysalem.phantomjs.wrapper.beans.PhantomJSOptions;
 import com.ntiple.TestUtil.TestLevel;
 
-import de.larsgrefer.sass.embedded.CompileSuccess;
-import de.larsgrefer.sass.embedded.SassCompiler;
-import de.larsgrefer.sass.embedded.SassCompilerFactory;
+// import de.larsgrefer.sass.embedded.CompileSuccess;
+// import de.larsgrefer.sass.embedded.SassCompiler;
+// import de.larsgrefer.sass.embedded.SassCompilerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SimpleTest {
 
   @Test public void testSimple() throws Exception {
-    log.debug("OK");
+    log.info("OK");
     assertTrue(true);
   }
 
@@ -99,29 +100,29 @@ public class SimpleTest {
     // }
   }
 
-  @Test
-  public void testSassCompile() throws Exception {
-    if (!TestUtil.isEnabled("testSassCompile", TestLevel.MANUAL)) { return; }
-    try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
-      String content = "div { border: 1px solid #ccc; > div { background: #f00; } }";
-      // CompileSuccess res = sassCompiler.compileCssString(content);
-      // CompileSuccess res = sassCompiler.compileSassString(content);
-      CompileSuccess res = sassCompiler.compileScssString(content);
-      // log.debug("RESULT:\n{}", res.getCompileResponse());
-      log.debug("RESULT:\n{}", res.getCss());
-    } catch (Exception e) {
-      log.debug("E:", e);
-    }
-    // try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
-    //   sassCompiler.registerImporter(new WebjarsImporter().autoCanonicalize());
-    //   URL resource = getClass().getResource("/custom-bootstrap.scss");
-    //   CompileSuccess compileSuccess = sassCompiler.compile(resource);
-    //   // custom Bootstrap css
-    //   String css = compileSuccess.getCss();
-    // } catch (Exception e) {
-    //   log.debug("E:", e);
-    // }
-  }
+  // @Test
+  // public void testSassCompile() throws Exception {
+  //   if (!TestUtil.isEnabled("testSassCompile", TestLevel.MANUAL)) { return; }
+  //   try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
+  //     String content = "div { border: 1px solid #ccc; > div { background: #f00; } }";
+  //     // CompileSuccess res = sassCompiler.compileCssString(content);
+  //     // CompileSuccess res = sassCompiler.compileSassString(content);
+  //     CompileSuccess res = sassCompiler.compileScssString(content);
+  //     // log.debug("RESULT:\n{}", res.getCompileResponse());
+  //     log.debug("RESULT:\n{}", res.getCss());
+  //   } catch (Exception e) {
+  //     log.debug("E:", e);
+  //   }
+  //   // try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
+  //   //   sassCompiler.registerImporter(new WebjarsImporter().autoCanonicalize());
+  //   //   URL resource = getClass().getResource("/custom-bootstrap.scss");
+  //   //   CompileSuccess compileSuccess = sassCompiler.compile(resource);
+  //   //   // custom Bootstrap css
+  //   //   String css = compileSuccess.getCss();
+  //   // } catch (Exception e) {
+  //   //   log.debug("E:", e);
+  //   // }
+  // }
 
   @Test
   public void testMinifyJS() throws Exception {
@@ -162,54 +163,67 @@ public class SimpleTest {
     }
   }
 
-  @Test
-  public void testBabel() throws Exception {
-    if (!TestUtil.isEnabled("testBabel", TestLevel.MANUAL)) { return; }
-    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-    ScriptContext context = new SimpleScriptContext();
-    context.getBindings(ScriptContext.GLOBAL_SCOPE);
-    context.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
-    Bindings bindings = context.getBindings(ScriptContext.GLOBAL_SCOPE); 
-    // Bindings bindings = new SimpleBindings();
-    bindings.put("console", System.console());
-    engine.setContext(context);
-    BufferedReader reader = null;
-    Writer writer = null;
-    File scrFile = null;
-    File srcFile = null;
-    try {
-      Invocable invocable = (Invocable) engine;
-      scrFile = TestUtil.getResource(Application.class, "/scripts/babel-core-6.1.19.min.js");
-      reader = reader(istream(scrFile), UTF8);
-      engine.eval(reader);
-      safeclose(reader);
-      // scrFile = TestUtil.getResource(Application.class, "/scripts/do-minify.js");
-      // reader = reader(istream(scrFile), UTF8);
-      // engine.eval(reader);
-      // safeclose(reader);
-      // srcFile = file("/home/coder/documents/tmp/test.js");
-      // String content = readAsString(srcFile);
-      // content = content.replaceAll("`", "｀");
-      // Object obj = invocable.invokeFunction("minifyCode", content);
-      // if (obj != null) {
-      //   content = String.valueOf(obj).replaceAll("｀", "`");
-      // }
-      // log.debug("RESULT:{}", content);
-    } finally {
-      safeclose(reader);
-      safeclose(writer);
-    }
-  }
+  // @Test
+  // public void testBabel() throws Exception {
+  //   if (!TestUtil.isEnabled("testBabel", TestLevel.MANUAL)) { return; }
+  //   ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+  //   ScriptContext context = new SimpleScriptContext();
+  //   context.getBindings(ScriptContext.GLOBAL_SCOPE);
+  //   context.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
+  //   Bindings bindings = context.getBindings(ScriptContext.GLOBAL_SCOPE); 
+  //   // Bindings bindings = new SimpleBindings();
+  //   bindings.put("console", System.console());
+  //   engine.setContext(context);
+  //   BufferedReader reader = null;
+  //   Writer writer = null;
+  //   File scrFile = null;
+  //   File srcFile = null;
+  //   try {
+  //     Invocable invocable = (Invocable) engine;
+  //     scrFile = TestUtil.getResource(Application.class, "/scripts/babel-core-6.1.19.min.js");
+  //     reader = reader(istream(scrFile), UTF8);
+  //     engine.eval(reader);
+  //     safeclose(reader);
+  //     // scrFile = TestUtil.getResource(Application.class, "/scripts/do-minify.js");
+  //     // reader = reader(istream(scrFile), UTF8);
+  //     // engine.eval(reader);
+  //     // safeclose(reader);
+  //     // srcFile = file("/home/coder/documents/tmp/test.js");
+  //     // String content = readAsString(srcFile);
+  //     // content = content.replaceAll("`", "｀");
+  //     // Object obj = invocable.invokeFunction("minifyCode", content);
+  //     // if (obj != null) {
+  //     //   content = String.valueOf(obj).replaceAll("｀", "`");
+  //     // }
+  //     // log.debug("RESULT:{}", content);
+  //   } finally {
+  //     safeclose(reader);
+  //     safeclose(writer);
+  //   }
+  // }
+
+  // @Test
+  // public void testPhantomJS() throws Exception {
+  //   if (!TestUtil.isEnabled("testPhantomJS", TestLevel.MANUAL)) { return; }
+  //   try {
+  //     String str = "console.log('OK');";
+  //     InputStream script = new ByteArrayInputStream(str.getBytes());
+  //     PhantomJSOptions option = PhantomJSOptions.DEFAULT.withHelp(true);
+  //     PhantomJS.exec(script, option);
+  //   } catch (Exception e) {
+  //     log.debug("E:", e);
+  //   }
+  // }
 
   @Test
-  public void testPhantomJS() throws Exception {
-    try {
-      String str = "console.log('OK');";
-      InputStream script = new ByteArrayInputStream(str.getBytes());
-      PhantomJSOptions option = PhantomJSOptions.DEFAULT.withHelp(true);
-      PhantomJS.exec(script, option);
-    } catch (Exception e) {
-      log.debug("E:", e);
-    }
+  public void testCast() throws Exception {
+    if (!TestUtil.isEnabled("testCast", TestLevel.MANUAL)) { return; }
+    JSONObject prm = null;
+    testCastImpl(prm);
+  }
+
+  public static <T> T testCastImpl(T t) throws Exception {
+    log.debug("CHECK:{} / {}", t, t instanceof JSONObject);
+    return null;
   }
 }
