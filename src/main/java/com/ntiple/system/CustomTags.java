@@ -75,7 +75,7 @@ public class CustomTags  {
           content = "";
         } else {
           log.trace("MINIFYING..{}", content);
-          content = JSMinifier.getInstance().minify(content);
+          // content = JSMinifier.getInstance().minify(content);
         }
       }
       out.print(content);

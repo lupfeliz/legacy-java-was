@@ -36,9 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.larsgrefer.sass.embedded.CompileSuccess;
-import de.larsgrefer.sass.embedded.SassCompiler;
-import de.larsgrefer.sass.embedded.SassCompilerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component
@@ -46,9 +43,12 @@ public class AssetsModifyFilter implements Filter {
 
   @Autowired private Settings settings;
 
-  private static final Pattern PTN_SCSS = Pattern.compile("^(.*[.]scss)([?].+){0,1}$");
-  private static final Pattern PTN_SCRIPT = Pattern.compile("^.*(/assets/scripts/[^.]+[.]js)([?].+){0,1}$");
-
+  private static final Pattern PTN_SCSS = Pattern.compile(
+    cat("(" ,
+    "^(.*[.]scss)([?].+){0,1}$|",
+    "^.*(/assets/scripts/[^.]+[.]js)([?].+){0,1}$",
+    ")")
+    );
   private static final long CACHE_INTERVAL = 1000 * 60 * 60;
 
   @Override public void doFilter(ServletRequest sreq, ServletResponse sres, FilterChain chain)
@@ -60,7 +60,6 @@ public class AssetsModifyFilter implements Filter {
     Matcher mat = PTN_SCSS.matcher(uri);
     if (mat.find()) {
       long curtime = System.currentTimeMillis();
-      SassCompiler sc = null;
       InputStream istream = null;
       OutputStream ostream = null;
       FileWriter fw = null;
@@ -77,9 +76,11 @@ public class AssetsModifyFilter implements Filter {
             (curtime - cache.lastModified()) > CACHE_INTERVAL ||
             rfile.lastModified() > cache.lastModified()) {
             log.debug("READ-USING-CONVERTER");
-            sc = SassCompilerFactory.bundled();
-            CompileSuccess cs = sc.compileFile(rfile);
-            content = cs.getCss();
+            if (rfile.getName().endsWith(".js")) {
+              content = JSMinifier.getInstance().work(rfile);
+            } else if (rfile.getName().endsWith(".scss")) {
+              content = ScssWorker.getInstance().work(rfile);
+            }
             if (!cache.getParentFile().exists()) { mkdirs(cache.getParentFile()); }
             ostream = ostream(cache);
             ostream.write(content.getBytes());
@@ -89,8 +90,14 @@ public class AssetsModifyFilter implements Filter {
             log.debug("READ-FROM-CACHE");
             content = readAsString(istream = istream(cache));
           }
+          String ctype = "plain/text";
+          if (rfile.getName().endsWith(".js")) {
+            ctype = "text/javascript";
+          } else if (rfile.getName().endsWith(".scss")) {
+            ctype = "text/css";
+          }
           res.setCharacterEncoding(UTF8);
-          res.setContentType("text/css");
+          res.setContentType(ctype);
           res.getWriter().write(content);
           processed = true;
         }
@@ -99,7 +106,6 @@ public class AssetsModifyFilter implements Filter {
       } finally {
         safeclose(ostream);
         safeclose(istream);
-        safeclose(sc);
         safeclose(fw);
       }
     }

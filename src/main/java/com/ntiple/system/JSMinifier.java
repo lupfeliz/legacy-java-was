@@ -10,6 +10,7 @@ package com.ntiple.system;
 import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.IOUtils.file;
 import static com.ntiple.commons.IOUtils.istream;
+import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
 
@@ -86,7 +87,7 @@ public class JSMinifier {
     return this;
   }
 
-  public String minify(String content) {
+  public String work(String content) {
     String ret = content;
     try {
       Object c = ivc.invokeFunction("minifyCode", content);
@@ -94,6 +95,18 @@ public class JSMinifier {
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;
+    }
+    return ret;
+  }
+
+  public String work(File file) {
+    String ret = "";
+    try {
+      String content = readAsString(file);
+      Object c = ivc.invokeFunction("minifyCode", content);
+      if (c != null) { ret = String.valueOf(c); }
+    } catch (Exception e) {
+      log.debug("E:", e);
     }
     return ret;
   }

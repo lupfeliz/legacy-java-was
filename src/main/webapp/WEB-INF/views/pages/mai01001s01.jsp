@@ -13,8 +13,8 @@
 <ex:script name="mainpage">
 <script>
 log.debug("MAIN-PAGE-LOADED!");
-vars.value.clicked = function(e) {
-  log.debug("OK");
+vars.value.clicked = async function(e) {
+  await log.debug("OK");
 };
 </script>
 </ex:script>
