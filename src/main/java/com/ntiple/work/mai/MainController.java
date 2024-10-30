@@ -7,8 +7,6 @@
  **/
 package com.ntiple.work.mai;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +19,12 @@ public class MainController {
   @Autowired MainService service;
 
   @RequestMapping({"/", "/mai/mai01001s01"})
-  public String mai01001s01(HttpServletRequest req) throws Exception {
-    return service.mai01001s01(req);
+  public String mai01001s01() throws Exception {
+    return service.mai01001s01();
   }
 
   @RequestMapping({"/mai/mai01001s02"})
-  public String mai01001s02(HttpServletRequest req) throws Exception {
-    return service.mai01001s02(req);
+  public String mai01001s02() throws Exception {
+    return service.mai01001s02();
   }
 }

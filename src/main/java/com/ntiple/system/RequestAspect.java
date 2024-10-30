@@ -41,6 +41,7 @@ public class RequestAspect {
       log.debug("BEFORE:{} / {}", uri, joint.toShortString());
       /** TODO: 인증 / 오류처리 등을 수행한다. */
       ret = joint.proceed();
+      // if (ret != null && ret instanceof JSONObject) { ret = convert(ret, newMap()); }
       log.debug("AFTER:{} / {}", uri, joint.toShortString());
     } catch (Exception e) {
       log.debug("E:", e);

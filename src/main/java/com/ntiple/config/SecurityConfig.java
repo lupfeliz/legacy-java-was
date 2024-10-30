@@ -91,9 +91,13 @@ public class SecurityConfig {
       /** H2DB웹콘솔 */
       matcher(null, "/h2-console/**"),
       /** 스웨거(OPENAPI) */
-      matcher(null, "/swagger/swagger-ui/**"),
-      matcher(null, "/swagger/swagger-resources/**"),
-      matcher(null, "/swagger/v3/api-docs/**")
+      matcher(null, "/swagger/**")
+      // matcher(null, "/swagger/swagger-ui/**"),
+      // matcher(null, "/swagger/swagger-resources/**"),
+      // matcher(null, "/swagger/v3/api-docs/**")
+      // matcher(null, "/swagger-ui/**"),
+      // matcher(null, "/swagger-resources/**"),
+      // matcher(null, "/v3/api-docs/**")
     ));
 
     /** 샘플 API 추가 */

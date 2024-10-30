@@ -5,8 +5,8 @@
   <div>{{ vars.message }}</div>
   <template v-if="vars.test"> ABCD </template>
   <form name="form" action="/mai/mai01001s01">
-    <input type="hidden" name="value1" value="" />
-    <input type="hidden" name="value2" value="" />
+    <input type="hidden" name="value1" value="123" />
+    <input type="hidden" name="value2" value="456" />
   </form>
   <button class="btn btn-primary" @click="vars.clicked()">
     OK
@@ -20,6 +20,7 @@ log.debug("MAIN-PAGE-LOADED!");
 vars.value.clicked = async function(e) {
   $("form[name='form']")
     .attr("method", "post")
+    .attr("enctype", "application/x-www-form-urlencoded")
     .submit();
   await log.debug("OK");
 };

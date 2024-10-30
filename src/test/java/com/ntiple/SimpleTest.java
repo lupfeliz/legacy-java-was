@@ -164,6 +164,57 @@ public class SimpleTest {
   }
 
   // @Test
+  // public void testYUICompressor() throws Exception {
+  //   if (!TestUtil.isEnabled("testYUICompressor", TestLevel.MANUAL)) { return; }
+  //   BufferedReader reader = null;
+  //   StringWriter out = new StringWriter();
+  //   try {
+  //     reader = reader(file("/home/coder/documents/tmp/minify-7196260321170045552.script"), UTF8);
+  //     JavaScriptCompressor compressor = new JavaScriptCompressor(reader, new ErrorReporter() {
+  //       @Override public void error(String arg0, String arg1, int arg2, String arg3, int arg4) {
+  //         log.debug("ERROR:");
+  //       }
+  //       @Override public EvaluatorException runtimeError(String arg0, String arg1, int arg2, String arg3, int arg4) {
+  //         log.debug("ERROR:");
+  //         return null;
+  //       }
+  //       @Override public void warning(String arg0, String arg1, int arg2, String arg3, int arg4) { }
+  //     });
+  //     int linebreakpos = -1;
+  //     boolean munge = false;
+  //     boolean preserveAllSemiColons = false;
+  //     boolean disableOptimizations = false;
+  //     boolean verbose = true;
+  //     compressor.compress(out, linebreakpos, munge, verbose,
+  //       preserveAllSemiColons, disableOptimizations);
+  //     log.debug("OUT:{}", out.toString());
+  //   } catch (Exception e) {
+  //     log.debug("E:", e);
+  //   } finally {
+  //   }
+  // }
+
+  // @Test
+  // public void testClosureCompiler() throws Exception {
+  //   com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
+  //   CompilerOptions options = new CompilerOptions();
+  //   WarningLevel warningLevel = WarningLevel.QUIET;
+  //   options.setCodingConvention(CodingConventions.getDefault());
+  //   options.setOutputCharset(UTF8);
+  //   // options.setOutputCharset(Charset.forName(UTF8));
+  //   warningLevel.setOptionsForWarningLevel(options);
+  //   // DEFAULT_COMPILATION_LEVEL.setOptionsForCompilationLevel(options);
+  //   File file = file("/home/coder/documents/tmp/minify-7196260321170045552.script");
+  //   compiler.disableThreads();
+  //   final List<SourceFile> defaultExterns = CommandLineRunner.getDefaultExterns();
+  //   // List<SourceFile> defaultExterns = CommandLineRunner.getBuiltinExterns(null);
+  //   List<SourceFile> jsSourceFiles = new ArrayList<>();
+  //   jsSourceFiles.add(SourceFile.fromFile(file.getAbsolutePath(), Charset.forName("UTF-8")));
+  //   Result result = compiler.compile(defaultExterns, jsSourceFiles, options);
+  //   log.debug("RESULT:{}", result);
+  // }
+
+  // @Test
   // public void testBabel() throws Exception {
   //   if (!TestUtil.isEnabled("testBabel", TestLevel.MANUAL)) { return; }
   //   ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -219,11 +270,12 @@ public class SimpleTest {
   public void testCast() throws Exception {
     if (!TestUtil.isEnabled("testCast", TestLevel.MANUAL)) { return; }
     JSONObject prm = null;
-    testCastImpl(prm);
+    prm = testCastImpl(prm);
   }
 
   public static <T> T testCastImpl(T t) throws Exception {
+    T ret = t;
     log.debug("CHECK:{} / {}", t, t instanceof JSONObject);
-    return null;
+    return ret;
   }
 }

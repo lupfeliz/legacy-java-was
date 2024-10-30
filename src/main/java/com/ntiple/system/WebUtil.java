@@ -1,8 +1,7 @@
 /**
  * @File        : WebUtil.java
- * @Version     : $Rev$
  * @Author      : 정재백
- * @History     : 2023-09-04 최초 작성
+ * @Since       : 2024-10-04
  * @Description : 웹유틸
  * @Site        : https://gitlab.ntiple.com/developers
  **/
@@ -16,6 +15,8 @@ import static com.ntiple.commons.Constants.X_FORWARDED_FOR;
 import static com.ntiple.commons.ConvertUtil.asList;
 import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.ConvertUtil.cat;
+import static com.ntiple.commons.ConvertUtil.convert;
+import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.IOUtils.passthrough;
 import static com.ntiple.commons.IOUtils.reader;
@@ -43,6 +44,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ntiple.commons.ConvertUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -317,14 +319,39 @@ public class WebUtil {
     return ret;
   }
 
+  public static JSONObject params() {
+    return params(curRequest());
+  }
   public static JSONObject params(HttpServletRequest req) {
     return params(req, new JSONObject());
   }
 
   public static <T> T params(HttpServletRequest req, T t) {
+    Map<String, String[]> pmap = req.getParameterMap();
     Object ret = null;
     if (t != null) {
-
+      if (t instanceof JSONObject) {
+        JSONObject obj = new JSONObject();
+        for (String key : pmap.keySet()) {
+          String[] val = pmap.get(key);
+          if (val != null && val.length > 0) { obj.put(key, val[0]); }
+        }
+        ret = obj;
+      } else if (t instanceof Map) {
+        Map<String, Object> obj = newMap();
+        for (String key : pmap.keySet()) {
+          String[] val = pmap.get(key);
+          if (val != null && val.length > 0) { obj.put(key, val[0]); }
+        }
+        ret = obj;
+      } else {
+        Map<String, Object> obj = newMap();
+        for (String key : pmap.keySet()) {
+          String[] val = pmap.get(key);
+          if (val != null && val.length > 0) { obj.put(key, val[0]); }
+        }
+        ret = convert(obj, t);
+      }
     }
     return cast(ret, t);
   }
