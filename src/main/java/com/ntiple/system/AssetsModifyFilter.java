@@ -42,11 +42,12 @@ import de.larsgrefer.sass.embedded.SassCompilerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component
-public class ScssFilter implements Filter {
+public class AssetsModifyFilter implements Filter {
 
   @Autowired private Settings settings;
 
   private static final Pattern PTN_SCSS = Pattern.compile("^(.*[.]scss)([?].+){0,1}$");
+  private static final Pattern PTN_SCRIPT = Pattern.compile("^.*(/assets/scripts/[^.]+[.]js)([?].+){0,1}$");
 
   private static final long CACHE_INTERVAL = 1000 * 60 * 60;
 

@@ -4,7 +4,7 @@
   메인페이지
   <div>{{ vars.message }}</div>
   <template v-if="vars.test"> ABCD </template>
-  <button class="btn btn-primary" @:click="vars.clicked">
+  <button class="btn btn-primary" @click="vars.clicked">
     OK
   </button>
   <div>

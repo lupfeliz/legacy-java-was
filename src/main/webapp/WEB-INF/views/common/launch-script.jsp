@@ -19,12 +19,12 @@ Vue.createApp({
       message: "hello!",
       test: false,
     });
-    initEntryScript(function($$ctx$$) {
-      const log = $$ctx$$.log
+    initEntryScript(function(context) {
+      const log = context.log
       <ex:script-names var="scripts"/>
-      <c:forEach items="${scripts}" var="itm">
-        <c:if test="${itm != '#launcher#'}">
-        try { <ex:script name="${itm}" /> } catch (e) { log.debug("E:", e); }
+      <c:forEach items="${scripts}" var="name">
+        <c:if test="${name != '#launcher#'}">
+        try { <ex:script name="${name}" /> } catch (e) { log.debug("E:", e); }
         </c:if>
       </c:forEach>
     });
