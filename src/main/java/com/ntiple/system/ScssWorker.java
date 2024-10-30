@@ -7,7 +7,13 @@
  **/
 package com.ntiple.system;
 
+import static com.ntiple.commons.IOUtils.safeclose;
+
 import java.io.File;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import javax.annotation.PostConstruct;
 
@@ -46,23 +52,48 @@ public class ScssWorker {
     }
   }
 
+  private static boolean minify(Reader input, Writer output) throws Exception {
+    net.logicsquad.minifier.css.CSSMinifier min = null;
+    try {
+      min = new net.logicsquad.minifier.css.CSSMinifier(input);
+      min.minify(output);
+      return true;
+    } catch (Exception e) {
+      log.debug("E:", e);
+    }
+    return false;
+  }
+
   public String work(String content) {
     String ret = content;
+    StringReader input = null;
+    StringWriter output = null;
     try {
       CompileSuccess cs = sc.compileScssString(content);
-      ret = cs.getCss();
+      input = new StringReader(cs.getCss());
+      output = new StringWriter();
+      minify(input, output);
+      ret = output.toString();
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;
+    } finally {
+      safeclose(output);
+      safeclose(input);
     }
     return ret;
   }
 
   public String work(File file) {
     String ret = "";
+    StringReader input = null;
+    StringWriter output = null;
     try {
       CompileSuccess cs = sc.compileFile(file);
-      ret = cs.getCss();
+      input = new StringReader(cs.getCss());
+      output = new StringWriter();
+      minify(input, output);
+      ret = output.toString();
     } catch (Exception e) {
       log.debug("E:", e);
     }

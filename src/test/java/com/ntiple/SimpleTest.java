@@ -15,10 +15,12 @@ import static com.ntiple.commons.IOUtils.istream;
 import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.IOUtils.writer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.regex.Pattern;
 
@@ -277,5 +279,22 @@ public class SimpleTest {
     T ret = t;
     log.debug("CHECK:{} / {}", t, t instanceof JSONObject);
     return ret;
+  }
+
+  @Test
+  public void testMinifier() throws Exception {
+    if (!TestUtil.isEnabled("testMinifier", TestLevel.MANUAL)) { return; }
+    net.logicsquad.minifier.js.JSMinifier min = null;
+    Reader input = null;
+    Writer output = null;
+    try {
+      input = reader(file("/home/coder/documents/tmp/minify-7196260321170045552.js"), UTF8);
+      output = writer(file("/home/coder/documents/tmp/test.js"), UTF8);
+      min = new net.logicsquad.minifier.js.JSMinifier(input);
+      min.minify(output);
+    } finally {
+      safeclose(input);
+      safeclose(output);
+    }
   }
 }
