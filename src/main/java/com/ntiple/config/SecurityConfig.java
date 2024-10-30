@@ -76,6 +76,10 @@ public class SecurityConfig {
     List<RequestMatcher> reqWebLst = new ArrayList<>();
 
     reqPubLst.addAll(asList(
+      matcher(GET, "/"),
+      matcher(GET, "/smp/**"),
+      matcher(POST, "/smp/**"),
+      matcher(GET, "/assets/**"),
       /** GET /api/cmn/* (공용API) */
       matcher(GET, "/api/cmn/**"),
       /** GET /api/usr/usr01001a01/** (마이페이지) */
@@ -111,14 +115,10 @@ public class SecurityConfig {
       matcher(null, "/api/**")
     ));
 
-    reqWebLst.addAll(asList(
-      /** 기타 GET 메소드로 접근하는 모든 웹 리소스 URL */
-      // matcher(GET, "/**")
-      matcher(GET, "/"),
-      matcher(GET, "/mai/**"),
-      matcher(POST, "/mai/**"),
-      matcher(GET, "/assets/**")
-    ));
+    // reqWebLst.addAll(asList(
+    //   /** 기타 GET 메소드로 접근하는 모든 웹 리소스 URL */
+    //   matcher(GET, "/**")
+    // ));
 
     final RequestMatcher[] reqPub = reqPubLst.toArray(new RequestMatcher[]{ });
     final RequestMatcher[] reqMbr = reqMbrLst.toArray(new RequestMatcher[]{ });
