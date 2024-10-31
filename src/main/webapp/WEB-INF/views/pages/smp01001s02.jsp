@@ -17,7 +17,7 @@
 <ex:script name="smp01001s02">
 <script>
 log.debug("MAIN-PAGE-LOADED!");
-vars.value.clicked = async function(e) {
+vars.clicked = async function(e) {
   $("form[name='form']")
     .attr("method", "post")
     .attr("enctype", "application/x-www-form-urlencoded")

@@ -13,5 +13,82 @@ html#project {
     &.hide-onload {
       opacity: 0;
     }
+    /** [ 유틸리티 (from tailwind-css) */
+    .mx-1 {
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+    }
+
+    .my-1 {
+      margin-top: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .mt-8 {
+      margin-top: 2rem;
+    }
+
+    .mt-10 {
+      margin-top: 2.5rem;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .overflow-hidden {
+      overflow: hidden;
+    }
+
+    .overflow-x-auto {
+      overflow-x: auto;
+    }
+
+    .inline-block {
+      display: inline-block;
+    }
+
+    .hidden {
+      display: hidden;
+    }
+
+    .flex {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+    }
+
+    .justify-center {
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+    }
+
+    .w-screen {
+      width: 100vw;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    .max-w-1\/2 {
+      max-width: calc(50%);
+    }
+
+    .max-w-2\/3 {
+      max-width: calc(100% * 2 / 3);
+    }
+
+    .red {
+      background-color: #f00;
+    }
+    /** ] 유틸리티 (from tailwind-css) */
   }
 }

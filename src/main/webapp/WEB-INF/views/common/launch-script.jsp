@@ -136,15 +136,14 @@ createApp({
       })
 
       /** [ 페이지 스크립트 실행 */
-      initEntryScript(function(prm) {
-        for (const k in prm.log) { log[k] = prm.log[k]; }
+      initEntryScript(async function(vars, log) {
         <ex:script-names var="scripts"/>
         <c:forEach items="${scripts}" var="name">
           <c:if test="${name != '#launcher#'}">
           try { <ex:script name="${name}" /> } catch (e) { log.debug("E:", e); }
           </c:if>
         </c:forEach>
-      });
+      }, vars.value, log);
       /** ] 페이지 스크립트 실행 */
       return {
         vars: vars,
