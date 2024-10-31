@@ -22,7 +22,13 @@ vars.value.clicked = async function(e) {
     .attr("method", "post")
     .attr("enctype", "application/x-www-form-urlencoded")
     .submit();
-  await log.debug("OK");
 };
+setTimeout(async function() {
+  if (await dialog.confirm("확실한가요?")) {
+    console.log("예");
+  } else {
+    console.log("아니오");
+  }
+}, 3000);
 </script>
 </ex:script>

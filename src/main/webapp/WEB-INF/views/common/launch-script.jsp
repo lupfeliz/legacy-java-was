@@ -50,14 +50,29 @@ setTimeout(function() {
 setTimeout(function() {
 const createApp = Vue.createApp;
 const ref = Vue.ref;
+const watch = Vue.watch;
 const useTemplateRef = Vue.useTemplateRef;
+const nextTick = Vue.nextTick;
 /** 레이어팝업 제어 */
 const dialogvars = ref({
   modal: {
     element: {},
     instance: {},
     current: {},
-    queue: []
+    queue: [],
+    click: function(cmd) {
+      const modal = dialogvars.value.modal
+      switch (modal.current.type) {
+      case 'alert':
+        if (modal.current.resolve) { modal.current.resolve(true) }
+        break
+      case 'confirm':
+        if (modal.current.resolve) { modal.current.resolve(cmd === 1 ? true : false) }
+        break
+      }
+      modal.current = { }
+      modal.instance.hide()
+    }
   },
   progress: {
     element: {},
@@ -71,10 +86,55 @@ const vars = ref({ });
 const log = { };
 
 const dialogref = ref();
+const dialog = {
+  alert: function (msg) { return new Promise(function (resolve) {
+    dialogvars.value.modal.queue.push({
+      type: 'alert',
+      msg: msg,
+      resolve
+    });
+  }) },
+  confirm: function (msg) { return new Promise(function (resolve) {
+    dialogvars.value.modal.queue.push({
+      type: 'confirm',
+      msg: msg,
+      resolve
+    });
+  }) },
+  progress: function (vis, timeout) { return new Promise(function (resolve) {
+    if (vis === undefined) { vis = true }
+    dialogvars.progress.queue.push({
+      vis: vis,
+      timeout: timeout,
+      resolve
+    });
+  }) },
+}
+
+function doModal() {
+  nextTick(function() {
+    const modal = dialogvars.value.modal;
+    if (!modal.instance.show) { return; }
+    if (modal.queue.length > 0) {
+      const item = modal.queue.splice(0, 1)[0];
+      modal.current = item;
+      modal.instance.show();
+    }
+  });
+}
 
 createApp({
-  setup(props, context) {
+  setup: function(props, context) {
     try {
+
+      watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
+        if (o == 0 && n > 0) { doModal() }
+      })
+
+      watch(function() { return dialogvars.value.progress.queue.length }, function(n, o) {
+        if (o == 0 && n > 0) { doOverlay() }
+      })
+
       /** [ 페이지 스크립트 실행 */
       initEntryScript(function(prm) {
         for (const k in prm.log) { log[k] = prm.log[k]; }
@@ -94,7 +154,7 @@ createApp({
       log.debug("E:", e);
     }
   },
-  mounted() {
+  mounted: async function() {
     /** [ 레이어팝업 관련 스크립트 */
     dialogvars.value.modal.instance = new bootstrap.Modal(this.$refs["dialogvars.modal.ref"], {});
     dialogvars.value.progress.instance = new bootstrap.Modal(this.$refs["dialogvars.progress.ref"], {});

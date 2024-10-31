@@ -27,7 +27,7 @@
           <template v-if="dialogvars.modal.current.type === 'alert'">
             <Button
               class="btn btn-primary"
-              @click="click(1)"
+              @click="dialogvars.modal.click(1)"
               >
               확인
             </Button>
@@ -35,13 +35,13 @@
           <template v-if="dialogvars.modal.current.type === 'confirm'">
             <Button
               class="btn btn-primary mx-1"
-              @click="click(1)"
+              @click="dialogvars.modal.click(1)"
               >
               확인
             </Button>
             <Button
               class="btn btn-secondary mx-1"
-              @click="click(2)"
+              @click="dialogvars.modal.click(2)"
               >
               취소
             </Button>
