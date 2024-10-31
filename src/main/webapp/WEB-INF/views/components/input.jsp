@@ -9,8 +9,6 @@
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
-<ex:script name="#input#">
-<script>
+<script:ex name="#input#">
 log.debug("입력컴포넌트");
-</script>
-</ex:script>
+</script:ex>

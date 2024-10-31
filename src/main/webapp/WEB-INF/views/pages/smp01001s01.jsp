@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
-<ex:page>
+<page:ex>
   샘플페이지 01
   <template v-if="vars.test"> ABCD </template>
   <form name="form" action="/smp/smp01001s02">
@@ -22,9 +22,8 @@
   </button>
   <div>
   </div>
-</ex:page>
-<ex:script name="smp01001s01">
-<script>
+</page:ex>
+<script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
 vars.doAlert = async function() {
   dialog.alert("알림!");
@@ -45,5 +44,4 @@ vars.doSubmit = async function() {
     .attr("enctype", "application/x-www-form-urlencoded")
     .submit();
 };
-</script>
-</ex:script>
+</script:ex>

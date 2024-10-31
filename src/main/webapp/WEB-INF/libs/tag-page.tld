@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+@File        : tag-page.tld
+@Author      : 정재백
+@Since       : 2024-10-26 
+@Description : 커스텀 태그 샘플
+@Site        : https://devlog.ntiple.com
+-->
+<taglib version="2.0" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd">
+  <tlib-version>1.0</tlib-version>
+  <short-name>tag-page-tld</short-name>
+  <tag>
+    <!-- 단순 페이지 구분용 비기능 태그 -->
+    <name>ex</name>
+    <tag-class>com.ntiple.system.CustomTags$SimpleTag</tag-class>
+    <body-content>scriptless</body-content>
+  </tag>
+</taglib>

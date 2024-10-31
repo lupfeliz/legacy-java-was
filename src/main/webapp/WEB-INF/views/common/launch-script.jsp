@@ -9,8 +9,7 @@
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
-<ex:script name="#launcher#">
-<script>
+<script:ex name="#launcher#">
 /** window 에 중요 변수들이 바인드 되지 않도록 setTimeout 상에서 실행한다. */
 setTimeout(function() {
   /** [ 리소스 구동적재 대기 스크립트 --%>*/
@@ -250,10 +249,10 @@ createApp({
 
       /** [ 페이지 스크립트 실행 */
       initEntryScript(async function(vars, log) {
-        <ex:script-names var="scripts"/>
+        <script:names var="scripts"/>
         <c:forEach items="${scripts}" var="name">
           <c:if test="${name != '#launcher#'}">
-          try { <ex:script name="${name}" /> } catch (e) { log.debug("E:", e); }
+          try { <script:ex name="${name}" /> } catch (e) { log.debug("E:", e); }
           </c:if>
         </c:forEach>
       }, vars.value, log);
@@ -283,7 +282,6 @@ createApp({
 //  },
 //}).mount($(document.body).find("> footer")[0]);
 }, 0)
-</script>
-</ex:script>
+</script:ex>
 <%-- 실제 #launcher# 스크립트 가 브라우저에 뿌려지는 곳 --%>
-<script><ex:script name="#launcher#" /></script>
+<script><script:ex name="#launcher#" /></script>

@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
-<ex:page>
+<page:ex>
   샘플페이지 02
   <div>{{ vars.message }}</div>
   <template v-if="vars.test"> ABCD </template>
@@ -13,9 +13,8 @@
   </button>
   <div>
   </div>
-</ex:page>
-<ex:script name="smp01001s02">
-<script>
+</page:ex>
+<script:ex name="smp01001s02">
 log.debug("MAIN-PAGE-LOADED!");
 vars.clicked = async function(e) {
   $("form[name='form']")
@@ -24,5 +23,4 @@ vars.clicked = async function(e) {
     .submit();
   await log.debug("OK");
 };
-</script>
-</ex:script>
+</script:ex>
