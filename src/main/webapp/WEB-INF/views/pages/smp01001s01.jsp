@@ -7,6 +7,9 @@
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
   </form>
+  <button class="btn btn-primary mx-1" @click="vars.doProgress()">
+    대기
+  </button>
   <button class="btn btn-primary mx-1" @click="vars.doAlert()">
     경고팝업
   </button>
@@ -25,23 +28,25 @@
 </page:ex>
 <script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
-vars.doAlert = async function() {
-  dialog.alert("알림!");
-};
-vars.doConfirm = async function() {
-  if (await dialog.confirm("확실한가요?")) {
-    vars.message = "예";
-  } else {
-    vars.message = "아니오";
+putAll(vars, {
+  doAlert: async function() {
+    dialog.alert("알림!");
+  },
+  doConfirm: async function() {
+    if (await dialog.confirm("확실한가요?")) {
+      vars.message = "예";
+    } else {
+      vars.message = "아니오";
+    }
+  },
+  doWinpopup: async function() {
+    dialog.winpopup('about:blank', {});
+  },
+  doSubmit: async function() {
+    $("form[name='form']")
+      .attr("method", "post")
+      .attr("enctype", "application/x-www-form-urlencoded")
+      .submit();
   }
-};
-vars.doWinpopup = async function() {
-  dialog.winpopup('about:blank', {});
-};
-vars.doSubmit = async function() {
-  $("form[name='form']")
-    .attr("method", "post")
-    .attr("enctype", "application/x-www-form-urlencoded")
-    .submit();
-};
+});
 </script:ex>
