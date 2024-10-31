@@ -48,7 +48,8 @@ putAll(vars, {
     }
   },
   doWinpopup: async function() {
-    dialog.winpopup('about:blank', {});
+    // dialog.winpopup('about:blank', {});
+    dialog.winpopup('/smp/smp01001s02', {});
   },
   doSubmit: async function() {
     $("form[name='form']")

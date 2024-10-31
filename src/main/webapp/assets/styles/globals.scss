@@ -5,91 +5,33 @@
  * @Description : 전역 스타일시트
  * @Site        : https://devlog.ntiple.com
  **/
+
+
 html#project {
+  /** 정확한 포커스 이동 타이밍 등을 계산하기 위한 트랜지션 시간 선언 */
+  --modal-fade-transition-time: 0.2s;
+  --body-fade-transition-time: 0.2s;
   > body {
     font-family: 'Pretendard';
-    transition: opacity 0.2s 0.2s ease;
+    transition: opacity var(--body-fade-transition-time) var(--body-fade-transition-time) ease;
     display: block;
     &.hide-onload {
       opacity: 0;
     }
-    /** [ 유틸리티 (from tailwind-css) */
-    .mx-1 {
-      margin-left: 0.25rem;
-      margin-right: 0.25rem;
-    }
 
-    .my-1 {
-      margin-top: 0.25rem;
-      margin-bottom: 0.25rem;
+    /** [ modal 관련 */
+    > .modal.fade {
+      transition: all var(--modal-fade-transition-time) ease-out;
+      > .modal-dialog {
+        transition: all var(--modal-fade-transition-time) ease-out;
+        display: flex;
+        justify-content: center;
+        > .modal-content {
+          width: auto;
+          min-width: 10rem;
+        }
+      }
     }
-
-    .mt-8 {
-      margin-top: 2rem;
-    }
-
-    .mt-10 {
-      margin-top: 2.5rem;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    .overflow-hidden {
-      overflow: hidden;
-    }
-
-    .overflow-x-auto {
-      overflow-x: auto;
-    }
-
-    .inline-block {
-      display: inline-block;
-    }
-
-    .hidden {
-      display: hidden;
-    }
-
-    .flex {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-    }
-
-    .justify-center {
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      -webkit-justify-content: center;
-      justify-content: center;
-    }
-
-    .w-screen {
-      width: 100vw;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .max-w-1\/2 {
-      max-width: calc(50%);
-    }
-
-    .max-w-2\/3 {
-      max-width: calc(100% * 2 / 3);
-    }
-
-    .red {
-      background-color: #f00;
-    }
-    /** ] 유틸리티 (from tailwind-css) */
     .modal.com-progress > .modal-dialog > .modal-content {
       background: none;
       border: none;
@@ -106,5 +48,6 @@ html#project {
         transform: none !important;
       }
     }
+    /** ] modal 관련 */
   }
 }

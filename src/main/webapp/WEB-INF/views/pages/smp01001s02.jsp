@@ -16,11 +16,20 @@
 </page:ex>
 <script:ex name="smp01001s02">
 log.debug("MAIN-PAGE-LOADED!");
+
+/** 팝업판단은 opener 로 한다 */
+if (opener) {
+  const odata = getOpenerTmp(getParameter("tid"));
+  log = odata.OPENER_LOG;
+  log.debug("OK");
+};
+
+// getOpenerTmp();
 vars.clicked = async function(e) {
-  $("form[name='form']")
-    .attr("method", "post")
-    .attr("enctype", "application/x-www-form-urlencoded")
-    .submit();
-  await log.debug("OK");
+  // $("form[name='form']")
+  //   .attr("method", "post")
+  //   .attr("enctype", "application/x-www-form-urlencoded")
+  //   .submit();
+  log.debug("OK");
 };
 </script:ex>

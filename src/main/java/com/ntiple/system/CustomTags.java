@@ -60,7 +60,8 @@ public class CustomTags  {
       JspWriter out = this.getJspContext().getOut();
       if (name == null) { name = "ROOT"; }
       // log.debug("BODY:{}", body);
-      if (body != null) {
+      if (body != null && !store.containsKey(name)) {
+        /** name 이 중복된다면 최초 스크립트만 저장된다. */
         StringWriter sw = new StringWriter();
         body.invoke(sw);
         String str = String.valueOf(sw).trim();

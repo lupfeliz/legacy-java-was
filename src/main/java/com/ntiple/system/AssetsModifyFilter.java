@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,8 +66,10 @@ public class AssetsModifyFilter implements Filter {
       OutputStream ostream = null;
       FileWriter fw = null;
       try {
-        File rfile = file(req.getServletContext().getResource(uri).getFile());
-        if (rfile.exists()) {
+        URL rsc = req.getServletContext().getResource(uri);
+        // log.debug("RSC:{}", rsc);
+        File rfile = null;
+        if (rsc != null && (rfile = file(rsc.getFile())) != null && rfile.exists()) {
           String content = "";
           // File cache = file(Application.class.getClassLoader().getResource("").getFile(), "log", uri);
           File cbase = rfile.getParentFile();

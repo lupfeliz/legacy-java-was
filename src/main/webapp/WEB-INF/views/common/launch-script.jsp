@@ -52,8 +52,27 @@ const ref = Vue.ref;
 const watch = Vue.watch;
 const useTemplateRef = Vue.useTemplateRef;
 const nextTick = Vue.nextTick;
-const M_SHOWN = 'shown.bs.modal';
-const M_HIDDEN = 'hidden.bs.modal';
+const M_SHOWN = "shown.bs.modal";
+const M_HIDDEN = "hidden.bs.modal";
+/** 공통프로퍼티 */
+const appvars = {
+  astate: 0,
+  gstate: 0,
+  tstate: {},
+  uidseq: 0,
+  router: {},
+  config: {
+    app: { profile: "", basePath: "" },
+    api: [{ base: "", alter: "", server: "", timeout: 0 }],
+    auth: { expiry: 0 },
+    security: {
+      key: { rsa: { public: "", private: "" } }
+    }
+  },
+  global: { },
+  MaterialStyle: {}
+};
+
 /** 레이어팝업 제어 */
 const dialogvars = ref({
   modal: {
@@ -64,10 +83,10 @@ const dialogvars = ref({
     click: function(cmd) {
       const modal = dialogvars.value.modal;
       switch (modal.current.type) {
-      case 'alert': {
+      case "alert": {
         if (modal.current.resolve) { modal.current.resolve(true); };
       } break;
-      case 'confirm': {
+      case "confirm": {
         if (modal.current.resolve) { modal.current.resolve(cmd === 1 ? true : false); };
       } break; };
       modal.current = { };
@@ -81,7 +100,7 @@ const dialogvars = ref({
     queue: [],
     handlevis: function(e) {
       const current = dialogvars.value.progress.current;
-      if (current?.resolve) {
+      if (current && current.resolve) {
         current.resolve();
         current.state = e.type;
         dialogvars.value.progress.current = {};
@@ -97,6 +116,9 @@ const dialogvars = ref({
 const vars = ref({ });
 /** 로그 */
 const log = { };
+
+/** 앱 내 유일키 생성 */
+function genId() { return (new Date().getTime()) + String((appvars.uidseq = (appvars.uidseq + 1) % 1000) + 1000).substring(1, 4) };
 
 /** 최소(min)~최대(max)값 사이의 난수 생성, 최소값을 입력하지 않을경우 자동으로 0 으로 지정됨 */
 function getRandom(max, min) {
@@ -127,18 +149,18 @@ function randomStr(length, type) {
   case "alpha": {
     for (let inx = 0; inx < length; inx++) {
       switch(getRandom(2)) {
-      case 0: /** 소문자 */ { ret += randomChar("a", 26) } break;
-      case 1: /** 대문자 */ { ret += randomChar("A", 26) } break;
+      case 0: /** 소문자 */ { ret += randomChar("a", 26); } break;
+      case 1: /** 대문자 */ { ret += randomChar("A", 26); } break;
       }
     }
   } break;
   /** 영숫자 */
   case "alphanum": {
     for (let inx = 0; inx < length; inx++) {
-      switch(values.getRandom(3)) {
-      case 0: /** 숫자   */ { ret += String(getRandom(10)) } break;
-      case 1: /** 소문자 */ { ret += randomChar("a", 26) } break;
-      case 2: /** 대문자 */ { ret += randomChar("A", 26) } break;
+      switch(getRandom(3)) {
+      case 0: /** 숫자   */ { ret += String(getRandom(10)); } break;
+      case 1: /** 소문자 */ { ret += randomChar("a", 26); } break;
+      case 2: /** 대문자 */ { ret += randomChar("A", 26); } break;
       }
     }
   } break; };
@@ -153,12 +175,12 @@ function putAll(_target, source, opt) {
     const titem = target[k];
     const sitem = source[k];
     if (titem !== undefined && titem !== null) {
-      if (typeof (titem) === 'string') {
+      if (typeof (titem) === "string") {
         target[k] = source[k]
       } else if (((opt ? opt : {}).deep) && titem instanceof Array && sitem instanceof Array) {
-        values.putAll(titem, sitem, opt)
-      } else if (((opt ? opt : {}).deep) && typeof(titem) === 'object' && typeof(sitem) === 'object') {
-        values.putAll(titem, sitem, opt)
+        putAll(titem, sitem, opt)
+      } else if (((opt ? opt : {}).deep) && typeof(titem) === "object" && typeof(sitem) === "object") {
+        putAll(titem, sitem, opt)
       } else {
         /** 타입이 다르다면 무조건 치환. */
         target[k] = source[k];
@@ -169,25 +191,94 @@ function putAll(_target, source, opt) {
   };
   return target;
 };
-
+function getParameter(key) {
+  let ret = undefined;
+  const prm = { };
+  let o;
+  try {
+    const d1 = String(((o = history) && (o = o.state) && (o = o.url)) ? o : "").split(/[/]/);
+    const d2 = String(((o = history) && (o = o.state) && (o = o.as)) ? o : "").split(/[/]/);
+    let len = d1.length > d2.length ? d1.length : d2.length;
+    for (let inx = 0; inx < len; inx++) {
+      if (/[\[]([a-zA-Z0-9_-]+)[\]]/.test(d1[inx] || "")) {
+        prm[d1[inx].substring(1, d1[inx].length - 1)] = d2[inx];
+      };
+    };
+  } catch (e) {
+    log.debug("E:", e);
+  };
+  if ((o = history) && (o = o.state) && (o = o.options)) {
+    for (const k of Object.keys(o)) { prm[k] = o[k]; };
+  };
+  if ((o = location.search) && (o = new URLSearchParams(o))) {
+    for (const k of o.keys()) { prm[k] = o.get(k); };
+  };
+  if (Object.keys(prm).length > 0) { log.debug("PRM:", prm, history); };
+  ret = key ? prm[key] : prm;
+  return ret;
+};
+function getUrl() { return location.href; };
+function getUri() {
+  let ret = "/";
+  let o;
+  if (appvars.astate) {
+    ret = String(((o = history) && (o = o.state) && (o = o.url)) ? o :  "/").replace(/[?].*$/g, "");
+  }
+  return ret;
+};
 function setGlobalTmp(value) {
-  const tid = randomStr(10, 'alpha');
+  const tid = randomStr(10, "alphanum");
   window[tid] = function() { return value; };
   return tid;
+};
+function getGlobalTmp(tid) {
+  let ret = undefined;
+  const win = window;
+  if (win[tid]) {
+    ret = win[tid];
+    if (ret) { ret = ret(); };
+    delete win[tid];
+  };
+  return ret;
+};
+function setOpenerTmp(value) {
+  const tid = randomStr(10, "alphanum");
+  const win = window;
+  if (win && win.opener) {
+    win.opener[tid] = function() { return value; };
+  };
+  return tid;
+};
+function getOpenerTmp(tid) {
+  let ret = undefined;
+  const win = window;
+  if (win.opener && win.opener[tid]) {
+    ret = win.opener[tid];
+    if (ret) { ret = ret(); };
+    if (ret.$$POUPCTX$$) {
+      ret.$$POUPCTX$$.close = function() { window.close(); };
+      delete ret.$$POUPCTX$$;
+    };
+    delete win.opener[tid];
+  } else {
+    /** 오픈주체가 없으므로 창을 닫는다 */
+    window.close();
+  };
+  return ret;
 };
 
 const dialogref = ref();
 const dialog = {
   alert: function(msg) { return new Promise(function(resolve) {
     dialogvars.value.modal.queue.push({
-      type: 'alert',
+      type: "alert",
       msg: msg,
       resolve
     });
   }); },
   confirm: function(msg) { return new Promise(function(resolve) {
     dialogvars.value.modal.queue.push({
-      type: 'confirm',
+      type: "confirm",
       msg: msg,
       resolve
     });
@@ -210,6 +301,8 @@ const dialog = {
         delete winpopups.list[tid];
       };
     };
+    if (!data) { data = { }; };
+    data.OPENER_LOG = log;
     const tid = setGlobalTmp(data);
     const wm = Number(window.screen.availWidth);
     const hm = Number(window.screen.availHeight);
@@ -230,11 +323,12 @@ const dialog = {
       winpopups.list[tid] = { };
       data.$$POUPCTX$$ = winpopups.list[tid];
     };
-    let addr = url + "?tid=" + tid;
+    let addr = url;
+    if (/[?]/.test(addr)) { addr = addr + "&tid=" + tid; } else { addr = addr + "?tid=" + tid; };
     if (/^about:/.test(url)) { addr = url; };
     const popopts = "popup=true,width=" + width + ",height=" + height + ",left=" + left + ",top=" + top + ",menubar=" + menubar + "," +
       "scrollbars=" + scrollbars + ",status=" + status + ",location=" + location + ",resizable=" + resizable + "";
-    // log.debug("POPUP-OPTS:", popopts);
+    log.debug("POPUP-OPTS:", addr, target, popopts);
     const hnd = window.open(addr, target, popopts);
     // hnd.moveTo(left, top);
     // log.debug("HND:", hnd);
