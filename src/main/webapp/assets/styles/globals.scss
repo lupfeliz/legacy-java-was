@@ -90,5 +90,21 @@ html#project {
       background-color: #f00;
     }
     /** ] 유틸리티 (from tailwind-css) */
+    .modal.com-progress > .modal-dialog > .modal-content {
+      background: none;
+      border: none;
+      text-align: center;
+      overflow: visible;
+      display: block;
+      font-size:large;
+      color: #fff;
+    }
+    .modal.no-tran {
+      z-index: 10054;
+      > .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+      }
+    }
   }
 }

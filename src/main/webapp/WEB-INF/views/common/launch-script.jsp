@@ -52,6 +52,8 @@ const ref = Vue.ref;
 const watch = Vue.watch;
 const useTemplateRef = Vue.useTemplateRef;
 const nextTick = Vue.nextTick;
+const M_SHOWN = 'shown.bs.modal';
+const M_HIDDEN = 'hidden.bs.modal';
 /** 레이어팝업 제어 */
 const dialogvars = ref({
   modal: {
@@ -76,7 +78,16 @@ const dialogvars = ref({
     element: {},
     instance: {},
     current: {},
-    queue: []
+    queue: [],
+    handlevis: function(e) {
+      const current = dialogvars.value.progress.current;
+      if (current?.resolve) {
+        current.resolve();
+        current.state = e.type;
+        dialogvars.value.progress.current = {};
+      };
+      doProgress();
+    }
   },
   winpopups: {
     closeListener: function() { },
@@ -183,7 +194,7 @@ const dialog = {
   }); },
   progress: function(vis, timeout) { return new Promise(function(resolve) {
     if (vis === undefined) { vis = true };
-    dialogvars.progress.queue.push({
+    dialogvars.value.progress.queue.push({
       vis: vis,
       timeout: timeout,
       resolve
@@ -239,7 +250,7 @@ const dialog = {
           }
         }
       };
-      window.addEventListener("beforeunload", dialogvars.closeListener);
+      window.addEventListener("beforeunload", winpopups.closeListener);
     };
     return hnd;
   }
@@ -257,18 +268,43 @@ function doModal() {
   });
 };
 
+function doProgress() {
+  nextTick(function() {
+    const progress = dialogvars.value.progress;
+    if (!progress.instance.show) { return; };
+    if (progress.current.resolve) { return; };
+    if (progress.queue.length > 0) {
+      const item = progress.queue.splice(0, 1)[0];
+      if (
+        (progress.current.state == M_SHOWN && item.vis) ||
+        (progress.current.state == M_HIDDEN && !item.vis)) {
+        nextTick(doProgress);
+        return;
+      };
+      progress.current = item;
+      if (item.vis) {
+        if (!isNaN(Number(item.timeout))) {
+          setTimeout(function() {
+            dialog.progress(false);
+          }, Number(item.timeout));
+        };
+        progress.instance.show();
+      } else {
+        progress.instance.hide();
+      };
+    };
+  })
+};
+
 createApp({
   setup: function(props, context) {
     try {
-
       watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
         if (o == 0 && n > 0) { doModal(); };
       });
-
       watch(function() { return dialogvars.value.progress.queue.length }, function(n, o) {
-        if (o == 0 && n > 0) { doOverlay(); };
+        if (o == 0 && n > 0) { doProgress(); };
       });
-
       /** [ 페이지 스크립트 실행 */
       initEntryScript(async function(vars, log) {
         <script:names var="scripts"/>
@@ -289,9 +325,25 @@ createApp({
   },
   mounted: async function() {
     /** [ 레이어팝업 관련 스크립트 */
-    dialogvars.value.modal.instance = new bootstrap.Modal(this.$refs["dialogvars.modal.ref"], {});
-    dialogvars.value.progress.instance = new bootstrap.Modal(this.$refs["dialogvars.progress.ref"], {});
+    {
+      const modalref = this.$refs["dialogvars.modal.ref"];
+      const progressref = this.$refs["dialogvars.progress.ref"];
+      dialogvars.value.modal.instance = new bootstrap.Modal(modalref, {});
+      dialogvars.value.progress.instance = new bootstrap.Modal(progressref, {});
+      progressref.addEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
+      progressref.addEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
+      modalref.addEventListener(M_HIDDEN, doModal);
+    }
     /** ] 레이어팝업 관련 스크립트 */
+  },
+  beforeUnmount: async function() {
+    {
+      const modalref = this.$refs["dialogvars.modal.ref"];
+      const progressref = this.$refs["dialogvars.progress.ref"];
+      progressref.removeEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
+      progressref.removeEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
+      modalref.removeEventListener(M_HIDDEN, doModal);
+    }
   }
 }).mount(document.body);
 }, 0);

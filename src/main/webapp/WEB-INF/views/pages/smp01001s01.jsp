@@ -29,6 +29,14 @@
 <script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
 putAll(vars, {
+  doProgress: async function() {
+    setTimeout(function() {
+      log.debug("HIDE-OVERLAY...");
+      dialog.progress(false);
+    }, 3000);
+    log.debug("SHOW-OVERLAY...");
+    dialog.progress(true);
+  },
   doAlert: async function() {
     dialog.alert("알림!");
   },
