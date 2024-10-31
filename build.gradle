@@ -34,12 +34,23 @@ configurations {
   }
 }
 
+def NEXUS_REPO = System.env['NEXUS_REPO']
+def CURRENT_DIR = System.properties['user.dir']
+def DOTENV = new Properties()
+
+File ENVFILE = new File(CURRENT_DIR + '/.env')
+String envstr = ''
+if (ENVFILE != null && ENVFILE.exists()) {
+  InputStream is = new ByteArrayInputStream(ENVFILE.getText('UTF-8').getBytes())
+  DOTENV.load(is)
+  println('ENV.PROFILE:' + DOTENV.'PROFILE')
+}
+
 /**
  * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
  * export NEXUS_REPO=http://192.168.0.2:8081/repository/maven-public/
  **/
 repositories {
-  String NEXUS_REPO = System.env['NEXUS_REPO']
   if (NEXUS_REPO == null || ''.equals(NEXUS_REPO)) {
     println('USE MAVEN CENTRAL REPOSITORY')
     mavenCentral()
@@ -93,10 +104,6 @@ dependencies {
   runtimeOnly 'org.postgresql:postgresql'
   runtimeOnly 'com.h2database:h2'
   // compileOnly 'jdbc.tibero:tibero:6'
-
-  // implementation 'com.moodysalem:phantomjs-wrapper:3.1.3'
-  // implementation 'com.yahoo.platform.yui:yuicompressor:2.4.8'
-  // implementation 'com.google.javascript:closure-compiler:v20240317'
 
   implementation 'net.logicsquad:minifier:1.3'
 

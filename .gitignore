@@ -44,3 +44,4 @@ demo-app.db.mv.db
 test.log
 /log
 **/*.cache
+.env
