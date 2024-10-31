@@ -17,7 +17,7 @@
   </head>
   <body class="hide-onload">
     <tiles:insertAttribute name="header"/>
-    <main id="page-main" class="container">
+    <main class="container">
       <tiles:insertAttribute name="body"/>
     </main>
     <tiles:insertAttribute name="footer"/>

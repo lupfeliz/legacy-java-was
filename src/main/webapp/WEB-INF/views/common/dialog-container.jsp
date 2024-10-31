@@ -9,8 +9,9 @@
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
+
 <div
-  ref="modal"
+  ref="dialogvars.modal.ref"
   class="modal fade no-tran com-dialog"
   data-bs-backdrop="static"
   data-bs-keyboard="false"
@@ -21,9 +22,9 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body">
-        <p v-html="ctx.modal.current?.msg"></p>
+        <p v-html="dialogvars.modal.current.msg"></p>
         <div class="text-center">
-          <template v-if="ctx.modal.current?.type === C.ALERT">
+          <template v-if="dialogvars.modal.current.type === 'alert'">
             <Button
               class="btn btn-primary"
               @click="click(1)"
@@ -31,7 +32,7 @@
               확인
             </Button>
           </template>
-          <template v-if="ctx.modal.current?.type === C.CONFIRM">
+          <template v-if="dialogvars.modal.current.type === 'confirm'">
             <Button
               class="btn btn-primary mx-1"
               @click="click(1)"
@@ -51,7 +52,7 @@
   </div>
 </div>
 <div
-  ref="progress"
+  ref="dialogvars.progress.ref"
   class="modal fade no-tran com-progress"
   data-bs-backdrop="static"
   data-bs-keyboard="false"

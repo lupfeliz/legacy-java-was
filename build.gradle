@@ -1,3 +1,22 @@
+/**
+ * @File        : build.gradle
+ * @Author      : 정재백
+ * @Since       : 2024-10-28
+ * @Description : gradle 빌드파일
+ * @Site        : https://devlog.ntiple.com
+ *
+ * 다음과 같이 실행 및 빌드를 수행한다.
+ *
+ * 실행 (local)
+ * > gradlew bootRun -Dspring.profiles.active=local
+ *
+ * 빌드 (빌드시에는 프로파일 지정이 무의미하다.)
+ * > gradlew build
+ * 
+ * 테스트
+ * > gradlew cleanTest test -Dproject.build.test=MANUAL -i --no-watch-fs --tests "{패키지}.{클래스}.{메소드 또는 *}"
+ **/
+
 plugins {
   id 'org.springframework.boot' version '2.7.18'
   id 'io.spring.dependency-management' version '1.1.5'
@@ -15,9 +34,23 @@ configurations {
   }
 }
 
+/**
+ * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
+ * export NEXUS_REPO=http://192.168.0.2:8081/repository/maven-public/
+ **/
 repositories {
-  mavenCentral()
-  maven { url 'https://repo.spring.io/milestone' }
+  String NEXUS_REPO = System.env['NEXUS_REPO']
+  if (NEXUS_REPO == null || ''.equals(NEXUS_REPO)) {
+    println('USE MAVEN CENTRAL REPOSITORY')
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+  } else {
+    println('USE NEXUS REPOSITORY : ' + NEXUS_REPO)
+    maven {
+      url NEXUS_REPO
+      allowInsecureProtocol = true
+    }
+  }
 }
 
 dependencies {
@@ -95,13 +128,11 @@ build {
 
 /** sass 컴파일러 warning 제거 */
 // tasks.compileTestJava { enabled = false }
-// tasks.withType(JavaCompile) { options.warnings = false }
+tasks.withType(JavaCompile) { options.warnings = false }
 
 test {
-  // beforeTest { descriptor -> logger.lifecycle('Running test: ${descriptor}') }
   String tstlvl = System.properties['project.build.test']
   if (tstlvl == null || ''.equals(tstlvl)) { tstlvl = 'SIMPLE' }
-  // println('TEST-LEVEL:' + tstlvl)
   systemProperty('build.test', tstlvl)
   reports.html.required = false
 }
