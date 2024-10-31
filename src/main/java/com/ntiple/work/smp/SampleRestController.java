@@ -13,9 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ntiple.work.cmn.CommonEntity.Login;
+
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Slf4j @RestController @RequestMapping({"/api/smp"})
 public class SampleRestController {
@@ -31,5 +36,11 @@ public class SampleRestController {
   @GetMapping("smp01001a01")
   public Object smp01001a01() throws Exception {
     return service.smp01001a01();
+  }
+
+  @Operation(summary = "테스트API (smp01001a02)", tags = { CONTROLLER_TAG1 })
+  @PostMapping("smp01001a02")
+  public Object smp01001a02(@RequestBody Login prm) {
+    return service.smp01001a02(prm);
   }
 }

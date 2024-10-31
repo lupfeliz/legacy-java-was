@@ -126,7 +126,7 @@ public class CommonEntity {
   @AllArgsConstructor
   @NoArgsConstructor
   @Getter @Setter @ToString @Builder
-  public static class Result {
+  public static class Result<T> {
     @Schema(title = "결과코드")
     public String rescd;
     @Schema(title = "오류코드")
@@ -134,7 +134,7 @@ public class CommonEntity {
     @Schema(title = "오류메시지")
     public String msg;
     @Schema(title = "결과데이터")
-    public Object data;
+    public T data;
   }
 
   @Schema(title = "로그인 요청 파라메터 (Login)")

@@ -7,6 +7,7 @@
  **/
 package com.ntiple.work.smp;
 
+import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.system.WebUtil.params;
 
@@ -15,6 +16,9 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
+
+import com.ntiple.work.cmn.CommonEntity.Login;
+import com.ntiple.work.cmn.CommonEntity.Result;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +41,15 @@ public class SampleService {
   }
 
   /** REST-API 용 서비스 */
-  public Object smp01001a01() throws Exception { 
+  public Map<String, Object> smp01001a01() throws Exception { 
     Map<String, Object> ret = newMap();
-    ret.put("RESULT", "OK");
+    return ret;
+  }
+
+  public Result<?> smp01001a02(Login prm) {
+    Result<?> ret = cast(Result.builder()
+      .msg("OK")
+      .build(), ret = null);
     return ret;
   }
 }
