@@ -6,21 +6,30 @@
  * @Site        : https://devlog.ntiple.com
  **/
 
-function $component_input(app) {
+function $component_input(param) {
+  const app = param.app;
+  const log = param.log;
   const name = "c-input";
   const CInput = {
     template: `
     \ <input
     \   class="form-control"
     \   :vrules=""
+    \   @keydown="onKeyDown"
     \   v-bind="attrs"
     \   />`,
     name: name,
     setup: function(props) {
-      const attrs = Vue.useAttrs();
-      return {
-        attrs: attrs,
+      const v = {
+        attrs: Vue.useAttrs(),
+        onKeyDown: async function(e) {
+          // log.debug("E:", e);
+          if (props.keydown) {
+            props.keydown(e);
+          };
+        }
       };
+      return v;
     }
   };
   app.component(name, CInput);

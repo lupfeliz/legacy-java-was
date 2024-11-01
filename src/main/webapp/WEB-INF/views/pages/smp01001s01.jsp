@@ -8,6 +8,9 @@
       @keydown="vars.onKeydown"
       />
   </div>
+  <div>
+  {{ vars.pricetext }}
+  </div>
   <template v-if="vars.test"> ABCD </template>
   <form name="form" action="${cbase}/smp/smp01001s02">
     <input type="hidden" name="value1" value="AAA" />
@@ -35,6 +38,7 @@
 <script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
 putAll(vars, {
+  pricetext: numToHangul('1234'),
   doProgress: async function() {
     setTimeout(function() {
       log.debug("HIDE-OVERLAY...");
