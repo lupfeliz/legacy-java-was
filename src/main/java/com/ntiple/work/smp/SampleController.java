@@ -23,6 +23,11 @@ public class SampleController {
     return service.smp01001s01();
   }
 
+  @RequestMapping({"/smp/smp01001p01"})
+  public String smp01001p01() throws Exception {
+    return service.smp01001p01();
+  }
+
   @RequestMapping({"/smp/smp01001s02"})
   public String smp01001s02() throws Exception {
     return service.smp01001s02();

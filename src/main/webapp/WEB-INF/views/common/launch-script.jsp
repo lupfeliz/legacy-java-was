@@ -417,7 +417,7 @@ function initpopup() {
   return {};
 };
 
-createApp({
+const vueapp = createApp({
   setup: function(props, context) {
     try {
       watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
@@ -466,7 +466,9 @@ createApp({
       modalref.removeEventListener(M_HIDDEN, doModal);
     }
   }
-}).mount(document.body);
+});
+$component_input(vueapp);
+vueapp.mount(document.body);
 }, 0);
 </script:ex>
 <%-- 실제 #launcher# 스크립트 가 브라우저에 뿌려지는 곳 --%>

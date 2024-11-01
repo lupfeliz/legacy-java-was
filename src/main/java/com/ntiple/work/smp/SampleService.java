@@ -40,6 +40,11 @@ public class SampleService {
     return "/smp01001s02";
   }
 
+  public String smp01001p01() {
+    log.debug("CHECK-PARAM:{}", params());
+    return "/smp01001p01";
+  }
+
   /** REST-API 용 서비스 */
   public Map<String, Object> smp01001a01() throws Exception { 
     Map<String, Object> ret = newMap();

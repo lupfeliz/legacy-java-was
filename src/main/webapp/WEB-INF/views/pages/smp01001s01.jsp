@@ -3,7 +3,7 @@
 <page:ex>
   샘플페이지 01 [${cbase}]
   <div>
-    <input
+    <c-input
       :value="vars.message"
       @keydown="vars.onKeydown"
       />
@@ -25,7 +25,7 @@
   <button class="btn btn-primary mx-1" @click="vars.doWinpopup()">
     물리팝업
   </button>
-  <div>[{{ vars.message }}]</div>
+  <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
   <button class="btn btn-primary mx-1" @click="vars.doSubmit()">
     SUBMIT
   </button>
@@ -54,7 +54,7 @@ putAll(vars, {
     }
   },
   doWinpopup: async function() {
-    dialog.winpopup("/smp/smp01001s02", vars);
+    dialog.winpopup("/smp/smp01001p01", vars);
   },
   doSubmit: async function() {
     $("form[name='form']")
