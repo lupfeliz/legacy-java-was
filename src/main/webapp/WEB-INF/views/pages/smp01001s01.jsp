@@ -9,7 +9,7 @@
       />
   </div>
   <template v-if="vars.test"> ABCD </template>
-  <form name="form" action="/smp/smp01001s02">
+  <form name="form" action="${cbase}/smp/smp01001s02">
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
   </form>

@@ -199,6 +199,7 @@ function getParameter(key) {
   try {
     const d1 = String(((o = history) && (o = o.state) && (o = o.url)) ? o : "").split(/[/]/);
     const d2 = String(((o = history) && (o = o.state) && (o = o.as)) ? o : "").split(/[/]/);
+    // log.debug("D:", d1, d2);
     let len = d1.length > d2.length ? d1.length : d2.length;
     for (let inx = 0; inx < len; inx++) {
       if (/[\[]([a-zA-Z0-9_-]+)[\]]/.test(d1[inx] || "")) {
@@ -254,12 +255,15 @@ function setOpenerTmp(value) {
 function getOpenerTmp(tid) {
   let ret = undefined;
   const win = window;
+  // log.debug('CHECK:', tid, win.opener, win.opener[tid]);
   if (win.opener && win.opener[tid]) {
     ret = win.opener[tid];
     if (ret) { ret = ret(); };
     // if (ret) { ret = ret.value; };
     if (ret.$$POPUPCTX$$) {
-      ret.$$POPUPCTX$$.close = function() { window.close(); };
+      ret.$$POPUPCTX$$.close = function() {
+        window.close();
+      };
       delete ret.$$POPUPCTX$$;
     };
     delete win.opener[tid];
@@ -328,7 +332,13 @@ const dialog = {
     };
     let addr = url;
     if (/[?]/.test(addr)) { addr = addr + "&tid=" + tid; } else { addr = addr + "?tid=" + tid; };
-    if (/^about:/.test(url)) { addr = url; };
+    if (/^about:/.test(url)) {
+      addr = url;
+    } else if (/^http/.test(url)) {
+      addr = url;
+    } else if (/\//.test(url)) {
+      addr = "${cbase}" + addr;
+    };
     const popopts = "popup=true,width=" + width + ",height=" + height + ",left=" + left + ",top=" + top + ",menubar=" + menubar + "," +
       "scrollbars=" + scrollbars + ",status=" + status + ",location=" + location + ",resizable=" + resizable + "";
     log.debug("POPUP-OPTS:", addr, target, popopts);
@@ -394,6 +404,7 @@ function doProgress() {
 };
 
 function initpopup() {
+  if (opener) { log.debug = opener.console.log; };
   if (window.opener) {
     // const v = reactive(getOpenerTmp(getParameter("tid")));
     const v = getOpenerTmp(getParameter("tid"));
