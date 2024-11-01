@@ -8,9 +8,8 @@
       @keydown="vars.onKeydown"
       />
   </div>
-  <div>
-  {{ vars.pricetext }}
-  </div>
+  <div>{{ vars.teststr }}</div>
+  <div>{{ vars.pricetext }}원</div>
   <template v-if="vars.test"> ABCD </template>
   <form name="form" action="${cbase}/smp/smp01001s02">
     <input type="hidden" name="value1" value="AAA" />
@@ -38,7 +37,12 @@
 <script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
 putAll(vars, {
-  pricetext: numToHangul('1234'),
+  pricetext: numToHangul('1234567890'),
+  teststr: `
+  \ 텍스트 문자열 테스트 중입니다.
+  \ 백틱을 사용하는 경우 여러줄에 걸쳐서 작성 할 수 있습니다.
+  \ 개행문자 앞에 백슬래시를 붙여 주어야 합니다.
+  `,
   doProgress: async function() {
     setTimeout(function() {
       log.debug("HIDE-OVERLAY...");

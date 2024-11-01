@@ -19,5 +19,5 @@
 <script src="${cbase}/assets/libs/bootstrap-5.3.3.min.js"></script>
 <script src="${cbase}/assets/libs/vue-3.5.12.min.js"></script>
 <script src="${cbase}/assets/ckeditor/ckeditor.js"></script>
-<script src="${cbase}/assets/scripts/c-input.js"></script>
+<script src="${cbase}/assets/scripts/components.js"></script>
 <script src="${cbase}/assets/scripts/entry.js"></script>
