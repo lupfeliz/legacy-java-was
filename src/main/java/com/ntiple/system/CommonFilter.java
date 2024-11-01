@@ -41,11 +41,11 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component
-public class AssetsModifyFilter implements Filter {
+public class CommonFilter implements Filter {
 
   @Autowired private Settings settings;
 
-  private static final Pattern PTN_SCSS = Pattern.compile(
+  private static final Pattern PTN_RESOURCE = Pattern.compile(
     cat("(" ,
     "^(.*[.]scss)([?].+){0,1}$|",
     "^.*(/assets/scripts/[^.]+[.]js)([?].+){0,1}$",
@@ -53,16 +53,19 @@ public class AssetsModifyFilter implements Filter {
     );
   private static final long CACHE_INTERVAL = 1000 * 60 * 60;
 
+  private File cachepath = null;
+
   @Override public void doFilter(ServletRequest sreq, ServletResponse sres, FilterChain chain)
     throws IOException, ServletException {
     HttpServletRequest req = cast(sreq, HttpServletRequest.class);
     HttpServletResponse res = cast(sres, HttpServletResponse.class);
     boolean processed = false;
     String uri = req.getRequestURI();
-    String cpath = req.getContextPath();
-    if (cpath.length () > 0 && uri.startsWith(cpath) && !uri.equals(cpath)) { uri = cat(uri.substring(req.getContextPath().length())); }
-    // log.debug("URI:{} / {}", uri, cpath);
-    Matcher mat = PTN_SCSS.matcher(uri);
+    String cbase = req.getContextPath();
+    if (cbase.length () > 0 && uri.startsWith(cbase) && !uri.equals(cbase)) { uri = cat(uri.substring(req.getContextPath().length())); }
+    // log.debug("URI:{} / {}", uri, cbase);
+    req.setAttribute("cbase", cbase);
+    Matcher mat = PTN_RESOURCE.matcher(uri);
     if (mat.find()) {
       long curtime = System.currentTimeMillis();
       InputStream istream = null;
@@ -74,10 +77,14 @@ public class AssetsModifyFilter implements Filter {
         File rfile = null;
         if (rsc != null && (rfile = file(rsc.getFile())) != null && rfile.exists()) {
           String content = "";
-          // File cache = file(Application.class.getClassLoader().getResource("").getFile(), "log", uri);
-          File cbase = rfile.getParentFile();
-          if (!"".equals(settings.getScssCacheDir())) { cbase = file(settings.getScssCacheDir()); }
-          File cache = file(cbase, cat(rfile.getName(), ".cache"));
+          if (cachepath == null) {
+            if (!"".equals(settings.getScssCacheDir())) {
+              cachepath = file(settings.getScssCacheDir());
+            } else {
+              cachepath = File.createTempFile("cache", "tmp");
+            }
+          }
+          File cache = file(cachepath, cat(rfile.getName(), ".cache"));
           log.debug("PATH:{}, {}, {} [{}/{}]", uri, rfile, cache, (curtime - cache.lastModified()), CACHE_INTERVAL);
           if (!cache.exists() ||
             (curtime - cache.lastModified()) > CACHE_INTERVAL ||

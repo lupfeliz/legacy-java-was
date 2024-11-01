@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <page:ex>
-  샘플페이지 01
+  샘플페이지 01 [${cbase}]
   <div>
     <input
       :value="vars.message"

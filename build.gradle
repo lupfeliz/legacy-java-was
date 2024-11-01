@@ -101,6 +101,7 @@ dependencies {
   implementation 'org.apache.poi:poi-ooxml:5.3.0'
   implementation 'com.google.code.gson:gson:2.11.0'
   implementation 'org.apache.commons:commons-dbcp2:2.12.0'
+  implementation 'org.mozilla:rhino:1.7.15'
   runtimeOnly 'org.postgresql:postgresql'
   runtimeOnly 'com.h2database:h2'
   // compileOnly 'jdbc.tibero:tibero:6'
