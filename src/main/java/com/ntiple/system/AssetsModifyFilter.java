@@ -59,6 +59,8 @@ public class AssetsModifyFilter implements Filter {
     HttpServletResponse res = cast(sres, HttpServletResponse.class);
     boolean processed = false;
     String uri = req.getRequestURI();
+    if (uri.startsWith(req.getContextPath())) { uri = uri.substring(req.getContextPath().length()); }
+    // log.debug("URI:{} / {}", uri, req.getContextPath());
     Matcher mat = PTN_SCSS.matcher(uri);
     if (mat.find()) {
       long curtime = System.currentTimeMillis();
@@ -100,6 +102,7 @@ public class AssetsModifyFilter implements Filter {
           } else if (rfile.getName().endsWith(".scss")) {
             ctype = "text/css";
           }
+          res.setContentLength(content.getBytes().length);
           res.setCharacterEncoding(UTF8);
           res.setContentType(ctype);
           res.getWriter().write(content);
