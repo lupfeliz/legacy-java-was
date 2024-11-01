@@ -59,8 +59,9 @@ public class AssetsModifyFilter implements Filter {
     HttpServletResponse res = cast(sres, HttpServletResponse.class);
     boolean processed = false;
     String uri = req.getRequestURI();
-    if (uri.startsWith(req.getContextPath())) { uri = uri.substring(req.getContextPath().length()); }
-    // log.debug("URI:{} / {}", uri, req.getContextPath());
+    String cpath = req.getContextPath();
+    if (cpath.length () > 0 && uri.startsWith(cpath) && !uri.equals(cpath)) { uri = cat(uri.substring(req.getContextPath().length())); }
+    // log.debug("URI:{} / {}", uri, cpath);
     Matcher mat = PTN_SCSS.matcher(uri);
     if (mat.find()) {
       long curtime = System.currentTimeMillis();
