@@ -16,6 +16,6 @@ function initEntryScript(callback, vars, log) {
     warn: window.console.warn,
     error: window.console.warn
   };
-  for (const k in LOG) { log[k] = LOG[k]; }
-  if (callback) { callback(vars, log); }
+  for (const k in LOG) { log[k] = LOG[k]; };
+  if (callback) { callback(vars, log); };
 }

@@ -7,20 +7,21 @@
  **/
 
 function $component_input(app) {
+  const name = "c-input";
   const CInput = {
-    template: `<input
-    \ class="form-control"
-    \ :vrules=""
-    \ data-test="OK"
-    \ />`,
-    name: "c-input",
-    props: {
-    },
-    data:function() {
-      return {};
-    },
-    mounted: async function() {
+    template: `
+    \ <input
+    \   class="form-control"
+    \   :vrules=""
+    \   v-bind="attrs"
+    \   />`,
+    name: name,
+    setup: function(props) {
+      const attrs = Vue.useAttrs();
+      return {
+        attrs: attrs,
+      };
     }
   };
-  app.component("c-input", CInput);
+  app.component(name, CInput);
 };
