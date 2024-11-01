@@ -2,6 +2,12 @@
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <page:ex>
   샘플페이지 01
+  <div>
+    <input
+      :value="vars.message"
+      @keydown="vars.onKeydown"
+      />
+  </div>
   <template v-if="vars.test"> ABCD </template>
   <form name="form" action="/smp/smp01001s02">
     <input type="hidden" name="value1" value="AAA" />
@@ -48,14 +54,16 @@ putAll(vars, {
     }
   },
   doWinpopup: async function() {
-    // dialog.winpopup('about:blank', {});
-    dialog.winpopup('/smp/smp01001s02', {});
+    dialog.winpopup("/smp/smp01001s02", vars);
   },
   doSubmit: async function() {
     $("form[name='form']")
       .attr("method", "post")
       .attr("enctype", "application/x-www-form-urlencoded")
       .submit();
-  }
+  },
+  onKeydown: async function(e) {
+    vars.message = e.target.value;
+  },
 });
 </script:ex>

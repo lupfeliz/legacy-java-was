@@ -49,6 +49,7 @@ setTimeout(function() {
 setTimeout(function() {
 const createApp = Vue.createApp;
 const ref = Vue.ref;
+const reactive = Vue.reactive;
 const watch = Vue.watch;
 const useTemplateRef = Vue.useTemplateRef;
 const nextTick = Vue.nextTick;
@@ -223,7 +224,7 @@ function getUri() {
   let o;
   if (appvars.astate) {
     ret = String(((o = history) && (o = o.state) && (o = o.url)) ? o :  "/").replace(/[?].*$/g, "");
-  }
+  };
   return ret;
 };
 function setGlobalTmp(value) {
@@ -237,6 +238,7 @@ function getGlobalTmp(tid) {
   if (win[tid]) {
     ret = win[tid];
     if (ret) { ret = ret(); };
+    // if (ret) { ret = ret.value; };
     delete win[tid];
   };
   return ret;
@@ -255,9 +257,10 @@ function getOpenerTmp(tid) {
   if (win.opener && win.opener[tid]) {
     ret = win.opener[tid];
     if (ret) { ret = ret(); };
-    if (ret.$$POUPCTX$$) {
-      ret.$$POUPCTX$$.close = function() { window.close(); };
-      delete ret.$$POUPCTX$$;
+    // if (ret) { ret = ret.value; };
+    if (ret.$$POPUPCTX$$) {
+      ret.$$POPUPCTX$$.close = function() { window.close(); };
+      delete ret.$$POPUPCTX$$;
     };
     delete win.opener[tid];
   } else {
@@ -321,7 +324,7 @@ const dialog = {
     let resizable = option.resizable ? option.resizable : "yes";
     if (data) {
       winpopups.list[tid] = { };
-      data.$$POUPCTX$$ = winpopups.list[tid];
+      data.$$POPUPCTX$$ = winpopups.list[tid];
     };
     let addr = url;
     if (/[?]/.test(addr)) { addr = addr + "&tid=" + tid; } else { addr = addr + "?tid=" + tid; };
@@ -388,6 +391,19 @@ function doProgress() {
       };
     };
   })
+};
+
+function initpopup() {
+  if (window.opener) {
+    // const v = reactive(getOpenerTmp(getParameter("tid")));
+    const v = getOpenerTmp(getParameter("tid"));
+    const l = v.OPENER_LOG;
+    delete v.OPENER_LOG;
+    putAll(log, l);
+    putAll(vars, v);
+    return v;
+  };
+  return {};
 };
 
 createApp({
