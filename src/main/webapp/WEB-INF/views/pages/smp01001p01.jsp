@@ -3,13 +3,16 @@
 <page:ex>
   샘플팝업 01
   <div>
-    <input
+    <c-input
       :value="vars.popdata.message"
       @keydown="vars.onKeydown"
       />
   </div>
-  <button class="btn btn-primary" @click="vars.clicked()">
+  <button class="btn btn-primary mx-1" @click="vars.onClick(1)">
     OK
+  </button>
+  <button class="btn btn-primary mx-1" @click="vars.onClick(2)">
+    닫기
   </button>
   <div>
   </div>
@@ -27,11 +30,11 @@ vars.onKeydown = async function(e) {
   popdata.message = String(e.target.value);
 };
 
-vars.clicked = async function(e) {
-  // $("form[name='form']")
-  //   .attr("method", "post")
-  //   .attr("enctype", "application/x-www-form-urlencoded")
-  //   .submit();
-  log.debug("OK");
+vars.onClick = async function(v) {
+  if (v == 1) {
+    log.debug("OK");
+  } else {
+    window.close();
+  };
 };
 </script:ex>

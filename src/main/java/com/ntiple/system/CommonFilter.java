@@ -65,6 +65,7 @@ public class CommonFilter implements Filter {
     if (cbase.length () > 0 && uri.startsWith(cbase) && !uri.equals(cbase)) { uri = cat(uri.substring(req.getContextPath().length())); }
     // log.debug("URI:{} / {}", uri, cbase);
     req.setAttribute("cbase", cbase);
+    req.setAttribute("uri", uri);
     Matcher mat = PTN_RESOURCE.matcher(uri);
     if (mat.find()) {
       long curtime = System.currentTimeMillis();
