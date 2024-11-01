@@ -151,7 +151,7 @@ tasks.withType(JavaCompile) { options.warnings = false }
 test {
   String tstlvl = System.properties['project.build.test']
   if (tstlvl == null || ''.equals(tstlvl)) { tstlvl = 'SIMPLE' }
-  systemProperty('build.test', tstlvl)
+  systemProperty('project.build.test', tstlvl)
   reports.html.required = false
 }
 

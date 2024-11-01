@@ -53,13 +53,28 @@ public class SimpleTest {
 
   @Test public void testPattern() throws Exception {
     if (!TestUtil.isEnabled("testPattern", TestLevel.MANUAL)) { return; }
-    Pattern PTN_ST_SCRIPT = Pattern.compile("^[<]script[^>]*>");
-    Pattern PTN_ED_SCRIPT = Pattern.compile("[<]/script[^>]*>$");
-    String str = "<script> TEST </script>";
-    str = str.trim();
-    str = PTN_ST_SCRIPT.matcher(str).replaceAll("");
-    str = PTN_ED_SCRIPT.matcher(str).replaceAll("");
-    log.debug("TEST:{}", str);
+    {
+      Pattern PTN_ST_SCRIPT = Pattern.compile("^[<]script[^>]*>");
+      Pattern PTN_ED_SCRIPT = Pattern.compile("[<]/script[^>]*>$");
+      String str = "<script> TEST </script>";
+      str = str.trim();
+      str = PTN_ST_SCRIPT.matcher(str).replaceAll("");
+      str = PTN_ED_SCRIPT.matcher(str).replaceAll("");
+      log.debug("TEST:{}", str);
+    }
+    {
+      Pattern PTN_NL = Pattern.compile("[\\r\\n][\\\\]", Pattern.MULTILINE);
+      // Pattern PTN_NL = Pattern.compile("\\\\", Pattern.MULTILINE);
+      String str = "function $component_input(app){const CInput={template:`<input\r" +
+        "\\ class=\"form-control\"\r" +
+        "\\:vrules=\"\r" +
+        "\\ data-test=\"OK\"\r" +
+        "\\/>`,name:\"c-input\",props:{},data:function(){return{};},mounted:async function(){}};app.component(\"c-input\",CInput);};\r";
+      // String str = readAsString(file("/home/coder/documents/tmp/c-input.js"));
+      log.debug("STR:{}", str);
+      log.debug("--------------------------------------------------------------------------------");
+      log.debug("STR:{}", PTN_NL.matcher(str).replaceAll(""));
+    }
     assertTrue(true);
   }
 

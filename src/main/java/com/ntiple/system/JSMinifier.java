@@ -15,6 +15,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
@@ -26,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JSMinifier {
 
   private static JSMinifier instance;
+
+  private static final Pattern PTN_NL = Pattern.compile("[\\r\\n][\\\\]", Pattern.MULTILINE);
 
   public static JSMinifier getInstance() {
     if (instance == null) {
@@ -60,6 +63,7 @@ public class JSMinifier {
       output = new StringWriter();
       minify(input, output);
       ret = output.toString();
+      ret = PTN_NL.matcher(ret).replaceAll("");
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;
@@ -81,6 +85,7 @@ public class JSMinifier {
       output = new StringWriter();
       minify(input, output);
       ret = output.toString();
+      ret = PTN_NL.matcher(ret).replaceAll("");
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;

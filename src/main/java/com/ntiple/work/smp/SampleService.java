@@ -30,18 +30,18 @@ public class SampleService {
   /** 페이지용 서비스 */
   public String smp01001s01() throws Exception {
     log.debug("CHECK-PARAM:{}", params());
-    return "";
+    return "/smp01001s01";
   }
 
   /** 페이지용 서비스 */
   public String smp01001s02() throws Exception { 
     log.debug("CHECK-PARAM:{}", params());
-    return "";
+    return "/smp01001s02";
   }
 
   public String smp01001p01() {
     log.debug("CHECK-PARAM:{}", params());
-    return "";
+    return "/smp01001p01";
   }
 
   /** REST-API 용 서비스 */
