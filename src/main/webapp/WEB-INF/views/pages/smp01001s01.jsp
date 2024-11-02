@@ -4,8 +4,20 @@
   샘플페이지 01 [${cbase}]
   <div>
     <c-input
-      :value="vars.message"
-      @keydown="vars.onKeydown"
+      v-model="vars.message"
+      @on-keydown="vars.onKeydown"
+      @on-enter="vars.onEnter"
+      name="input1"
+      label="금액"
+      type="numeric"
+      required
+      maxlength="20"
+      minlength="2"
+      minvalue="1000"
+      maxvalue="999999999999"
+      :rtformatter="vars.numeric"
+      :formatter="vars.numeric"
+      vrules="auto|check2"
       />
   </div>
   <div>{{ vars.teststr }}</div>
@@ -37,6 +49,7 @@
 <script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
 putAll(vars, {
+  numeric,
   pricetext: numToHangul('1234567890'),
   teststr: `
   \ 텍스트 문자열 테스트 중입니다.
@@ -70,8 +83,13 @@ putAll(vars, {
       .attr("enctype", "application/x-www-form-urlencoded")
       .submit();
   },
+  onEnter: async function(e) {
+    log.debug("ENTER:", vars.message);
+  },
   onKeydown: async function(e) {
+    // log.debug("keyDown:", e.target.value);
     vars.message = e.target.value;
+    // update();
   },
 });
 </script:ex>

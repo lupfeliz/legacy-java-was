@@ -7,6 +7,9 @@
  **/
 
 function initEntryScript(callback, { vars, log, cbase }) {
+  const lodash = _;
+  const U = undefined;
+  const N = null;
   const ref = Vue.ref;
   const watch = Vue.watch;
   const nextTick = Vue.nextTick;
@@ -38,7 +41,8 @@ function initEntryScript(callback, { vars, log, cbase }) {
       }
     },
     global: { },
-    MaterialStyle: {}
+    MaterialStyle: {},
+    instance: { },
   };
 
   /** 레이어팝업 제어 */
@@ -82,13 +86,131 @@ function initEntryScript(callback, { vars, log, cbase }) {
     }
   });
 
+  const _KEYCODE_TABLE = {
+    /**
+     * 특수문자 키보드   [PC, ANDROID, IOS, CHAR]
+     * Android 에서 CODE 는 물리키보드인 경우에서만 표시됨
+     * 대다수의 경우 Android 에서는 229 (가상키눌림) 리턴
+     * IOS 는 물리키보드와 동일
+     * 키코드 참고 : https://www.toptal.com/developers/keycode/table
+     **/
+    Semicolon           : [ 59, 229, 186,  ';'],
+    Equal               : [ 61, 229, 186,  '='],
+    Comma               : [188, 229, 188,  ','],
+    Minus               : [189, 229, 189,  '-'],
+    Period              : [190, 229, 190,  '.'],
+    Slash               : [191, 229, 191,  '/'],
+    Backquote           : [192, 229, 192,  '`'],
+    BracketLeft         : [219, 229, 219,  '['],
+    Backslash           : [220, 229, 220, '\\'],
+    BracketRight        : [221, 229, 221,  ']'],
+    Quote               : [222, 229, 222, '\''],
+    /** 동작키보드 (화살표, 엔터키 등) */
+    Esc                 : [ 27,  27,  27,    U],
+    Enter               : [ 13,  13,  13,    U],
+    /** IOS 에서는 'Delete' 가 아닌 'Undefined' */
+    Delete              : [ 46,  46,  46,    U],
+    /** IOS 에서는 'Insert' 이벤트 자체가 없음 */
+    Insert              : [ 45,  45,   U,    U],
+    Tab                 : [  9,   9,   9,    U],
+    Backspace           : [  8,   8,   8,    U],
+    Space               : [ 32, 229,  32,  ' '],
+    ArrowLeft           : [ 37,  37,  37,    U],
+    ArrowRight          : [ 39,  39,  39,    U],
+    ArrowUp             : [ 38,  38,  38,    U],
+    ArrowDown           : [ 40,  40,  40,    U],
+    Home                : [ 36,  36,  36,    U],
+    End                 : [ 35,  35,  35,    U],
+    PageUp              : [ 33,  33,  33,    U],
+    PageDown            : [ 34,  34,  34,    U],
+    /** 메타키보드 */
+    ShiftLeft           : [ 16,  16,  16,    U],
+    ShiftRight          : [ 16,  16,  16,    U],
+    ControlLeft         : [ 17,  17,  17,    U],
+    ControlRight        : [ 17,  17,  17,    U],
+    AltLeft             : [ 18,  18,  18,    U],
+    AltRight            : [ 18,  18,  18,    U],
+    MetaLeft            : [ 91,  91,  91,    U],
+    MetaRight           : [ 91,  91,  91,    U],
+    /** 숫자키 */
+    Digit0              : [ 48, 229,  48,  '0'],
+    Digit1              : [ 49, 229,  49,  '1'],
+    Digit2              : [ 50, 229,  50,  '2'],
+    Digit3              : [ 51, 229,  51,  '3'],
+    Digit4              : [ 52, 229,  52,  '4'],
+    Digit5              : [ 53, 229,  53,  '5'],
+    Digit6              : [ 54, 229,  54,  '6'],
+    Digit7              : [ 55, 229,  55,  '7'],
+    Digit8              : [ 56, 229,  56,  '8'],
+    Digit9              : [ 57, 229,  57,  '9'],
+    /** 키패드 */
+    Numpad0             : [ 96, 229,  96,  '0'],
+    Numpad1             : [ 97, 229,  97,  '1'],
+    Numpad2             : [ 98, 229,  98,  '2'],
+    Numpad3             : [ 99, 229,  99,  '3'],
+    Numpad4             : [100, 229, 100,  '4'],
+    Numpad5             : [101, 229, 101,  '5'],
+    Numpad6             : [102, 229, 102,  '6'],
+    Numpad7             : [103, 229, 103,  '7'],
+    Numpad8             : [104, 229, 104,  '8'],
+    Numpad9             : [105, 229, 105,  '9'],
+    KeyA                : [ 65, 229,  65,  'a'],
+    KeyB                : [ 66, 229,  66,  'b'],
+    KeyC                : [ 67, 229,  67,  'c'],
+    KeyD                : [ 68, 229,  68,  'd'],
+    KeyE                : [ 69, 229,  69,  'e'],
+    KeyF                : [ 70, 229,  70,  'f'],
+    KeyG                : [ 71, 229,  71,  'g'],
+    KeyH                : [ 72, 229,  72,  'h'],
+    KeyI                : [ 73, 229,  73,  'i'],
+    KeyJ                : [ 74, 229,  74,  'j'],
+    KeyK                : [ 75, 229,  75,  'k'],
+    KeyL                : [ 76, 229,  76,  'l'],
+    KeyM                : [ 77, 229,  77,  'm'],
+    KeyN                : [ 78, 229,  78,  'n'],
+    KeyO                : [ 79, 229,  79,  'o'],
+    KeyP                : [ 80, 229,  80,  'p'],
+    KeyQ                : [ 81, 229,  81,  'q'],
+    KeyR                : [ 82, 229,  82,  'r'],
+    KeyS                : [ 83, 229,  83,  's'],
+    KeyT                : [ 84, 229,  84,  't'],
+    KeyU                : [ 85, 229,  85,  'u'],
+    KeyV                : [ 86, 229,  86,  'v'],
+    KeyW                : [ 87, 229,  87,  'w'],
+    KeyX                : [ 88, 229,  88,  'x'],
+    KeyY                : [ 89, 229,  89,  'y'],
+    KeyZ                : [ 90, 229,  90,  'z'],
+    /** Android 전용 가상키눌림 */
+    Virtual             : [229, 229, 229,    U],
+  };
+
+  const KEYCODE_TABLE = { PC: {}, ANDROID: {}, IOS: {}, CHAR: {} };
+
+  /** 키코드 -> 코드명 역색인 */
+  const KEYCODE_REV_TABLE = { PC: {}, ANDROID: {}, IOS: {}, CHAR: {}, };
+
+  for (const k in _KEYCODE_TABLE) {
+    put(KEYCODE_TABLE.PC, k, (_KEYCODE_TABLE)[k][0]);
+    put(KEYCODE_TABLE.ANDROID, k, (_KEYCODE_TABLE)[k][1]);
+    put(KEYCODE_TABLE.IOS, k, (_KEYCODE_TABLE)[k][2]);
+    put(KEYCODE_TABLE.CHAR, k, (_KEYCODE_TABLE)[k][3]);
+  };
+
+  LOOP1: for (const k in KEYCODE_TABLE) {
+    for (const k2 in (KEYCODE_TABLE)[k]) {
+      const v = (KEYCODE_TABLE)[k][k2];
+      if (k == 'ANDROID' && v == 229) { continue LOOP1; };
+      if (v !== U) { put((KEYCODE_REV_TABLE)[k], v, k2); };
+    };
+  };
+
   /** 앱 내 유일키 생성 */
   function genId() { return (new Date().getTime()) + String((appvars.uidseq = (appvars.uidseq + 1) % 1000) + 1000).substring(1, 4) };
 
   /** 최소(min)~최대(max)값 사이의 난수 생성, 최소값을 입력하지 않을경우 자동으로 0 으로 지정됨 */
   function getRandom(max, min) {
-    if (max === undefined) { max = 0; };
-    if (min === undefined) { min = 0; };
+    if (max === U) { max = 0; };
+    if (min === U) { min = 0; };
     if (max < 0) { max = max * -1; };
     const ret = min + Math.floor(Math.random() * max);
     return ret;
@@ -96,8 +218,8 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   /** 단일문자 난수 */
   function randomChar(c, n) {
-    if (c === undefined) { c = "a"; };
-    if (n === undefined) { n = 26; };
+    if (c === U) { c = "a"; };
+    if (n === U) { n = 26; };
     return String.fromCharCode(Number(c.charCodeAt(0)) + getRandom(n));
   };
 
@@ -105,7 +227,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   function randomStr(length, type) {
     let ret = "";
     switch (type) {
-    case undefined:
+    case U:
     /** 숫자   */
     case "number": {
       for (let inx = 0; inx < length; inx++) { ret += String(getRandom(10)); }
@@ -139,7 +261,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     for (const k in source) {
       const titem = target[k];
       const sitem = source[k];
-      if (titem !== undefined && titem !== null) {
+      if (titem !== U && titem !== null) {
         if (typeof (titem) === "string") {
           target[k] = source[k]
         } else if (((opt ? opt : {}).deep) && titem instanceof Array && sitem instanceof Array) {
@@ -157,7 +279,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return target;
   };
   function getParameter(key) {
-    let ret = undefined;
+    let ret = U;
     const prm = { };
     let o;
     try {
@@ -198,7 +320,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return tid;
   };
   function getGlobalTmp(tid) {
-    let ret = undefined;
+    let ret = U;
     const win = window;
     if (win[tid]) {
       ret = win[tid];
@@ -217,7 +339,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return tid;
   };
   function getOpenerTmp(tid) {
-    let ret = undefined;
+    let ret = U;
     const win = window;
     // log.debug("CHECK:", tid, win.opener, win.opener[tid]);
     if (win.opener && win.opener[tid]) {
@@ -254,7 +376,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       });
     }); },
     progress: function(vis, timeout) { return new Promise(function(resolve) {
-      if (vis === undefined) { vis = true };
+      if (vis === U) { vis = true };
       dialogvars.value.progress.queue.push({
         vis: vis,
         timeout: timeout,
@@ -429,7 +551,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function clone(v) {
-    let ret = undefined;
+    let ret = U;
     if (!v) { return ret; };
     try {
       ret = JSON.parse(JSON.stringify(v));
@@ -438,7 +560,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function item(a, i, v) {
-    if (a && (i !== undefined && i!== null) && i >= 0 && a[i]) {
+    if (a && (i !== U && i!== null) && i >= 0 && a[i]) {
       if (v) { a[i] = v; };
       return a[i];
     };
@@ -447,7 +569,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   function val(o, k, v) {
     let r = o;
-    if (o && (k !== undefined && k !== null) && o[k]) {
+    if (o && (k !== U && k !== null) && o[k]) {
       if (v) { o[k] = v; };
       r = o[k];
     };
@@ -455,10 +577,10 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function nval(o, def) {
-    if (!def) { def = undefined; };
+    if (!def) { def = U; };
     switch (o) {
     case null:
-    case undefined: o = def; break;
+    case U: o = def; break;
     default: break;
     };
     return o;
@@ -510,13 +632,13 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   /** 다수개 배열을 새로운 배열로 합쳐 반환 */
   function mergeAll(...params) {
-    let ret = undefined;
+    let ret = U;
     for (const item of params) {
       if (item instanceof Array) {
-        if (ret === null || ret === undefined) { ret = [ ]; };
+        if (ret === null || ret === U) { ret = [ ]; };
         pushAll(ret, item);
       } else {
-        if (ret === null || ret === undefined) { ret = { }; };
+        if (ret === null || ret === U) { ret = { }; };
         putAll(ret, item);
       }
     };
@@ -565,10 +687,10 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function min(array) {
-    let ret = undefined;
+    let ret = U;
     try {
       for (const v of array) {
-        if (ret === null || ret === undefined) { ret = v; continue; };
+        if (ret === null || ret === U) { ret = v; continue; };
         if (v < ret) { ret = v; };
       };
     } catch (ignore) { };
@@ -576,10 +698,10 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function max(array) {
-    let ret = undefined;
+    let ret = U;
     try {
       for (const v of array) {
-        if (ret === null || ret === undefined) { ret = v; continue; };
+        if (ret === null || ret === U) { ret = v; continue; };
         if (v > ret) { ret = v; };
       }
     } catch (ignore) { };
@@ -587,7 +709,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function near(search, list, minv, maxv) {
-    let ret = undefined;
+    let ret = U;
     let dif = Number.MAX_VALUE;
     if (!list || !list.length) { return ret; };
     const v1 = Number(search);
@@ -595,8 +717,8 @@ function initEntryScript(callback, { vars, log, cbase }) {
     for (let inx = 0; inx < list.length; inx++) {
       const v2 = Number(list[inx]);
       if (isNaN(v2)) { continue; };
-      if (minv !== undefined && !isNaN(minv) && v2 < minv) { continue; };
-      if (maxv !== undefined && !isNaN(maxv) && v2 > maxv) { continue; };
+      if (minv !== U && !isNaN(minv) && v2 < minv) { continue; };
+      if (maxv !== U && !isNaN(maxv) && v2 > maxv) { continue; };
       const cif = Math.abs(v1 - v2);
       if (cif < dif) {
         dif = cif;
@@ -698,7 +820,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       };
     };
     /** 정렬. */
-    if (sortKey !== undefined) {
+    if (sortKey !== U) {
       const doSort = function(slist, depth) {
         slist.sort(function(a, b) { return a[sortKey] - b[sortKey]; });
         for (const item of slist) {
@@ -760,7 +882,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function getPattern(t, v) {
-    let ret = undefined;
+    let ret = U;
     switch(t) {
     case 'number':
       ret = /^([\+\-]{0,1})[0-9]+$/;
@@ -804,7 +926,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       ret = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{4,}$/;
       break;
     };
-    if (v !== null && v !== undefined) { return ret.test(String(v).trim()); };
+    if (v !== null && v !== U) { return ret.test(String(v).trim()); };
     return ret;
   };
 
@@ -953,7 +1075,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return v * parseFloat(getComputedStyle(el).fontSize);
   };
   function getText(element) { return element ? $(element).text() : ""; };
-  function getFrom(v, k) { return v ? v[k] : undefined; };
+  function getFrom(v, k) { return v ? v[k] : U ; };
   function put(target, key, value) { if (target && key) { target[key] = value; }; };
   function strm(v) { return String(v ? v : "").replace(/[ \t]+/g, " ").trim(); };
 
@@ -969,9 +1091,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
   /** 목표객체(target) 의 key 값을 가지는 내용만 복사. */
   function copyExists(target, source, keys) {
-    if (targets === undefined || target === null) { return; };
-    if (source === undefined || source === null) { return; };
-    if (keys !== undefined && keys !== null) {
+    if (targets === U || target === null) { return; };
+    if (source === U || source === null) { return; };
+    if (keys !== U && keys !== null) {
       for (const k of keys) {
         target[k] = source[k];
       };
@@ -983,11 +1105,45 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return target;
   };
 
+  function isEvent(e) { return !!(e && e.preventDefault && e.stopPropagation); };
   function cancelEvent (e) {
     if (e && e.preventDefault && e.stopPropagation) {
       e.preventDefault();
       e.stopPropagation();
     };
+  };
+
+  function until(check, opt) {
+    if (opt === null || opt === undefined) { opt = { }; };
+    const ctx = {
+      __max_check: opt.maxcheck ? opt.maxcheck : 100,
+      __interval: opt.interval ? opt.interval : 100
+    };
+    return new Promise<any>(function(resolve, _reject) {
+      function fnexec() {
+        /** 조건을 만족시키면 */
+        if (check()) {
+            resolve(true);
+        } else if (ctx.__max_check > 0) {
+          ctx.__max_check--;
+          setTimeout(fnexec, ctx.__interval);
+        } else {
+          resolve(false);
+        };
+      };
+      fnexec();
+    });
+  };
+
+  /** SLEEP (ms) */
+  async function sleep(time) {
+    return new Promise(function(resolve, _reject) {
+      log.trace('SLEEP', time);
+      setTimeout(function() {
+        log.trace('SLEEP DONE!');
+        resolve(null);
+      }, time);
+    });
   };
 
   class Paging {
@@ -1031,6 +1187,13 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
+  function update() {
+    if (appvars.instance._) {
+      log.debug("UPDATE:", appvars.instance._);
+      appvars.instance._.update();
+    }
+  };
+
   watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
     if (o == 0 && n > 0) { doModal(); };
   });
@@ -1043,6 +1206,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   /** [ 레이어팝업 관련 스크립트 */
   MOUNT_HOOK_PROCS.push(async function(app) {
+    appvars.instance = app;
     const modalref = app.$refs["dialogvars.modal.ref"];
     const progressref = app.$refs["dialogvars.progress.ref"];
     dialogvars.value.modal.instance = new bootstrap.Modal(modalref, {});
@@ -1067,6 +1231,8 @@ function initEntryScript(callback, { vars, log, cbase }) {
   /** 공통 사용을 위해 entry.js 와 launch-script.jsp 의 항목을 맞춰 주어야 한다. */
   if (callback) { callback({
   BIND_VALUES,
+  KEYCODE_REV_TABLE,
+  KEYCODE_TABLE,
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
   cancelEvent,
@@ -1092,7 +1258,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
   hangul,
   hierarchy,
   initpopup,
+  isEvent,
   item,
+  lodash,
   log,
   lpad,
   max,
@@ -1116,10 +1284,13 @@ function initEntryScript(callback, { vars, log, cbase }) {
   rpad,
   setGlobalTmp,
   setOpenerTmp,
+  sleep,
   sort,
   strm,
   swap,
   trim,
+  until,
+  update,
   val,
   vars,
   }); };
