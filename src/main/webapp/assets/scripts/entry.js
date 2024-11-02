@@ -958,7 +958,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   class Hangul {
     /** 1글자의 초, 중, 종성을 분리한다. */
-    extract = function(ch) {
+    extract(ch) {
       const ret = ["", "", ""];
       if (ch && ch.length == 1) {
         const code = String(ch).charCodeAt(0);
@@ -1006,7 +1006,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
      * detectJosa("이름", "이") => "이름이"
      * detectJosa("번호", "이") => "번호가"
      */
-    detectJosa = (str, josa, wrap) => {
+    detectJosa(str, josa, wrap) {
       if (str) { str = str.trim(); };
       let ret = [str, josa];
       if (!str || str.length <= 1 || !josa) { return ""; };
@@ -1053,7 +1053,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     /**
      * 이름{term -> replace} 을{josa} 입력해주세요{str}
      */
-    replaceWithJosa = (term, replace, josa, str) => {
+    replaceWithJosa (term, replace, josa, str) {
       let ret = str;
       ret = str.replace(term, hangul.detectJosa(replace, josa));
       return ret;
@@ -1147,9 +1147,6 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   class Paging {
-    rowCount = ROWS_DEF;
-    pageCount = PAGES_DEF;
-    rowTotal = 0;
     constructor(rowCount, pageCount, rowTotal) {
       rowCount = Number(rowCount);
       pageCount = Number(pageCount);

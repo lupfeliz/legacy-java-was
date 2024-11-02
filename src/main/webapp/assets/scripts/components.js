@@ -236,7 +236,7 @@ function registerComponent($SCRIPTPRM) {
                 v = Number(numberOnly(el.value ? el.value : 0)) + 1;
                 if (minv !== undefined && v < minv) { v = minv; };
                 if (maxv !== undefined && v > maxv) { v = maxv; };
-                if (attrs?.rtformatter) {
+                if (attrs.rtformatter) {
                   // setValue(inputVal(attrs.rtformatter(v)))
                   el.value = attrs.rtformatter(v);
                 } else {
