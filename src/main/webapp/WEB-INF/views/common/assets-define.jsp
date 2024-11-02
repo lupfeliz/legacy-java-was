@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="${cbase}/assets/styles/globals.scss" />
 <link rel="stylesheet" href="${cbase}/assets/styles/util.scss" />
 <script src="${cbase}/assets/libs/core-js-3.38.1.min.js"></script>
+<script src="${cbase}/assets/libs/crypto-js-4.2.0.min.js"></script>
+<script src="${cbase}/assets/libs/jsencrypt-3.3.2.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-3.7.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-ui-1.14.0.min.js"></script>
 <script src="${cbase}/assets/libs/bootstrap-5.3.3.min.js"></script>

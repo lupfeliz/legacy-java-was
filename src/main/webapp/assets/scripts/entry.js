@@ -219,7 +219,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   function getOpenerTmp(tid) {
     let ret = undefined;
     const win = window;
-    // log.debug('CHECK:', tid, win.opener, win.opener[tid]);
+    // log.debug("CHECK:", tid, win.opener, win.opener[tid]);
     if (win.opener && win.opener[tid]) {
       ret = win.opener[tid];
       if (ret) { ret = ret(); };
@@ -238,7 +238,6 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return ret;
   };
 
-  const dialogref = ref();
   const dialog = {
     alert: function(msg) { return new Promise(function(resolve) {
       dialogvars.value.modal.queue.push({
@@ -383,32 +382,32 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   function numberOnly(str) {
     let ret = str;
-    if (!str) { str = '' };
-    ret = String(str).replace(/[^0-9]+/g, '');
+    if (!str) { str = ""; };
+    ret = String(str).replace(/[^0-9]+/g, "");
     return ret;
   };
 
   function numToHangul(str) {
     let minus = /^[-]/.test(str);
     str = numberOnly(str);
-    if (!str) { str = ''; };
-    let ret = '';
-    str = str.replace(/^[0]+/g, '');
-    if (!str) { str = '0'; };
+    if (!str) { str = ""; };
+    let ret = "";
+    str = str.replace(/^[0]+/g, "");
+    if (!str) { str = "0"; };
     let len = str.length;
-    let digit = '';
-    let word = '';
-    let han = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
-    let pos1 = ['', '십', '백', '천'];
-    let pos2 = ['', '만', '억', '조', '경'];
+    let digit = "";
+    let word = "";
+    let han = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+    let pos1 = ["", "십", "백", "천"];
+    let pos2 = ["", "만", "억", "조", "경"];
     function divide(str) {
-      let ret = '';
+      let ret = "";
       let len = str.length;
       for (let inx = 0; inx < len; inx++) {
-        word = '';
+        word = "";
         digit = str.substring(len - inx - 1, len - inx);
-        if (digit != '0') {
-          if (digit == '1' && inx % 4 != 0) {
+        if (digit != "0") {
+          if (digit == "1" && inx % 4 != 0) {
             word = (pos1[inx % 4]);
           } else {
             word = han[Number(digit)] + (pos1[inx % 4]);
@@ -422,9 +421,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
       let frag = str.substring(len - inx - 4, len - inx);
       word = divide(frag);
       if (inx % 4 == 0) {
-        if (word.length > 0) { word = word + pos2[Math.floor(inx / 4)] + ' ' };
+        if (word.length > 0) { word = word + pos2[Math.floor(inx / 4)] + " " };
       };
-      ret = '' + word + ret;
+      ret = "" + word + ret;
     };
     return ret;
   };
@@ -436,6 +435,242 @@ function initEntryScript(callback, { vars, log, cbase }) {
       ret = JSON.parse(JSON.stringify(v));
     } catch(e) { };
     return ret;
+  };
+
+  function item(a, i, v) {
+    if (a && (i !== undefined && i!== null) && i >= 0 && a[i]) {
+      if (v) { a[i] = v; };
+      return a[i];
+    };
+    return v;
+  };
+
+  function val(o, k, v) {
+    let r = o;
+    if (o && (k !== undefined && k !== null) && o[k]) {
+      if (v) { o[k] = v; };
+      r = o[k];
+    };
+    return r;
+  };
+
+  function nval(o, def) {
+    if (!def) { def = undefined; };
+    switch (o) {
+    case null:
+    case undefined: o = def; break;
+    default: break;
+    };
+    return o;
+  };
+
+  function trim(value) {
+    if (!value) { return value; };
+    for (const k in value) {
+      const v = value[k];
+      if (!v) { continue; };
+      if (typeof v === "string") {
+        value[k] = String(v).trim();
+      } else {
+        value[k] = trim(v);
+      };
+    };
+    return value;
+  };
+
+  function num(v, d) {
+    let ret = d;
+    if (v && !isNaN(v = Number(v))) { ret = v; };
+    return ret;
+  };
+
+  function lpad(v, len, pad) {
+    if (pad.length > len) {
+      // log.debug("오류 : 채우고자 하는 문자열이 요청 길이보다 큽니다")
+      return v;
+    };
+    v = String(v);
+    pad = String(pad);
+    while (v.length < len) { v = pad + v; };
+    v = v.length >= len ? v.substring(0, len) : v;
+    return v;
+  };
+
+  function rpad(v, len, pad) {
+    if (pad.length > len) {
+      // console.log("오류 : 채우고자 하는 문자열이 요청 길이보다 큽니다")
+      return v + "";
+    };
+    v = String(v);
+    pad = String(pad);
+    while (v.length < len) { v += pad; };
+    v = v.length >= len ? v.substring(0, len) : v;
+    return v;
+  };
+
+  /** 다수개 배열을 새로운 배열로 합쳐 반환 */
+  function mergeAll(...params) {
+    let ret = undefined;
+    for (const item of params) {
+      if (item instanceof Array) {
+        if (ret === null || ret === undefined) { ret = [ ]; };
+        pushAll(ret, item);
+      } else {
+        if (ret === null || ret === undefined) { ret = { }; };
+        putAll(ret, item);
+      }
+    };
+    return ret;
+  };
+
+  /** 두개 객체을 합쳐 반환 */
+  function mergeObj(v1, v2) {
+    let ret = {};
+    if (v1) { putAll(ret, v1); };
+    if (v2) { putAll(ret, v2); };
+    return ret;
+  };
+
+  function equals(target, source) {
+    let ret = false;
+    if (target instanceof Array) {
+      if (!(source instanceof Array)) { return false; };
+      if (target.length != source.length) { return false; };
+      ret = true;
+      for (let inx = 0; inx < target.length; inx++) {
+        if (target[inx] !== source[inx]) { return false; };
+      };
+    } else if (typeof target === "object") {
+      if (Object.keys(target).length != Object.keys(source).length) { return false; };
+      ret = true;
+      for (const k in target) {
+        if (target[k] !== source[k]) { return false };
+      };
+    } else {
+      ret = target == source;
+    };
+    return ret
+  };
+
+  function equalsIgnoreCase(v1, v2) {
+    let ret = false;
+    if (typeof v1 != "string") { return ret; };
+    if (typeof v2 != "string") { return ret; };
+    if (!v1 && !v2) { return true; };
+    if (!v1 || !v2) { return ret; };
+    v1 = v1.toLowerCase();
+    v2 = v2.toLowerCase();
+    ret = v1 == v2;
+    return ret;
+  };
+
+  function min(array) {
+    let ret = undefined;
+    try {
+      for (const v of array) {
+        if (ret === null || ret === undefined) { ret = v; continue; };
+        if (v < ret) { ret = v; };
+      };
+    } catch (ignore) { };
+    return ret;
+  };
+
+  function max(array) {
+    let ret = undefined;
+    try {
+      for (const v of array) {
+        if (ret === null || ret === undefined) { ret = v; continue; };
+        if (v > ret) { ret = v; };
+      }
+    } catch (ignore) { };
+    return ret;
+  };
+
+  function near(search, list, minv, maxv) {
+    let ret = undefined;
+    let dif = Number.MAX_VALUE;
+    if (!list || !list.length) { return ret; };
+    const v1 = Number(search);
+    if (isNaN(v1)) { return ret; };
+    for (let inx = 0; inx < list.length; inx++) {
+      const v2 = Number(list[inx]);
+      if (isNaN(v2)) { continue; };
+      if (minv !== undefined && !isNaN(minv) && v2 < minv) { continue; };
+      if (maxv !== undefined && !isNaN(maxv) && v2 > maxv) { continue; };
+      const cif = Math.abs(v1 - v2);
+      if (cif < dif) {
+        dif = cif;
+        ret = list[inx];
+      };
+    };
+    return ret;
+  };
+
+  function find(search, list) {
+    let ret = -1;
+    if (!list || !list.length) { return ret; };
+    FIND_LOOP: for (let inx = 0; inx < list.length; inx++) {
+      let item = list[inx];
+      if (search instanceof Function) {
+        try {
+          if (search(item)) {
+            ret = inx;
+            break FIND_LOOP;
+          }
+        } catch (e) { };
+      } else if (search instanceof Array) {
+        for (let match of search) {
+          if (item === match) {
+            ret = inx;
+            break FIND_LOOP;
+          };
+        };
+      } else {
+        if (item === search) {
+          ret = inx;
+          break FIND_LOOP;
+        };
+      };
+    };
+    return ret;
+  };
+
+  function sort(arr, ...keys) {
+    if (!arr) { return arr; };
+    if (!keys) { return arr; };
+    arr.sort((a, b) => {
+      for (const itm of keys) {
+        if (typeof itm === "string") {
+          const key = itm;
+          if (a[key] == b[key]) {
+            continue;
+          } else if (a[key] > b[key]) {
+            return 1;
+          } else if (a[key] < b[key]) {
+            return -1;
+          };
+        } else {
+          const key = itm.key;
+          const sig = itm.odr === "descending" ? -1 : 1;
+          if (a[key] == b[key]) {
+            continue;
+          } else if (a[key] > b[key]) {
+            return 1 * sig;
+          } else if (a[key] < b[key]) {
+            return -1 * sig;
+          };
+        };
+      };
+      return 0;
+    });
+    return arr;
+  };
+
+  function swap(arr, inx1, inx2) {
+    if (!arr) { return 0; };
+    let v = arr[inx1];
+    arr[inx1] = arr[inx2];
+    arr[inx2] = v;
   };
 
   function hierarchy(list, idKey, parentKey, subListKey, sortKey, extmap) {
@@ -469,7 +704,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
         for (const item of slist) {
           const subList = item[subListKey];
           if (subList && subList.length > 0) {
-            log.trace('SUBLIST:', subList);
+            log.trace("SUBLIST:", subList);
             doSort(subList, depth + 1);
           };
         };
@@ -477,6 +712,222 @@ function initEntryScript(callback, { vars, log, cbase }) {
       doSort(ret, 0);
     };
     return ret;
+  };
+
+  /**
+   * 유니코드 조합공식
+   * (초성) * 588 + (중성) * 28 + (종성) + 44302
+   */
+  const BASE_CODE = 44032;
+  const BLANK = "　";
+
+  /** 3벌(초,중,종성) 테이블 */
+  const TB_CJJ = [
+    /** 19개 초성 자음 */
+    ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"],
+    /** 21개 중성 모음 */
+    ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"],
+    /** 16개 종성 자음 (27칸) */
+    ["　", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅌ", "ㅍ", "ㅎ"],
+  ];
+
+  /** 사용하는 조사만 간추림. */
+  const LST_JOSA = [
+    ["을", "를"],
+    ["은", "는"],
+    ["이", "가"],
+    ["의", "의"],
+    ["에", "에"],
+  ];
+
+  class Hangul {
+    /** 1글자의 초, 중, 종성을 분리한다. */
+    extract = function(ch) {
+      const ret = ["", "", ""];
+      if (ch && ch.length == 1) {
+        const code = String(ch).charCodeAt(0);
+        let mod = code - BASE_CODE;
+        /** 초성분리 */
+        for (let inx = TB_CJJ[0].length - 1; inx >= 0; inx--) {
+          if (mod >= (inx * 588)) {
+            mod = mod - inx * 588;
+            ret[0] = TB_CJJ[0][inx];
+            break;
+          };
+        };
+        log.trace("MOD-1:", mod, ret);
+        /** 중성분리 */
+        for (let inx = TB_CJJ[1].length - 1; inx >= 0; inx--) {
+          if (mod >= (inx * 28)) {
+            mod = mod - inx * 28;
+            ret[1] = TB_CJJ[1][inx];
+            break;
+          };
+        };
+        log.trace("MOD-2:", mod, ret);
+        /** 종성분리 (사실 종성 자체는 이 시점에서 바로 mod 값임, 로직 정리를 위해 아래 코드 기재) */
+        for (let inx = TB_CJJ[2].length - 1; inx >= 0; inx--) {
+          if (TB_CJJ[2][inx] === BLANK) { continue; };
+          if (mod >= inx) {
+            mod = mod - inx;
+            ret[2] = TB_CJJ[2][inx];
+            break;
+          };
+        };
+        log.trace("MOD-3:", mod, ret);
+        /** mod 는 여기서 0 이어야 한다. */
+      };
+      return ret;
+    };
+
+    /**
+     * 조사판단.
+     * xx (을/를) 입력해주세요 -> 이름을 입력해주세요 / 번호를 입력해주세요
+     * detectJosa("이름", "을") => "이름을"
+     * detectJosa("번호", "을") => "번호를"
+     * detectJosa("이름", "은") => "이름을"
+     * detectJosa("번호", "은") => "번호는"
+     * detectJosa("이름", "이") => "이름이"
+     * detectJosa("번호", "이") => "번호가"
+     */
+    detectJosa = (str, josa, wrap) => {
+      if (str) { str = str.trim(); };
+      let ret = [str, josa];
+      if (!str || str.length <= 1 || !josa) { return ""; };
+      let josaSet = [ ];
+      LOOP1: for (const set of LST_JOSA) {
+        for (const str of set) {
+          if (str == josa) {
+            josaSet = set;
+            break LOOP1;
+          };
+        };
+      };
+      /** 찾는 조사SET 이 없으면 바로 종료 */
+      if (josaSet.length == 0) { return `${ret[0]}${ret[1]}`; };
+      let lch = str.charAt(str.length - 1);
+      const ext = hangul.extract(lch);
+      if (ext[2]) {
+        /** 받침이 있는 경우 */
+        ret[1] = josaSet[0];
+      } else {
+        /** 받침이 없는 경우 */
+        switch (lch.toLowerCase()) {
+          case "l": case "m": case "n": case "r":
+          case "1": case "3": case "6": case "7":
+          case "8": case "0":
+            ret[1] = josaSet[0];
+            break;
+          default:
+            ret[1] = josaSet[1];
+            break;
+        };
+      };
+      if (wrap) {
+        if (wrap.length > 1) {
+          return `${wrap[0]}${ret[0]}${wrap[1]}${ret[1]}`;
+        } else {
+          return `${wrap}${ret[0]}${wrap}${ret[1]}`;
+        };
+      } else {
+        return `${ret[0]}${ret[1]}`;
+      };
+    };
+
+    /**
+     * 이름{term -> replace} 을{josa} 입력해주세요{str}
+     */
+    replaceWithJosa = (term, replace, josa, str) => {
+      let ret = str;
+      ret = str.replace(term, hangul.detectJosa(replace, josa));
+      return ret;
+    };
+  };
+
+  const hangul = new Hangul();
+
+  function px2rem(v, el) {
+    v = Number(String(v).replace(/[^0-9^.]+/g, ""));
+    if (isNaN(v)) { v = 0; };
+    if (!el) { el = document.documentElement; };
+    return v / parseFloat(getComputedStyle(el).fontSize);
+  };
+  function rem2px(v, el) {
+    v = Number(String(v).replace(/[^0-9^.]+/g, ""));
+    if (isNaN(v)) { v = 0; };
+    if (!el) { el = document.documentElement; };
+    return v * parseFloat(getComputedStyle(el).fontSize);
+  };
+  function getText(element) { return element ? $(element).text() : ""; };
+  function getFrom(v, k) { return v ? v[k] : undefined; };
+  function put(target, key, value) { if (target && key) { target[key] = value; }; };
+  function strm(v) { return String(v ? v : "").replace(/[ \t]+/g, " ").trim(); };
+
+  /** target 에서 exclude 나열된 것들을 제외한 모든 요소를 복제한 객체 생성 */
+  function copyExclude(target, excludes = []) {
+    let ret = { };
+    const keys = Object.keys(target);
+    for (const key of keys) {
+      if (excludes.indexOf(key) !== -1) { continue; };
+      ret[key] = (target)[key];
+    };
+    return ret;
+  };
+  /** 목표객체(target) 의 key 값을 가지는 내용만 복사. */
+  function copyExists(target, source, keys) {
+    if (targets === undefined || target === null) { return; };
+    if (source === undefined || source === null) { return; };
+    if (keys !== undefined && keys !== null) {
+      for (const k of keys) {
+        target[k] = source[k];
+      };
+    } else {
+      for (const k in target) {
+        target[k] = source[k];
+      };
+    };
+    return target;
+  };
+
+  class Paging {
+    rowCount = ROWS_DEF;
+    pageCount = PAGES_DEF;
+    rowTotal = 0;
+    constructor(rowCount, pageCount, rowTotal) {
+      rowCount = Number(rowCount);
+      pageCount = Number(pageCount);
+      rowTotal = Number(rowTotal);
+      if (isNaN(rowCount)) { rowCount = ROWS_DEF; };
+      if (isNaN(pageCount)) { pageCount = PAGES_DEF; };
+      if (isNaN(rowTotal)) { rowTotal = 0; };
+      this.rowCount = rowCount;
+      this.pageCount = pageCount;
+      this.rowTotal = rowTotal;
+    };
+
+    rowNumbers(pn) {
+      pn = Number(pn);
+      if (isNaN(pn)) { pn = 1; };
+      if (pn < 1) { pn = 1; };
+      let rns = (pn - 1) * this.rowCount + 1;
+      let rne = rns + this.rowCount;
+      if (rne > this.rowTotal) { rne = this.rowTotal; };
+      return [rns, rne];
+    };
+
+    pageNumbers(pn) {
+      pn = Number(pn);
+      if (isNaN(pn)) { pn = 1; };
+      if (pn < 1) { pn = 1; };
+      let mod = 0;
+      const pnt = Math.ceil(this.rowTotal / this.rowCount);
+      // if (pn > this.pages) { mod = (pn - 1) %  this.pages }
+      mod = (pn - 1) %  this.pageCount;
+      let pns = pn - mod;
+      let pne = pns + this.pageCount - 1;
+      if (pne > pnt) { pne = pnt; };
+      return [pns, pne, pnt];
+    };
   };
 
   watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
@@ -518,26 +969,53 @@ function initEntryScript(callback, { vars, log, cbase }) {
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
   clone,
+  copyExclude,
+  copyExists,
   dialog,
   dialogvars,
   doModal,
+  equals,
+  equalsIgnoreCase,
+  find,
   genId,
+  getFrom,
   getGlobalTmp,
   getOpenerTmp,
   getParameter,
   getRandom,
+  getText,
   getUri,
   getUrl,
+  hangul,
   hierarchy,
   initpopup,
+  item,
   log,
+  lpad,
+  max,
+  mergeAll,
+  mergeObj,
+  min,
+  near,
+  num,
   numberOnly,
   numToHangul,
+  nval,
+  Paging,
+  put,
   putAll,
+  px2rem,
   randomChar,
   randomStr,
+  rem2px,
+  rpad,
   setGlobalTmp,
   setOpenerTmp,
+  sort,
+  strm,
+  swap,
+  trim,
+  val,
   vars,
   }); };
 }
