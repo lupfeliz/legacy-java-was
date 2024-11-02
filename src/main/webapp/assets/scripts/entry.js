@@ -714,6 +714,100 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return ret;
   };
 
+  function numeric(str) {
+    str = String(str ? str : '').trim();
+    let minus = /^[-]/.test(str);
+    let dpoint = '';
+    // str = str.replace(/^[0.]+/g, '');
+    str = str.replace(/[^0-9.]/g, '');
+    if (!str) { str = ''; };
+    /** 앞자리 0 제거 */
+    if (str.length > 1) { str = str.replace(/^[0]+([1-9]+)/g, '$1'); };
+    /** 소숫점 떼기 */
+    {
+      let d = str.split(/\./);
+      if (d.length > 1) { dpoint = d[1]; };
+      str = d[0];
+    };
+    /** 공백이라면 0 으로 치환 */
+    if (str.length == 0) { str = '0'; };
+    let ret = '';
+    let len = str.length;
+    let digit = '';
+    for (let inx = 0; inx < len; inx++) {
+      digit = str.substring(len - inx - 1, len - inx);
+      if (inx > 0 && inx % 3 == 0) {
+        ret = digit + ',' + ret;
+      } else {
+        ret = digit + ret;
+      };
+    };
+    if (minus) { ret = `-${ret}`; };
+    if (dpoint) { ret = `${ret}.${dpoint}`; };
+    return ret;
+  };
+
+  function replaceLink(v) {
+    /** 문장 중 링크가 발견되면 a태그 덧씌움 */
+    let ret = String(v);
+    /** 하이퍼텍스트 링크 */
+    ret = v.replace(/(http[s]{0,1}\:\/\/[a-zA-Z0-9._\/\|?=\&-]+)/g,
+      `<a target="_blank" href="$1">$1</a>`);
+    /** 이메일 링크 */
+    ret = v.replace(/((([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))\@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,})))/g,
+      `<a target="_blank" href="mailto:$1">$1</a>`);
+    return ret;
+  };
+
+  function getPattern(t, v) {
+    let ret = undefined;
+    switch(t) {
+    case 'number':
+      ret = /^([\+\-]{0,1})[0-9]+$/;
+      break;
+    case 'numeric':
+      ret = /^([\+\-]{0,1})[0-9]+(\,[0-9]{3})*(\.[0-9]+){0,1}$/;
+      break;
+    case 'alpha':
+      ret = /^[a-zA-Z]+$/;
+      break;
+    case 'alphaspc':
+      ret = /^[\sa-zA-Z]+$/;
+      break;
+    case 'alphanum':
+      ret = /^[a-zA-Z0-9]+$/;
+      break;
+    case 'alphanumspc':
+      ret = /^[\sa-zA-Z0-9]+$/;
+      break;
+    case 'alphastart':
+      ret = /^[a-zA-Z].*$/;
+      break;
+    case 'ascii':
+      ret = /^[\x00-\x7F]+$/;
+      break;
+    case 'date':
+      ret = /^([0-9]{4}[-]{0,1}[0-9]{2}[-]{0,1}[0-9]{2})([ ]{0,1}[0-9]{2}[:]{0,1}[0-9]{2}[:]{0,1}[0-9]{2}(.[0-9]{1,3}){0,1}){0,1}$/;
+      break;
+    case 'email':
+      ret = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))\@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      break;
+    case 'password':
+      /** Minimum eight characters, at least one letter and one number: */
+      // ret = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      /** Minimum eight characters, at least one letter, one number and one special character: */
+      // ret = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+      /** Minimum eight characters, at least one uppercase letter, one lowercase letter and one number: */
+      // ret = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+      /** Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character: */
+      // ret = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      ret = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{4,}$/;
+      break;
+    };
+    if (v !== null && v !== undefined) { return ret.test(String(v).trim()); };
+    return ret;
+  };
+
   /**
    * 유니코드 조합공식
    * (초성) * 588 + (중성) * 28 + (종성) + 44302
@@ -982,6 +1076,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   getGlobalTmp,
   getOpenerTmp,
   getParameter,
+  getPattern,
   getRandom,
   getText,
   getUri,
@@ -999,6 +1094,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   near,
   num,
   numberOnly,
+  numeric,
   numToHangul,
   nval,
   Paging,
@@ -1008,6 +1104,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   randomChar,
   randomStr,
   rem2px,
+  replaceLink,
   rpad,
   setGlobalTmp,
   setOpenerTmp,
