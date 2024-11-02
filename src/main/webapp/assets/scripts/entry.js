@@ -486,31 +486,58 @@ function initEntryScript(callback, { vars, log, cbase }) {
     if (o == 0 && n > 0) { doProgress(); };
   });
 
+  const MOUNT_HOOK_PROCS = [];
+  const UNMOUNT_HOOK_PROCS = [];
+
+  /** [ 레이어팝업 관련 스크립트 */
+  MOUNT_HOOK_PROCS.push(async function(app) {
+    const modalref = app.$refs["dialogvars.modal.ref"];
+    const progressref = app.$refs["dialogvars.progress.ref"];
+    dialogvars.value.modal.instance = new bootstrap.Modal(modalref, {});
+    dialogvars.value.progress.instance = new bootstrap.Modal(progressref, {});
+    progressref.addEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
+    progressref.addEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
+    modalref.addEventListener(M_HIDDEN, doModal);
+  });
+  UNMOUNT_HOOK_PROCS.push(async function(app) {
+    const modalref = app.$refs["dialogvars.modal.ref"];
+    const progressref = app.$refs["dialogvars.progress.ref"];
+    progressref.removeEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
+    progressref.removeEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
+    modalref.removeEventListener(M_HIDDEN, doModal);
+  });
+  /** ] 레이어팝업 관련 스크립트 */
+
+  function BIND_VALUES({ props, context }) {
+    return { vars, dialogvars };
+  };
+
   /** 공통 사용을 위해 entry.js 와 launch-script.jsp 의 항목을 맞춰 주어야 한다. */
   if (callback) { callback({
-    clone,
-    dialog,
-    dialogvars,
-    doModal,
-    genId,
-    getGlobalTmp,
-    getOpenerTmp,
-    getParameter,
-    getRandom,
-    getUri,
-    getUrl,
-    hierarchy,
-    initpopup,
-    log,
-    numberOnly,
-    numToHangul,
-    putAll,
-    randomChar,
-    randomStr,
-    setGlobalTmp,
-    setOpenerTmp,
-    vars,
-    M_SHOWN,
-    M_HIDDEN,
+  BIND_VALUES,
+  MOUNT_HOOK_PROCS,
+  UNMOUNT_HOOK_PROCS,
+  clone,
+  dialog,
+  dialogvars,
+  doModal,
+  genId,
+  getGlobalTmp,
+  getOpenerTmp,
+  getParameter,
+  getRandom,
+  getUri,
+  getUrl,
+  hierarchy,
+  initpopup,
+  log,
+  numberOnly,
+  numToHangul,
+  putAll,
+  randomChar,
+  randomStr,
+  setGlobalTmp,
+  setOpenerTmp,
+  vars,
   }); };
 }

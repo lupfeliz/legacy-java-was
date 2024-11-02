@@ -48,12 +48,16 @@ setTimeout(function() {
 }, 0);
 setTimeout(function() {
 const createApp = Vue.createApp;
+const getCurrentInstance = Vue.getCurrentInstance;
 const ref = Vue.ref;
 const vars = ref({ });
 /** 로그 */
 const log = { };
 /** [ 페이지 스크립트 실행 */
 initEntryScript(async function({
+  BIND_VALUES,
+  MOUNT_HOOK_PROCS,
+  UNMOUNT_HOOK_PROCS,
   clone,
   dialog,
   dialogvars,
@@ -76,8 +80,6 @@ initEntryScript(async function({
   setGlobalTmp,
   setOpenerTmp,
   vars,
-  M_SHOWN,
-  M_HIDDEN,
   }) {
   const vueapp = createApp({
   setup: function(props, context) {
@@ -87,33 +89,11 @@ initEntryScript(async function({
       try { <script:ex name="${name}" /> } catch (e) { log.debug("E:", e); };
       </c:if>
     </c:forEach>
-    return {
-      vars,
-      dialogvars,
-    };
+    return putAll(BIND_VALUES({ props, context, app: vueapp, instance: getCurrentInstance() }), {
+    });
   },
-  mounted: async function() {
-    /** [ 레이어팝업 관련 스크립트 */
-    {
-      const modalref = this.$refs["dialogvars.modal.ref"];
-      const progressref = this.$refs["dialogvars.progress.ref"];
-      dialogvars.value.modal.instance = new bootstrap.Modal(modalref, {});
-      dialogvars.value.progress.instance = new bootstrap.Modal(progressref, {});
-      progressref.addEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
-      progressref.addEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
-      modalref.addEventListener(M_HIDDEN, doModal);
-    }
-    /** ] 레이어팝업 관련 스크립트 */
-  },
-  beforeUnmount: async function() {
-    {
-      const modalref = this.$refs["dialogvars.modal.ref"];
-      const progressref = this.$refs["dialogvars.progress.ref"];
-      progressref.removeEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
-      progressref.removeEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
-      modalref.removeEventListener(M_HIDDEN, doModal);
-    }
-  }
+  mounted: async function() { for (const proc of MOUNT_HOOK_PROCS) { proc(this); }; },
+  beforeUnmount: async function() { for (const proc of UNMOUNT_HOOK_PROCS) { proc(this); }; }
   });
   registerComponent({
     app: vueapp,
