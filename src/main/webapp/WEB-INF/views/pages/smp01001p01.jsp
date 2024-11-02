@@ -21,21 +21,19 @@
 log.debug("MAIN-PAGE-LOADED!");
 /** 팝업데이터는 최상단에 hoisting 되어져야 상호작용이 가능하다 */
 const popdata = initpopup();
-/** 굳이 vars 에 넣는 이유는 화면에 바인딩 하기 위해 */
-vars.popdata = popdata;
-
-log.debug("POPDATA:", vars.popdata);
-
-vars.onKeydown = async function(e) {
-  log.debug("CHECK:", e.target.value);
-  popdata.message = String(e.target.value);
-};
-
-vars.onClick = async function(v) {
-  if (v == 1) {
-    log.debug("OK");
-  } else {
-    window.close();
-  };
-};
+putAll(vars, {
+  /** 굳이 vars 에 넣는 이유는 화면에 바인딩 하기 위해 */
+  popdata,
+  async onKeydown(e) {
+    log.debug("CHECK:", e.target.value);
+    popdata.message = String(e.target.value);
+  },
+  async onClick(v) {
+    if (v == 1) {
+      log.debug("OK");
+    } else {
+      window.close();
+    };
+  }
+});
 </script:ex>

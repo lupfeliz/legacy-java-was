@@ -57,7 +57,7 @@ putAll(vars, {
   \ 백틱을 사용하는 경우 여러줄에 걸쳐서 작성 할 수 있습니다.
   \ 개행문자 앞에 백슬래시를 붙여 주어야 합니다.
   `,
-  doProgress: async function() {
+  async doProgress() {
     setTimeout(function() {
       log.debug("HIDE-OVERLAY...");
       dialog.progress(false);
@@ -65,29 +65,29 @@ putAll(vars, {
     log.debug("SHOW-OVERLAY...");
     dialog.progress(true);
   },
-  doAlert: async function() {
+  async doAlert() {
     dialog.alert("알림!");
   },
-  doConfirm: async function() {
+  async doConfirm() {
     if (await dialog.confirm("확실한가요?")) {
       vars.message = "예";
     } else {
       vars.message = "아니오";
     }
   },
-  doWinpopup: async function() {
+  async doWinpopup() {
     dialog.winpopup("/smp/smp01001p01", vars);
   },
-  doSubmit: async function() {
+  async doSubmit() {
     $("form[name='form']")
       .attr("method", "post")
       .attr("enctype", "application/x-www-form-urlencoded")
       .submit();
   },
-  onEnter: async function(e) {
+  async onEnter(e) {
     log.debug("ENTER:", vars.message);
   },
-  onKeydown: async function(e) {
+  async onKeydown(e) {
     // log.debug("keyDown:", e.target.value);
     // vars.message = e.target.value;
     // update();
