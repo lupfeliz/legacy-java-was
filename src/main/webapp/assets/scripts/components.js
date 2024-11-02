@@ -8,6 +8,7 @@
 
 function registerComponent($SCRIPTPRM) {
   const ref = Vue.ref;
+  const useAttrs = Vue.useAttrs;
   const defineProps = Vue.defineProps;
   const {
   BIND_VALUES,
@@ -74,7 +75,33 @@ function registerComponent($SCRIPTPRM) {
   val,
   } = $SCRIPTPRM;
   const app = $SCRIPTPRM.app;
-  const { debounce } = lodash;
+  const { debounce, throttle } = lodash;
+  {
+    const name = "c-button";
+    const CButton = {
+      template: `
+      \ <button
+      \   class="btn"
+      \   @click="onClick"
+      \   >
+      \   <slot />
+      \ </button>`,
+      name,
+      setup: function(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const vars = {
+        };
+        const onClick = throttle(function(e) { return emit("on-click", e); }, 300);
+        const v = {
+          attrs,
+          vars,
+          onClick,
+        };
+        return v;
+      }
+    };
+    app.component(name, CButton);
+  };
   {
     const name = "c-input";
     const CInput = {
@@ -89,9 +116,9 @@ function registerComponent($SCRIPTPRM) {
       \   @blur="onBlur"
       \   v-bind="attrs"
       \   />`,
-      name: name,
+      name,
       setup: function(props, ctx) {
-        const { attrs, expose, slots } = ctx;
+        const { attrs, emit, expose, slots } = ctx;
         const vars = {
           itype: attrs.type,
           avail: true,
@@ -104,8 +131,6 @@ function registerComponent($SCRIPTPRM) {
             message: undefined,
           },
         };
-        // const emit = debounce(ctx.emit, 300);
-        const emit = ctx.emit;
         /** 입력컴포넌트 키입력 이벤트 처리 */
         const onKeydown = async function(e) {
           if (vars.avail) {
@@ -139,7 +164,6 @@ function registerComponent($SCRIPTPRM) {
           const vprev = vars.elem.value.value;
           // // const { props, setValue, value: vprev } = modelValue(self())
           // if (props?.onKeydown instanceof Function) { props.onKeydown(e) }
-          emit("on-keydown", e);
           const cdnm = e.code;
           const kcode = Number((e && e.keyCode) ? e.keyCode : 0);
           // // log.debug("E:", e.code, e.keyCode)
@@ -151,7 +175,7 @@ function registerComponent($SCRIPTPRM) {
             let st = Number(el.selectionStart || 0);
             let ed = Number(el.selectionEnd || 0);
             /** 허용키 : ctrl+c ctrl+v 방향키 bs delete tab enter space */
-            if (vars?.itype === "number" || vars?.itype === "numeric") {
+            if (vars.itype === "number" || vars.itype === "numeric") {
               let v = 0;
               switch (kcode) {
               case KEYCODE_TABLE.PC.Esc:
@@ -170,53 +194,60 @@ function registerComponent($SCRIPTPRM) {
               case KEYCODE_TABLE.PC.MetaLeft: 
               case KEYCODE_TABLE.PC.MetaRight: {
                 vars.avail = true;
-              if (e.keyCode === KEYCODE_TABLE.PC.Enter) { setTimeout(function() { emit("on-enter", e); }, 50); };
-                return;
+                // return;
               } break;
               case undefined: { /** NO-OP */ } break;
               case KEYCODE_TABLE.PC.ArrowUp: {
-          //       let d = String(inputVal()).substring((st - 1) || 0, st)
-          //       if (/[0-9]/.test(d)) {
-          //         d = String(Number(d) - 1)
-          //         log.trace("CHECK:", d)
-          //       }
-          //       const minv = Number(props?.minValue || C.UNDEFINED)
-          //       const maxv = Number(props?.maxValue || C.UNDEFINED)
-          //       v = Number(toNumber(inputVal()) || 0) - 1
-          //       if (minv !== C.UNDEFINED && v < minv) { v = minv }
-          //       if (maxv !== C.UNDEFINED && v > maxv) { v = maxv }
-          //       if (props?.rtformatter) {
-          //         setValue(inputVal(props.rtformatter(v)))
-          //       } else {
-          //         setValue(inputVal(v))
-          //       }
-          //       el.selectionStart = st
-          //       el.selectionEnd = ed
-          //       cancelEvent(e)
-          //       vars.avail = true
-          //       return
+                // let d = String(inputVal()).substring((st - 1) || 0, st);
+                let d = String(el.value).substring((st - 1) ? (st - 1) : 0, st);
+                if (/[0-9]/.test(d)) {
+                  d = String(Number(d) - 1);
+                  log.trace("CHECK:", d);
+                };
+                const minv = attrs.minValue ? Number(attrs.minValue) : undefined;
+                const maxv = attrs.maxValue ? Number(attrs.maxValue) : undefined;
+                // v = Number(toNumber(inputVal()) || 0) - 1
+                v = Number(numberOnly(el.value ? el.value : 0)) - 1;
+                if (minv !== undefined && v < minv) { v = minv; };
+                if (maxv !== undefined && v > maxv) { v = maxv; };
+                if (attrs.rtformatter) {
+                  // setValue(inputVal(attrs.rtformatter(v)))
+                  el.value = attrs.rtformatter(v);
+                } else {
+                  // setValue(inputVal(v))
+                  el.value = v;
+                };
+                el.selectionStart = st;
+                el.selectionEnd = ed;
+                cancelEvent(e);
+                vars.avail = true;
+                return;
               } break;
               case KEYCODE_TABLE.PC.ArrowDown: {
-          //       let d = String(inputVal()).substring((st - 1) || 0, st)
-          //       if (/[0-9]/.test(d)) {
-          //         d = String(Number(d) + 1)
-          //         log.trace("CHECK:", d)
-          //       }
-          //       const minv = Number(props?.minValue || C.UNDEFINED)
-          //       const maxv = Number(props?.maxValue || C.UNDEFINED)
-          //       v = Number(toNumber(inputVal()) || 0) + 1
-          //       if (minv !== C.UNDEFINED && v < minv) { v = minv }
-          //       if (maxv !== C.UNDEFINED && v > maxv) { v = maxv }
-          //       if (props?.rtformatter) {
-          //         setValue(inputVal(props.rtformatter(v)))
-          //       } else {
-          //         setValue(inputVal(v))
-          //       }
-          //       el.selectionStart = st
-          //       el.selectionEnd = ed
-          //       cancelEvent(e)
-          //       vars.avail = true
-          //       return
+                // let d = String(inputVal()).substring((st - 1) || 0, st)
+                let d = String(el.value).substring((st - 1) ? (st - 1) : 0, st);
+                if (/[0-9]/.test(d)) {
+                  d = String(Number(d) + 1);
+                  log.trace("CHECK:", d);
+                };
+                const minv = attrs.minValue ? Number(attrs.minValue) : undefined;
+                const maxv = attrs.maxValue ? Number(attrs.maxValue) : undefined;
+                // v = Number(toNumber(inputVal()) || 0) + 1
+                v = Number(numberOnly(el.value ? el.value : 0)) + 1;
+                if (minv !== undefined && v < minv) { v = minv; };
+                if (maxv !== undefined && v > maxv) { v = maxv; };
+                if (attrs?.rtformatter) {
+                  // setValue(inputVal(attrs.rtformatter(v)))
+                  el.value = attrs.rtformatter(v);
+                } else {
+                  // setValue(inputVal(v))
+                  el.value = v;
+                };
+                el.selectionStart = st;
+                el.selectionEnd = ed;
+                cancelEvent(e);
+                vars.avail = true;
+                return;
               } break;
               default: {
                 if (
@@ -243,16 +274,19 @@ function registerComponent($SCRIPTPRM) {
             };
             /** 2. 후처리, 키입력이 이루어진 후 DOM 에 반영된 결과물을 2차 가공하는 과정 */
             setTimeout(async function() {
+              let value = "";
               if ([KEYCODE_TABLE.PC.Backspace, KEYCODE_TABLE.PC.Delete].indexOf(kcode) !== -1) {
                 /** 삭제키인(backspace, delete) 경우 별도처리 */
                 let v1, v2, l1, l2;
                 let st = Number(el.selectionStart ? el.selectionStart : 0);
                 let ed = Number(el.selectionEnd ? el.selectionEnd : 0);
-                v1 = attrs?.rtformatter ? attrs.rtformatter(vprev) : vprev;
-                v2 = attrs?.rtformatter ? attrs.rtformatter(el.value) : el.value;
-                if (el.value === "") {
+                v1 = (attrs && attrs.rtformatter) ? attrs.rtformatter(vprev) : vprev;
+                v2 = (attrs && attrs.rtformatter) ? attrs.rtformatter(el.value) : el.value;
+                if (el.value === null || el.value === undefined || el.value === "") {
                   // setValue("")
-                  return vars.avail = true
+                  emit("update:model-value", value = el.value = "");
+                  emit("on-keydown", e);
+                  return vars.avail = true;
                 };
                 LOOP: while(true) {
                   l1 = v1.length;
@@ -262,14 +296,14 @@ function registerComponent($SCRIPTPRM) {
                     // // if (st > 1 && kcode === KEYCODE_TABLE.PC.Backspace)
                     if (kcode === KEYCODE_TABLE.PC.Backspace) {
                       v2 = `${v2.substring(0, st - 1)}${v2.substring(st)}`;
-                      v2 = attrs?.rtformatter ? attrs.rtformatter(v2) : v2;
+                      v2 = (attrs && attrs.rtformatter) ? attrs.rtformatter(v2) : v2;
                       l2 --;
                       st --;
                       ed --;
                     // // } else if (ed < l2 && kcode === KEYCODE_TABLE.PC.Delete) {
                     } else if (kcode === KEYCODE_TABLE.PC.Delete) {
                       v2 = `${v2.substring(0, st)}${v2.substring(st + 2)}`;
-                      v2 = attrs?.rtformatter ? attrs.rtformatter(v2) : v2;
+                      v2 = (attrs && attrs.rtformatter) ? attrs.rtformatter(v2) : v2;
                       l2 --;
                     };
                   };
@@ -281,11 +315,12 @@ function registerComponent($SCRIPTPRM) {
                   el.selectionStart = st;
                   el.selectionEnd = ed;
                   // setValue(inputVal(v2));
+                  value = v2;
                   break LOOP;
                 };
               } else {
                 /** 일반키인경우 처리 */
-                let v = el.value
+                let v = el.value;
                 let st = Number(el.selectionStart ? el.selectionStart : 0);
                 let ed = Number(el.selectionEnd ? el.selectionEnd : 0);
                 let ch = String(v).substring(st - 1, ed);
@@ -297,11 +332,11 @@ function registerComponent($SCRIPTPRM) {
                     v = vprev;
                     st--;
                     ed--;
-                  }
+                  };
                   const l1 = String(el.value).length;
                   const l2 = v.length;
                   el.value = v;
-                  await sleep(2)
+                  await sleep(2);
                   /** TODO 기존에 선택상태였는지 체크, 삭제의 경우, 붙여넣기의 경우 */
                   if (l2 > l1) {
                     st ++;
@@ -312,16 +347,19 @@ function registerComponent($SCRIPTPRM) {
                   el.selectionEnd = ed;
                   await sleep(5)
                   // setValue(inputVal(`${v}`))
-                }
-                emit("update:model-value", `${v}`);
-              }
+                };
+                el.value = value = v;
+              };
+              emit("on-keydown", e);
+              emit("update:model-value", `${value}`);
+              if (e.keyCode === KEYCODE_TABLE.PC.Enter) { setTimeout(function() { emit("on-enter", e); }, 50); };
               // update(C.UPDATE_FULL)
               vars.avail = true
             }, 50)
           }
         };
         const v = {
-          attrs: Vue.useAttrs(),
+          attrs,
           onKeydown,
           onKeyup,
           onKeydownProc,
@@ -331,5 +369,5 @@ function registerComponent($SCRIPTPRM) {
       }
     };
     app.component(name, CInput);
-  }
+  };
 };

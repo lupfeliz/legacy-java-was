@@ -5,15 +5,15 @@
   <div>
     <c-input
       :value="vars.popdata.message"
-      @keydown="vars.onKeydown"
+      @on-keydown="vars.onKeydown"
       />
   </div>
-  <button class="btn btn-primary mx-1" @click="vars.onClick(1)">
+  <c-button class="btn-primary mx-1" @on-click="vars.onClick(1)">
     OK
-  </button>
-  <button class="btn btn-primary mx-1" @click="vars.onClick(2)">
+  </c-button>
+  <c-button class="btn-primary mx-1" @on-click="vars.onClick(2)">
     닫기
-  </button>
+  </c-button>
   <div>
   </div>
 </page:ex>
@@ -27,6 +27,7 @@ vars.popdata = popdata;
 log.debug("POPDATA:", vars.popdata);
 
 vars.onKeydown = async function(e) {
+  log.debug("CHECK:", e.target.value);
   popdata.message = String(e.target.value);
 };
 

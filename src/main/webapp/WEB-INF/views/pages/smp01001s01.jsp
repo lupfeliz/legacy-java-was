@@ -5,6 +5,7 @@
   <div>
     <c-input
       v-model="vars.message"
+      :value="vars.message"
       @on-keydown="vars.onKeydown"
       @on-enter="vars.onEnter"
       name="input1"
@@ -27,22 +28,22 @@
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
   </form>
-  <button class="btn btn-primary mx-1" @click="vars.doProgress()">
+  <c-button class="btn-primary mx-1" @on-click="vars.doProgress()">
     대기
-  </button>
-  <button class="btn btn-primary mx-1" @click="vars.doAlert()">
+  </c-button>
+  <c-button class="btn-primary mx-1" @on-click="vars.doAlert()">
     경고팝업
-  </button>
-  <button class="btn btn-primary mx-1" @click="vars.doConfirm()">
+  </c-button>
+  <c-button class="btn-primary mx-1" @on-click="vars.doConfirm()">
     확인팝업
-  </button>
-  <button class="btn btn-primary mx-1" @click="vars.doWinpopup()">
+  </c-button>
+  <c-button class="btn-primary mx-1" @on-click="vars.doWinpopup()">
     물리팝업
-  </button>
+  </c-button>
   <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
-  <button class="btn btn-primary mx-1" @click="vars.doSubmit()">
+  <c-button class="btn-primary mx-1" @on-click="vars.doSubmit()">
     SUBMIT
-  </button>
+  </c-button>
   <div>
   </div>
 </page:ex>
@@ -88,7 +89,7 @@ putAll(vars, {
   },
   onKeydown: async function(e) {
     // log.debug("keyDown:", e.target.value);
-    vars.message = e.target.value;
+    // vars.message = e.target.value;
     // update();
   },
 });

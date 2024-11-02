@@ -3,18 +3,18 @@
 <page:ex>
   샘플페이지 02
   <div>
-    <input
-      :value="vars.popdata.message"
-      @keydown="vars.onKeydown"
+    <c-input
+      v-model="vars.popdata.message"
+      @on-keydown="vars.onKeydown"
       />
   </div>
   <form name="form" action="/smp/smp01001s01">
     <input type="hidden" name="value1" value="123" />
     <input type="hidden" name="value2" value="456" />
   </form>
-  <button class="btn btn-primary" @click="vars.clicked()">
+  <c-button class="btn-primary" @click="vars.clicked()">
     OK
-  </button>
+  </c-button>
   <div>
   </div>
 </page:ex>
