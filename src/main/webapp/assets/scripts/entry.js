@@ -983,6 +983,13 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return target;
   };
 
+  function cancelEvent (e) {
+    if (e && e.preventDefault && e.stopPropagation) {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+  };
+
   class Paging {
     rowCount = ROWS_DEF;
     pageCount = PAGES_DEF;
@@ -1062,6 +1069,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   BIND_VALUES,
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
+  cancelEvent,
   clone,
   copyExclude,
   copyExists,
