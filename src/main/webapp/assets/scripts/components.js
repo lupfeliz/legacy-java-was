@@ -6,9 +6,7 @@
  * @Site        : https://devlog.ntiple.com
  **/
 
-function $component_input(param) {
-  const app = param.app;
-  const log = param.log;
+function registerComponent({ app, log }) {
   {
     const name = "c-input";
     const CInput = {

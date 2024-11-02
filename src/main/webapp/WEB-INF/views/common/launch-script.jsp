@@ -49,16 +49,9 @@ setTimeout(function() {
 setTimeout(function() {
 const createApp = Vue.createApp;
 const ref = Vue.ref;
-const reactive = Vue.reactive;
-const watch = Vue.watch;
-const useTemplateRef = Vue.useTemplateRef;
-const nextTick = Vue.nextTick;
-const M_SHOWN = "shown.bs.modal";
-const M_HIDDEN = "hidden.bs.modal";
 const vars = ref({ });
 /** 로그 */
 const log = { };
-
 /** [ 페이지 스크립트 실행 */
 initEntryScript(async function({
   clone,
@@ -83,52 +76,50 @@ initEntryScript(async function({
   setGlobalTmp,
   setOpenerTmp,
   vars,
+  M_SHOWN,
+  M_HIDDEN,
   }) {
   const vueapp = createApp({
-    setup: function(props, context) {
-      try {
-        return {
-          vars,
-          dialogvars,
-        };
-      } catch (e) {
-        log.debug("E:", e);
-      }
-    },
-    mounted: async function() {
-      /** [ 레이어팝업 관련 스크립트 */
-      {
-        const modalref = this.$refs["dialogvars.modal.ref"];
-        const progressref = this.$refs["dialogvars.progress.ref"];
-        dialogvars.value.modal.instance = new bootstrap.Modal(modalref, {});
-        dialogvars.value.progress.instance = new bootstrap.Modal(progressref, {});
-        progressref.addEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
-        progressref.addEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
-        modalref.addEventListener(M_HIDDEN, doModal);
-      }
-      /** ] 레이어팝업 관련 스크립트 */
-    },
-    beforeUnmount: async function() {
-      {
-        const modalref = this.$refs["dialogvars.modal.ref"];
-        const progressref = this.$refs["dialogvars.progress.ref"];
-        progressref.removeEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
-        progressref.removeEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
-        modalref.removeEventListener(M_HIDDEN, doModal);
-      }
+  setup: function(props, context) {
+    <script:names var="scripts"/>
+    <c:forEach items="${scripts}" var="name">
+      <c:if test="${name != '#launcher#'}">
+      try { <script:ex name="${name}" /> } catch (e) { log.debug("E:", e); };
+      </c:if>
+    </c:forEach>
+    return {
+      vars,
+      dialogvars,
+    };
+  },
+  mounted: async function() {
+    /** [ 레이어팝업 관련 스크립트 */
+    {
+      const modalref = this.$refs["dialogvars.modal.ref"];
+      const progressref = this.$refs["dialogvars.progress.ref"];
+      dialogvars.value.modal.instance = new bootstrap.Modal(modalref, {});
+      dialogvars.value.progress.instance = new bootstrap.Modal(progressref, {});
+      progressref.addEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
+      progressref.addEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
+      modalref.addEventListener(M_HIDDEN, doModal);
     }
+    /** ] 레이어팝업 관련 스크립트 */
+  },
+  beforeUnmount: async function() {
+    {
+      const modalref = this.$refs["dialogvars.modal.ref"];
+      const progressref = this.$refs["dialogvars.progress.ref"];
+      progressref.removeEventListener(M_SHOWN, dialogvars.value.progress.handlevis);
+      progressref.removeEventListener(M_HIDDEN, dialogvars.value.progress.handlevis);
+      modalref.removeEventListener(M_HIDDEN, doModal);
+    }
+  }
   });
-  $component_input({
+  registerComponent({
     app: vueapp,
     log: log,
   });
   vueapp.mount(document.body);
-  <script:names var="scripts"/>
-  <c:forEach items="${scripts}" var="name">
-    <c:if test="${name != '#launcher#'}">
-    try { <script:ex name="${name}" /> } catch (e) { log.debug("E:", e); }
-    </c:if>
-  </c:forEach>
 }, { vars: vars.value, log, cbase: "${cbase}" });
 /** ] 페이지 스크립트 실행 */
 }, 0);

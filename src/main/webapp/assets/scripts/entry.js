@@ -510,5 +510,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     setGlobalTmp,
     setOpenerTmp,
     vars,
+    M_SHOWN,
+    M_HIDDEN,
   }); };
 }
