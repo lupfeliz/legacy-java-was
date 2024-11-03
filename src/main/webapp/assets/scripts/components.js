@@ -10,6 +10,7 @@ function registerComponent($SCRIPTPRM) {
   const ref = Vue.ref;
   const useAttrs = Vue.useAttrs;
   const defineProps = Vue.defineProps;
+  const defineComponent = Vue.defineComponent;
   const {
   BIND_VALUES,
   KEYCODE_REV_TABLE,
@@ -78,7 +79,8 @@ function registerComponent($SCRIPTPRM) {
   const { debounce, throttle } = lodash;
   {
     const name = "c-button";
-    const CButton = {
+    const CButton = defineComponent({
+      name,
       template: `
       \ <button
       \   class="btn"
@@ -86,7 +88,6 @@ function registerComponent($SCRIPTPRM) {
       \   >
       \   <slot />
       \ </button>`,
-      name,
       setup: function(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
@@ -99,30 +100,39 @@ function registerComponent($SCRIPTPRM) {
         };
         return v;
       }
-    };
+    });
     app.component(name, CButton);
   };
   {
     const name = "c-input";
-    const CInput = {
+    const CInput = defineComponent({
+      name,
       template: `
       \ <input
       \   class="form-control"
       \   :ref="vars.elem"
       \   :vrules=""
-      \   :formatter=""
-      \   :rtformatter=""
       \   @keydown="onKeydown"
       \   @keyup="onKeyup"
       \   @focus="onFocus"
       \   @blur="onBlur"
       \   v-bind="attrs"
       \   />`,
-      name,
+      props: {
+        formatter: function() { },
+        rtformatter: function() { },
+        modelValue: '',
+        type: '',
+        minvalue: undefined,
+        maxvalue: undefined,
+        minlength: undefined,
+        maxlength: undefined,
+        vrules: '',
+      },
       setup: function(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
-          itype: attrs.type,
+          itype: props.type,
           avail: true,
           material: false,
           elem: ref(),
@@ -153,7 +163,7 @@ function registerComponent($SCRIPTPRM) {
         };
         async function onBlur(e) {
           const el = (o = $(vars.elem.value)[0]) ? o : {};
-          if (attrs.formatter) { el.value = attrs.formatter(el.value); };
+          if (props.formatter) { el.value = props.formatter(el.value); };
           emit("onblur", e);
         };
         async function onKeydownProc(e) {
@@ -198,13 +208,13 @@ function registerComponent($SCRIPTPRM) {
                   d = String(Number(d) - 1);
                   log.trace("CHECK:", d);
                 };
-                const minv = attrs.minvalue ? Number(attrs.minvalue) : undefined;
-                const maxv = attrs.maxvalue ? Number(attrs.maxvalue) : undefined;
+                const minv = props.minvalue ? Number(props.minvalue) : undefined;
+                const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
                 v = Number(numberOnly(el.value ? el.value : 0)) - 1;
                 if (minv !== undefined && v < minv) { v = minv; };
                 if (maxv !== undefined && v > maxv) { v = maxv; };
-                if (attrs.rtformatter) {
-                  el.value = attrs.rtformatter(v);
+                if (props.rtformatter) {
+                  el.value = props.rtformatter(v);
                 } else {
                   el.value = v;
                 };
@@ -222,13 +232,13 @@ function registerComponent($SCRIPTPRM) {
                   d = String(Number(d) + 1);
                   log.trace("CHECK:", d);
                 };
-                const minv = attrs.minvalue ? Number(attrs.minvalue) : undefined;
-                const maxv = attrs.maxvalue ? Number(attrs.maxvalue) : undefined;
+                const minv = props.minvalue ? Number(props.minvalue) : undefined;
+                const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
                 v = Number(numberOnly(el.value ? el.value : 0)) + 1;
                 if (minv !== undefined && v < minv) { v = minv; };
                 if (maxv !== undefined && v > maxv) { v = maxv; };
-                if (attrs.rtformatter) {
-                  el.value = attrs.rtformatter(v);
+                if (props.rtformatter) {
+                  el.value = props.rtformatter(v);
                 } else {
                   el.value = v;
                 };
@@ -271,8 +281,8 @@ function registerComponent($SCRIPTPRM) {
                 let v1, v2, l1, l2;
                 let st = Number(el.selectionStart ? el.selectionStart : 0);
                 let ed = Number(el.selectionEnd ? el.selectionEnd : 0);
-                v1 = (attrs && attrs.rtformatter) ? attrs.rtformatter(vprev) : vprev;
-                v2 = (attrs && attrs.rtformatter) ? attrs.rtformatter(el.value) : el.value;
+                v1 = (props && props.rtformatter) ? props.rtformatter(vprev) : vprev;
+                v2 = (props && props.rtformatter) ? props.rtformatter(el.value) : el.value;
                 if (el.value === null || el.value === undefined || el.value === "") {
                   emit("update:model-value", value = el.value = "");
                   emit("onkeydown", e);
@@ -286,14 +296,14 @@ function registerComponent($SCRIPTPRM) {
                     // // if (st > 1 && kcode === KEYCODE_TABLE.PC.Backspace)
                     if (kcode === KEYCODE_TABLE.PC.Backspace) {
                       v2 = `${v2.substring(0, st - 1)}${v2.substring(st)}`;
-                      v2 = (attrs && attrs.rtformatter) ? attrs.rtformatter(v2) : v2;
+                      v2 = (props && props.rtformatter) ? props.rtformatter(v2) : v2;
                       l2 --;
                       st --;
                       ed --;
                     // // } else if (ed < l2 && kcode === KEYCODE_TABLE.PC.Delete) {
                     } else if (kcode === KEYCODE_TABLE.PC.Delete) {
                       v2 = `${v2.substring(0, st)}${v2.substring(st + 2)}`;
-                      v2 = (attrs && attrs.rtformatter) ? attrs.rtformatter(v2) : v2;
+                      v2 = (props && props.rtformatter) ? props.rtformatter(v2) : v2;
                       l2 --;
                     };
                   };
@@ -315,9 +325,9 @@ function registerComponent($SCRIPTPRM) {
                 let ch = String(v).substring(st - 1, ed);
                 // // log.debug("CHAR:", `"${ch}"`, st, ed, v.length, kcode, v)
                 if (vars.itype === "number" || vars.itype === "numeric") {
-                  v = (attrs && attrs.rtformatter) ? attrs.rtformatter(el.value) : v;
-                  if (attrs.maxlength && v.length > attrs.maxlength) {
-                    v = (attrs && attrs.rtformatter) ? attrs.rtformatter(vprev) : vprev;
+                  v = (props && props.rtformatter) ? props.rtformatter(el.value) : v;
+                  if (props.maxlength && v.length > props.maxlength) {
+                    v = (props && props.rtformatter) ? props.rtformatter(vprev) : vprev;
                     v = vprev;
                     st--;
                     ed--;
@@ -354,7 +364,7 @@ function registerComponent($SCRIPTPRM) {
         };
         return v;
       }
-    };
+    });
     app.component(name, CInput);
   };
 };
