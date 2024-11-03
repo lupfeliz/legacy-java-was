@@ -12,6 +12,13 @@ function registerComponent($SCRIPTPRM) {
   const defineProps = Vue.defineProps;
   const defineComponent = Vue.defineComponent;
   const getCurrentInstance = Vue.getCurrentInstance;
+  const UPDATE_MV = "update:model-value";
+  const ONCLICK = "onclick";
+  const ONKEYDOWN = "onkeydown";
+  const ONKEYUP = "onkeyup";
+  const ONFOCUS = "onfocus";
+  const ONBLUR = "onblur";
+  const ONENTER = "onenter";
   const {
   BIND_VALUES,
   KEYCODE_REV_TABLE,
@@ -347,7 +354,7 @@ function registerComponent($SCRIPTPRM) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
         };
-        const onClick = throttle(function(e) { return emit("onclick", e); }, 300);
+        const onClick = throttle(function(e) { return emit(ONCLICK, e); }, 300);
         const v = {
           attrs,
           vars,
@@ -406,18 +413,18 @@ function registerComponent($SCRIPTPRM) {
         };
         async function onKeyup(e) {
           if (vars.avail) {
-            emit("onkeyup", e);
+            emit(ONKEYUP, e);
           } else {
             cancelEvent(e);
           };
         };
         async function onFocus(e) {
-          emit("onfocus", e)
+          emit(ONFOCUS, e)
         };
         async function onBlur(e) {
           const el = (o = $(vars.elem.value)[0]) ? o : {};
           if (props.formatter) { el.value = props.formatter(el.value); };
-          emit("onblur", e);
+          emit(ONBLUR, e);
         };
         async function onKeydownProc(e) {
           vars.avail = false;
@@ -475,8 +482,8 @@ function registerComponent($SCRIPTPRM) {
                 el.selectionEnd = ed;
                 cancelEvent(e);
                 vars.avail = true;
-                emit("update:model-value", el.value);
-                emit("onkeydown", e);
+                emit(UPDATE_MV, el.value);
+                emit(ONKEYDOWN, e);
                 return;
               } break;
               case KEYCODE_TABLE.PC.ArrowDown: {
@@ -499,8 +506,8 @@ function registerComponent($SCRIPTPRM) {
                 el.selectionEnd = ed;
                 cancelEvent(e);
                 vars.avail = true;
-                emit("update:model-value", el.value);
-                emit("onkeydown", e);
+                emit(UPDATE_MV, el.value);
+                emit(ONKEYDOWN, e);
                 return;
               } break;
               default: {
@@ -537,8 +544,8 @@ function registerComponent($SCRIPTPRM) {
                 v1 = (props && props.rtformatter) ? props.rtformatter(vprev) : vprev;
                 v2 = (props && props.rtformatter) ? props.rtformatter(el.value) : el.value;
                 if (el.value === null || el.value === undefined || el.value === "") {
-                  emit("update:model-value", value = el.value = "");
-                  emit("onkeydown", e);
+                  emit(UPDATE_MV, value = el.value = "");
+                  emit(ONKEYDOWN, e);
                   return vars.avail = true;
                 };
                 LOOP: while(true) {
@@ -600,9 +607,9 @@ function registerComponent($SCRIPTPRM) {
                 };
                 el.value = value = v;
               };
-              emit("onkeydown", e);
-              emit("update:model-value", `${value}`);
-              if (e.keyCode === KEYCODE_TABLE.PC.Enter) { setTimeout(function() { emit("onenter", e); }, 50); };
+              emit(ONKEYDOWN, e);
+              emit(UPDATE_MV, `${value}`);
+              if (e.keyCode === KEYCODE_TABLE.PC.Enter) { setTimeout(function() { emit(ONENTER, e); }, 50); };
               vars.avail = true
             }, 50);
           };
@@ -637,6 +644,7 @@ function registerComponent($SCRIPTPRM) {
       \   :type="vars.type"
       \   :ref="vars.elem"
       \   :name="props.name"
+      \   @click="onClick"
       \   />`,
       props: {
         form: undefined,
@@ -654,10 +662,24 @@ function registerComponent($SCRIPTPRM) {
           avail: true,
           elem: ref(),
         };
+        async function onClick(e) {
+          let o;
+          let value = "";
+          if ((o = vars.elem.value) && (o.checked) === true) {
+            if (o.value !== undefined) {
+              value = o.value;
+            } else {
+              value = true;
+            };
+          };
+          emit(ONCLICK, e);
+          emit(UPDATE_MV, value);
+        };
         const v = {
           props,
           attrs,
           vars,
+          onClick,
         };
         return v;
       },

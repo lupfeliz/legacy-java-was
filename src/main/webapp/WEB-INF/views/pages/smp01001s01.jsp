@@ -38,12 +38,14 @@
         form="form"
         name="check"
         label="체크박스"
+        value="Y"
         required
         vrules="auto"
         />
     </div>
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
+  <div>[{{ vars.check }}]</div>
   <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
     대기
   </c-button>
