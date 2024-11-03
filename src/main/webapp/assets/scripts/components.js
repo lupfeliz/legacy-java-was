@@ -119,14 +119,14 @@ function registerComponent($SCRIPTPRM) {
           for (let inx = 0; inx < list.length; inx++) {
             const item = list[inx];
             switch (item) {
-            case 'auto': {
+            case "auto": {
               auto = true;
               list.splice(inx, 1);
               inx--;
             } break;
-            case 'required': {
+            case "required": {
               list.splice(inx, 1);
-              list.splice(0, 0, 'required');
+              list.splice(0, 0, "required");
               pinx = 1;
             } break;
             };
@@ -141,12 +141,12 @@ function registerComponent($SCRIPTPRM) {
               log.trace("DATA-TYPE:", props.type);
               let rule = "";
               switch (props.type) {
-              case 'number':   rule = 'number';   break;
-              case 'numeric':  rule = 'numeric';  break;
-              case 'alpha':    rule = 'alpha';    break;
-              case 'alphanum': rule = 'alphanum'; break;
-              case 'ascii':    rule = 'ascii';    break;
-              case 'email':    rule = 'email';    break;
+              case "number":   rule = "number";   break;
+              case "numeric":  rule = "numeric";  break;
+              case "alpha":    rule = "alpha";    break;
+              case "alphanum": rule = "alphanum"; break;
+              case "ascii":    rule = "ascii";    break;
+              case "email":    rule = "email";    break;
               // case C.PASSWORD: rule = C.PASSWORD; break
               // case C.DATE: rule = C.DATE; break
               // case C.DATETIME: rule = C.DATETIME; break
@@ -265,7 +265,7 @@ function registerComponent($SCRIPTPRM) {
                 value = nval(value, undefined);
                 log.debug("RULE:", rule, rdata, value, props);
                 if (!rdata || rdata.length < 1) { continue; };
-                if (rdata[0] == 'atleast' && /\.[0-9]+$/g.test(name)) {
+                if (rdata[0] == "atleast" && /\.[0-9]+$/g.test(name)) {
                   name = name.replace(/\.[0-9]+$/g, "");
                   label = label.replace(/\.[0-9]+$/g, "");
                   // value = (props?.model || {})[name];
@@ -279,13 +279,13 @@ function registerComponent($SCRIPTPRM) {
                 if (!vitm) { vitm = validations()[rdata[0]]; };
                 log.debug("VITM:", rule, rdata[0], vitm ? true: false, value, rparm);
                 if (!vitm) { continue; };
-                if (rule !== 'required' && !ufnc && (value === "" || value === undefined)) {
+                if (rule !== "required" && !ufnc && (value === "" || value === undefined)) {
                   result = true;
                 } else {
                   result = vitm({ value, name: label }, rparm, vars.valid);
                 };
                 log.debug("RESULT:", result, typeof result);
-                if (typeof result === 'string') {
+                if (typeof result === "string") {
                   if (!(opt && opt.noerror)) {
                     // vars.valid.error = true;
                     // vars.valid.message = result;
@@ -375,16 +375,16 @@ function registerComponent($SCRIPTPRM) {
         formatter: function() { },
         rtformatter: function() { },
         form: undefined,
-        modelValue: '',
-        type: '',
+        modelValue: "",
+        type: "",
         minvalue: undefined,
         maxvalue: undefined,
         minlength: undefined,
         maxlength: undefined,
-        name: '',
-        label: '',
+        name: "",
+        label: "",
         required: false,
-        vrules: '',
+        vrules: "",
       },
       setup: function(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
