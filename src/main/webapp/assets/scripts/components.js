@@ -253,7 +253,7 @@ function registerComponent($SCRIPTPRM) {
             // const self = modelValue(item.self()) as any
             // const { props, vars } = self
             // let { value } = self
-            const { props, vars } = item.compo;
+            const { attrs, props, vars } = item.compo;
             let value = props.modelValue;
             try {
               const rlist = String(item.rules).split(/\|/g);
@@ -283,7 +283,7 @@ function registerComponent($SCRIPTPRM) {
                 if (rule !== "required" && !ufnc && (value === "" || value === undefined)) {
                   result = true;
                 } else {
-                  result = vitm({ value, name: label }, rparm, vars.valid);
+                  result = vitm({ value, name: label, type: item.elem.type }, rparm, vars.valid);
                 };
                 log.trace("RESULT:", result, typeof result);
                 if (typeof result === "string") {

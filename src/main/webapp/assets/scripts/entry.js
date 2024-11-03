@@ -1265,11 +1265,11 @@ function initEntryScript(callback, { vars, log, cbase }) {
         const value = v.value;
         log.trace("V-REQUIRED:", value, p, !(value !== undefined && value !== "" && value !== false));
         if (!(value !== undefined && value !== null && value !== "" && value !== false)) {
-          if (c && c.type == "checkbox") {
+          if (v.type == "checkbox") {
             let name = josa(v.name, "에");
             return String(`#(name) 반드시 체크해 주세요`)
               .replace(/\#\(name\)/g, name);
-          } else if (c && c.type == "select") {
+          } else if (v.type == "select") {
             let name = josa(v.name, "은");
             return String(`#(name) 반드시 선택해 주세요`)
               .replace(/\#\(name\)/g, name);
@@ -1489,12 +1489,12 @@ function initEntryScript(callback, { vars, log, cbase }) {
           };
         };
         if (found < count) {
-          if (c && c.type == "checkbox") {
+          if (v.type == "checkbox") {
             let name = josa(v.name, "에");
             return String(`#(name) 반드시 #(count)개 이상 체크해 주세요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
-          } else if (c && c.type == "select") {
+          } else if (v.type == "select") {
             let name = josa(v.name, "은");
             return String(`#(name) 반드시 #(count)개 이상 선택해 주세요`)
               .replace(/\#\(name\)/g, name)

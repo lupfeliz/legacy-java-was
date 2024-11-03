@@ -35,6 +35,9 @@
     <div>
       <c-check
         v-model="vars.check"
+        form="form"
+        name="check"
+        label="체크박스"
         required
         vrules="auto"
         />
