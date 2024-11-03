@@ -212,6 +212,8 @@ function registerComponent($SCRIPTPRM) {
                 el.selectionEnd = ed;
                 cancelEvent(e);
                 vars.avail = true;
+                emit("update:model-value", el.value);
+                emit("onkeydown", e);
                 return;
               } break;
               case KEYCODE_TABLE.PC.ArrowDown: {
@@ -234,6 +236,8 @@ function registerComponent($SCRIPTPRM) {
                 el.selectionEnd = ed;
                 cancelEvent(e);
                 vars.avail = true;
+                emit("update:model-value", el.value);
+                emit("onkeydown", e);
                 return;
               } break;
               default: {
