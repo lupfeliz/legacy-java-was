@@ -43,6 +43,15 @@
         vrules="auto"
         />
     </div>
+    <div>
+      <c-select
+        :options="
+        [
+          { name: '선택해주세요', value: '' },
+        ]
+        "
+        />
+    </div>
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
   <div>[{{ vars.check }}]</div>

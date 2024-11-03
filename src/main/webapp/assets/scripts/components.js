@@ -691,4 +691,68 @@ function registerComponent($SCRIPTPRM) {
     });
     app.component(name, CCheck);
   };
+  {
+    const name = "c-select";
+    const CSelect = defineComponent({
+      name,
+      template: `
+      \ <div class="dropdown">
+      \   <button
+      \     type="button"
+      \     :ref="vars.elem"
+      \     :class="strm('btn dropdown-toggle ' + 'btn-secondary ')"
+      \     data-bs-toggle="dropdown"
+      \     aria-expanded="false"
+      \     role="combobox"
+      \     >
+      \     {{ vars.text }}
+      \   </button>
+      \   <ul class="dropdown-menu">
+      \     <li
+      \       v-for="(itm, inx) in vars.options"
+      \       :key="inx"
+      \       >
+      \       <a
+      \         class="dropdown-item"
+      \         >
+      \         {{ itm.name }}
+      \       </a>
+      \     </li>
+      \   </ul>
+      \ </div>`,
+      props: {
+        form: undefined,
+        modelValue: "",
+        type: "",
+        name: "",
+        label: "",
+        required: false,
+        options: [],
+        vrules: "",
+      },
+      setup: function(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const vars = {
+          avail: true,
+          elem: ref(),
+          text: "",
+          options: [],
+        };
+        vars.options = props.options;
+        const v = {
+          props,
+          attrs,
+          vars,
+          strm,
+        };
+        return v;
+      },
+      async mounted() {
+        const self = getCurrentInstance();
+        const { vars } = self.setupState;
+        registFormElement(self, vars.elem.value);
+      }
+    });
+    app.component(name, CSelect);
+  };
 };
