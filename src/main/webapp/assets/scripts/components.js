@@ -80,8 +80,6 @@ function registerComponent($SCRIPTPRM) {
   } = $SCRIPTPRM;
   const app = $SCRIPTPRM.app;
   const { debounce, throttle } = lodash;
-  const formvars = {
-  };
   {
     const name = "c-form";
     const CForm = defineComponent({
@@ -101,17 +99,215 @@ function registerComponent($SCRIPTPRM) {
         const formId = genId();
         const vars = {
           elem: ref(),
-          formId: formId,
+          formId,
+          items: [],
         };
         function registFormElement(compo, elem) {
           log.debug("REGIST-FORM:", compo, elem);
-          if (!formvars[formId]) { formvars[formId] = []; };
-          formvars[formId].push({ compo, elem });
+          vars.items.push({ compo, elem });
         };
-        function validateForm(result, validations) {
-          log.debug("VALIDATE-FORM", formvars[formId]);
+
+        function parseRules(props, attrs, elem) {
+          let ret = "";
+          let list = ((props && props.vrules) ? String(props.vrules) : "").split(/\s*\|\s*/);
+          let auto = false;
+          let pinx = 0;
+          for (let inx = 0; inx < list.length; inx++) {
+            const item = list[inx];
+            switch (item) {
+            case 'auto': {
+              auto = true;
+              list.splice(inx, 1);
+              inx--;
+            } break;
+            case 'required': {
+              list.splice(inx, 1);
+              list.splice(0, 0, 'required');
+              pinx = 1;
+            } break;
+            };
+          };
+          if (auto) {
+            if (props.required !== undefined && list.indexOf("required") == -1) {
+              list.splice(pinx, 0, `required`);
+              pinx++;
+            };
+            {
+              /** type */
+              log.trace("DATA-TYPE:", props.type);
+              let rule = "";
+              switch (props.type) {
+              case 'number':   rule = 'number';   break;
+              case 'numeric':  rule = 'numeric';  break;
+              case 'alpha':    rule = 'alpha';    break;
+              case 'alphanum': rule = 'alphanum'; break;
+              case 'ascii':    rule = 'ascii';    break;
+              case 'email':    rule = 'email';    break;
+              // case C.PASSWORD: rule = C.PASSWORD; break
+              // case C.DATE: rule = C.DATE; break
+              // case C.DATETIME: rule = C.DATETIME; break
+              };
+              if (rule) {
+                list.splice(pinx, 0, `${rule}`);
+                pinx++;
+              };
+            };
+            {
+              /** min-max length */
+              let min = 0;
+              let max = 0;
+              if (props.minlength !== undefined) { min = Number(props.minlength); };
+              if (props.maxlength !== undefined) { max = Number(props.maxlength); };
+              if (min != 0 || max != 0) {
+                list.splice(pinx, 0, `len:${min},${max}`);
+                pinx++;
+              };
+            };
+            {
+              /** min-max value */
+              let minv = 0;
+              let maxv = 0;
+              if (props.minvalue !== undefined) { minv = Number(props.minvalue); };
+              if (props.maxvalue !== undefined) { maxv = Number(props.maxvalue); };
+              if (minv != 0) {
+                list.splice(pinx, 0, `minv:${minv}`);
+                pinx++;
+              };
+              if (maxv != 0) {
+                list.splice(pinx, 0, `maxv:${maxv}`);
+                pinx++;
+              };
+            };
+          };
+          log.debug("VALID-RULES:", list, props.vrules);
+          ret = list.join("|");
+          return ret;
         };
-        putAll(vars, { validateForm })
+        const DATA_VALID_INX = "data-valid-inx";
+        async function validateForm(opt, result, validations) {
+          log.debug("VALIDATE-FORM", vars.items[formId]);
+          let ret = true;
+          const elist = [];
+          // if (form)
+          {
+            let qlst = "";
+            LOOP: for (let inx in vars.items) {
+              const item = vars.items[inx];
+              if (!item || !item.compo) { continue LOOP; };
+              // const { props, vars } = modelValue(item.self()) as any
+              const { attrs, props } = item.compo;
+              const ivars = item.vars;
+              const elem = item.elem;
+              // const ref = item.ref()
+              // const elem = ref?.current ? ref.current : C.UNDEFINED
+              item.rules = parseRules(props, attrs, elem);
+              if (elem) {
+                log.trace("ELEM:", elem);
+                elem.setAttribute(DATA_VALID_INX, inx);
+                if (qlst) { qlst = `${qlst},`; };
+                qlst = `${qlst}[${DATA_VALID_INX}="${inx}"]`;
+                elist[inx] = item;
+              };
+              // vars.valid.error = false
+            };
+            const list = $(document.body).find(qlst);
+            for (let inx = 0; inx < list.length; inx++) {
+              const elem = list[inx];
+              const vinx = Number(elem.getAttribute(DATA_VALID_INX));
+              const item = elist[vinx];
+              elem.removeAttribute(DATA_VALID_INX);
+              item.seq = inx;
+            };
+            elist.sort(function (a, b) { return Number(a.seq) - Number(b.seq); });
+            log.trace("VALIDATION-COUNT:", elist.length);
+            LOOP: for (const item of elist) {
+              if (!item || !item.compo) { continue LOOP; };
+              // if (!item?.self) { continue }
+              let res = await validate(item, opt, validations);
+log.debug("V-RESULT:", item, res, validations);
+              if (res === false) {
+                log.trace("INVALID:", item, opt)
+                // const { props } = item.self()
+                // putAll(opt, { element: item.el })
+                // if (props?.onError) {
+                //   props.onError(opt)
+                // } else if (vform?.current?.onError) {
+                //   vform.current.onError(opt)
+                // }
+                ret = false;
+                break;
+              };
+            };
+            // app.state(1)
+          };
+          return ret;
+        };
+        function validate(item, opt, validations) {
+          return new Promise(function (resolve, _) {
+            let ret = true;
+            let result;
+            // const self = modelValue(item.self()) as any
+            // const { props, vars } = self
+            // let { value } = self
+            const { props, vars } = item.compo;
+            let value = undefined;
+            try {
+              const rlist = String(item.rules).split(/\|/g);
+              let label = props.label ? props.label : props.name;
+              let name = props.name;
+log.debug("NAME:", label, name, props);
+log.debug("RLIST:", rlist);
+              for (const rule of rlist) {
+                const rdata = rule.split(/\:/g);
+                const rparm = rdata.length > 1 ? String(rdata[1]).split(/\,/g) : [];
+                /** NULL, UNDEFINED 값 통일 */
+                value = nval(value, undefined);
+                log.debug("RULE:", rule, rdata, value, props);
+                if (!rdata || rdata.length < 1) { continue; };
+                if (rdata[0] == 'atleast' && /\.[0-9]+$/g.test(name)) {
+                  name = name.replace(/\.[0-9]+$/g, "");
+                  label = label.replace(/\.[0-9]+$/g, "");
+                  // value = (props?.model || {})[name];
+                  if (rparm.length == 0) { rparm.push("1"); };
+                  if (props?.value !== undefined) { rparm.push(props.value); };
+                };
+                let vitm = undefined, ufnc = undefined;
+                /** 사용자함수 를 우선한다 (원래함수 덮어쓰기 용도) */
+                if (!vitm && props && props.validctx) { ufnc = vitm = props.validctx[rdata[0]]; };
+                // if (!vitm && vform?.current?.validctx) { ufnc = vitm = vform.current.validctx[rdata[0]] }
+                if (!vitm) { vitm = validations()[rdata[0]]; };
+                log.debug("VITM:", rule, rdata[0], vitm ? true: false, value, rparm);
+                if (!vitm) { continue; };
+                if (rule !== 'required' && !ufnc && (value === "" || value === undefined)) {
+                  result = true;
+                } else {
+                  result = vitm({ value, name: label }, rparm, vars.valid);
+                };
+                log.debug("RESULT:", result, typeof result);
+                if (typeof result === 'string') {
+                  if (!(opt && opt.noerror)) {
+                    // vars.valid.error = true;
+                    // vars.valid.message = result;
+                  };
+                  if (opt) { opt.message = result; };
+                  result = false;
+                };
+                if (result === false) {
+                  ret = false;
+                  break;
+                };
+              };
+              // log.trace("FINAL-RESULT:", props?.name, ret)
+            } catch (e) {
+              log.debug("E:", e);
+            };
+            // vars.valid.isValidated = true
+            // vars.valid.isValid = ret
+            resolve(ret);
+            return ret;
+          });
+        };
+        putAll(vars, { validateForm });
         expose({ registFormElement, validateForm });
         const v = {
           attrs,
@@ -127,7 +323,7 @@ function registerComponent($SCRIPTPRM) {
         vars.elem.value.TEST = function() {
           dialog.alert("OK");
         };
-      }
+      },
     });
     app.component(name, CForm);
   };
@@ -169,7 +365,6 @@ function registerComponent($SCRIPTPRM) {
       \   v-bind="attrs"
       \   class="form-control"
       \   :ref="vars.elem"
-      \   :vrules=""
       \   @keydown="onKeydown"
       \   @keyup="onKeyup"
       \   @focus="onFocus"
@@ -185,6 +380,9 @@ function registerComponent($SCRIPTPRM) {
         maxvalue: undefined,
         minlength: undefined,
         maxlength: undefined,
+        name: '',
+        label: '',
+        required: false,
         vrules: '',
       },
       setup: function(props, ctx) {
@@ -425,7 +623,7 @@ function registerComponent($SCRIPTPRM) {
       },
       async mounted() {
         const self = getCurrentInstance();
-        const { vars } = self.setupState
+        const { vars } = self.setupState;
         registFormElement(self, vars.elem.value);
       }
     });

@@ -1196,6 +1196,12 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   /** 사전 정의된 validation 함수들 */
   function validations() {
+    const { detectJosa } = hangul;
+    function josa(name, tail, wrap) {
+      const ret = detectJosa(name, tail, wrap);
+log.debug("JOSA:", name, tail, wrap, ret);
+      return ret;
+    };
     return {
       "auto": {
         validate(v, p) {
@@ -1466,14 +1472,18 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
-  async function validateForm(form, result) {
+  async function validateForm(form, opt, result) {
     let ret = false;
     if (form) {
       if (form.validateForm) {
-        ret = await form.validateForm(result, validations);
+        /** NO-OP */
       } else if (form instanceof jQuery && form[0] && form[0].validateForm) {
-        ret = await form[0].validateForm(result, validations);
+        form = form[0];
       };
+      if (form && form.validateForm) {
+        log.debug("VALIDATIONS:", validations);
+        ret = await form.validateForm(opt, result, validations);
+      }
     } else {
       log.debug("폼 객체가 올바르지 않아요");
     };

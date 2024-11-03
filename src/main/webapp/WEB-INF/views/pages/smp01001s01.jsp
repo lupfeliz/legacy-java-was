@@ -15,7 +15,7 @@
       :value="vars.price"
       @onkeydown="vars.onKeydown"
       @onenter="vars.onEnter"
-      @blur="vars.onBlur"
+      @onblur="vars.onBlur"
       name="price"
       label="금액"
       placeholder="금액을 입력해 주세요"
@@ -28,7 +28,7 @@
       form="form"
       :formatter="vars.numeric"
       :rtformatter="vars.numeric"
-      :vrules="auto|check2"
+      vrules="auto|check2"
       />
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
@@ -86,7 +86,7 @@ putAll(vars, {
   },
   async doSubmit() {
     const result = {};
-    if (await $("form[name='form']")[0].validateForm(result)) {
+    if (await validateForm($("form[name='form']"), {})) {
       log.debug("SUCCESS.");
     } else {
       log.debug("FAIL.", result);
