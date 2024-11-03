@@ -86,10 +86,12 @@ putAll(vars, {
   },
   async doSubmit() {
     const result = {};
-    if (await validateForm($("form[name='form']"), {})) {
+    if (await validateForm($("form[name='form']"), result)) {
       log.debug("SUCCESS.");
     } else {
       log.debug("FAIL.", result);
+      await dialog.alert(result.message);
+      $(result.element).focus();
     }
   },
   async onEnter(e) {

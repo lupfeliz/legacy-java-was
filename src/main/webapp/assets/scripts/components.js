@@ -183,13 +183,13 @@ function registerComponent($SCRIPTPRM) {
               };
             };
           };
-          log.debug("VALID-RULES:", list, props.vrules);
+          log.trace("VALID-RULES:", list, props.vrules);
           ret = list.join("|");
           return ret;
         };
         const DATA_VALID_INX = "data-valid-inx";
-        async function validateForm(opt, result, validations) {
-          log.debug("VALIDATE-FORM", vars.items[formId]);
+        async function validateForm(opt, validations) {
+          log.trace("VALIDATE-FORM", vars.items[formId]);
           let ret = true;
           const elist = [];
           // if (form)
@@ -237,6 +237,7 @@ function registerComponent($SCRIPTPRM) {
                 // } else if (vform.current.onError) {
                 //   vform.current.onError(opt)
                 // }
+                putAll(opt, { valid: false, element: item.elem });
                 ret = false;
                 break;
               };
@@ -263,7 +264,7 @@ function registerComponent($SCRIPTPRM) {
                 const rparm = rdata.length > 1 ? String(rdata[1]).split(/\,/g) : [];
                 /** NULL, UNDEFINED 값 통일 */
                 value = nval(value, undefined);
-                log.debug("RULE:", rule, rdata, value, props);
+                log.trace("RULE:", rule, rdata, value, props);
                 if (!rdata || rdata.length < 1) { continue; };
                 if (rdata[0] == "atleast" && /\.[0-9]+$/g.test(name)) {
                   name = name.replace(/\.[0-9]+$/g, "");
@@ -277,14 +278,14 @@ function registerComponent($SCRIPTPRM) {
                 if (!vitm && props && props.validctx) { ufnc = vitm = props.validctx[rdata[0]]; };
                 // if (!vitm && vform.current.validctx) { ufnc = vitm = vform.current.validctx[rdata[0]] }
                 if (!vitm) { vitm = validations()[rdata[0]]; };
-                log.debug("VITM:", rule, rdata[0], vitm ? true: false, value, rparm);
+                log.trace("VITM:", rule, rdata[0], vitm ? true: false, value, rparm);
                 if (!vitm) { continue; };
                 if (rule !== "required" && !ufnc && (value === "" || value === undefined)) {
                   result = true;
                 } else {
                   result = vitm({ value, name: label }, rparm, vars.valid);
                 };
-                log.debug("RESULT:", result, typeof result);
+                log.trace("RESULT:", result, typeof result);
                 if (typeof result === "string") {
                   if (!(opt && opt.noerror)) {
                     // vars.valid.error = true;

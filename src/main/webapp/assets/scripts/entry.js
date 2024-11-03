@@ -1520,7 +1520,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
-  async function validateForm(form, opt, result) {
+  async function validateForm(form, opt) {
     let ret = false;
     if (form) {
       if (form.validateForm) {
@@ -1529,8 +1529,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
         form = form[0];
       };
       if (form && form.validateForm) {
-        log.debug("VALIDATIONS:", validations);
-        ret = await form.validateForm(opt, result, validations);
+        ret = await form.validateForm(opt, validations);
       }
     } else {
       log.debug("폼 객체가 올바르지 않아요");
