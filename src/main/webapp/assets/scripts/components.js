@@ -394,14 +394,7 @@ function registerComponent($SCRIPTPRM) {
         const vars = {
           itype: props.type,
           avail: true,
-          material: false,
           elem: ref(),
-          valid: {
-            error: false,
-            isValidated: false,
-            isValid: undefined,
-            message: undefined,
-          },
         };
         /** 입력컴포넌트 키입력 이벤트 처리 */
         const onKeydown = async function(e) {
@@ -632,5 +625,48 @@ function registerComponent($SCRIPTPRM) {
       }
     });
     app.component(name, CInput);
+  };
+  {
+    const name = "c-check";
+    const CCheck = defineComponent({
+      name,
+      template: `
+      \ <input
+      \   v-bind="attrs"
+      \   class="form-check-input"
+      \   :type="vars.type"
+      \   :ref="vars.elem"
+      \   :name="props.name"
+      \   />`,
+      props: {
+        form: undefined,
+        modelValue: "",
+        type: "",
+        name: "",
+        label: "",
+        required: false,
+        vrules: "",
+      },
+      setup: function(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const vars = {
+          type: props.type === 'radio' ? props.type : 'checkbox',
+          avail: true,
+          elem: ref(),
+        };
+        const v = {
+          props,
+          attrs,
+          vars,
+        };
+        return v;
+      },
+      async mounted() {
+        const self = getCurrentInstance();
+        const { vars } = self.setupState;
+        registFormElement(self, vars.elem.value);
+      }
+    });
+    app.component(name, CCheck);
   };
 };

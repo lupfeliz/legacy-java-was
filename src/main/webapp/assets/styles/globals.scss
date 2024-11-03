@@ -19,6 +19,14 @@ html#project {
       opacity: 0;
     }
 
+    /** 체크박스 */
+    input.form-check-input {
+      &[type='checkbox'],
+      &[type='radio'] {
+        transition: all 0.2s;
+      }
+    }
+
     /** [ modal 관련 */
     > .modal.fade {
       transition: all var(--modal-fade-transition-time) ease-out;

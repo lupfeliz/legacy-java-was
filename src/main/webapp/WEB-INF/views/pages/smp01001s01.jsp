@@ -10,26 +10,35 @@
     >
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
-    <c-input
-      v-model="vars.price"
-      :value="vars.price"
-      @onkeydown="vars.onKeydown"
-      @onenter="vars.onEnter"
-      @onblur="vars.onBlur"
-      name="price"
-      label="금액"
-      placeholder="금액을 입력해 주세요"
-      type="numeric"
-      required
-      maxlength="20"
-      minlength="2"
-      minvalue="1000"
-      maxvalue="999999999999"
-      form="form"
-      :formatter="vars.numeric"
-      :rtformatter="vars.numeric"
-      vrules="auto|check2"
-      />
+    <div>
+      <c-input
+        v-model="vars.price"
+        :value="vars.price"
+        @onkeydown="vars.onKeydown"
+        @onenter="vars.onEnter"
+        @onblur="vars.onBlur"
+        name="price"
+        label="금액"
+        placeholder="금액을 입력해 주세요"
+        type="numeric"
+        required
+        maxlength="20"
+        minlength="2"
+        minvalue="1000"
+        maxvalue="999999999999"
+        form="form"
+        :formatter="vars.numeric"
+        :rtformatter="vars.numeric"
+        vrules="auto|check2"
+        />
+    </div>
+    <div>
+      <c-check
+        v-model="vars.check"
+        required
+        vrules="auto"
+        />
+    </div>
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
   <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
