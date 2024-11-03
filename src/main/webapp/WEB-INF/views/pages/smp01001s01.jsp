@@ -6,8 +6,9 @@
     <c-input
       v-model="vars.message"
       :value="vars.message"
-      @on-keydown="vars.onKeydown"
-      @on-enter="vars.onEnter"
+      @onkeydown="vars.onKeydown"
+      @onenter="vars.onEnter"
+      @blur="vars.onBlur"
       name="input1"
       label="금액"
       type="numeric"
@@ -18,7 +19,7 @@
       maxvalue="999999999999"
       :rtformatter="vars.numeric"
       :formatter="vars.numeric"
-      vrules="auto|check2"
+      :vrules="auto|check2"
       />
   </div>
   <div>{{ vars.teststr }}</div>
@@ -28,20 +29,20 @@
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
   </form>
-  <c-button class="btn-primary mx-1" @on-click="vars.doProgress()">
+  <c-button class="btn-primary mx-1" @onclick="vars.doProgress()">
     대기
   </c-button>
-  <c-button class="btn-primary mx-1" @on-click="vars.doAlert()">
+  <c-button class="btn-primary mx-1" @onclick="vars.doAlert()">
     경고팝업
   </c-button>
-  <c-button class="btn-primary mx-1" @on-click="vars.doConfirm()">
+  <c-button class="btn-primary mx-1" @onclick="vars.doConfirm()">
     확인팝업
   </c-button>
-  <c-button class="btn-primary mx-1" @on-click="vars.doWinpopup()">
+  <c-button class="btn-primary mx-1" @onclick="vars.doWinpopup()">
     물리팝업
   </c-button>
   <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
-  <c-button class="btn-primary mx-1" @on-click="vars.doSubmit()">
+  <c-button class="btn-primary mx-1" @onclick="vars.doSubmit()">
     SUBMIT
   </c-button>
   <div>
@@ -91,6 +92,9 @@ putAll(vars, {
     // log.debug("keyDown:", e.target.value);
     // vars.message = e.target.value;
     // update();
+  },
+  async onBlur(e) {
+    log.debug("BLUR!");
   },
 });
 </script:ex>

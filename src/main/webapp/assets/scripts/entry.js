@@ -502,11 +502,14 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return {};
   };
 
-  function numberOnly(str) {
+  function numberOnly(str, c) {
     let ret = str;
+    let s = 1;
     if (!str) { str = ""; };
+    /** 부호체크 */
+    if (c) { if (str[0] == '-') { s = -1; }; };
     ret = String(str).replace(/[^0-9]+/g, "");
-    return ret;
+    return String(Number(ret) * s);
   };
 
   function numToHangul(str) {

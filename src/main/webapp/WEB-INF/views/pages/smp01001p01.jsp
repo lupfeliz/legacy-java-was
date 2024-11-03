@@ -5,13 +5,14 @@
   <div>
     <c-input
       :value="vars.popdata.message"
-      @on-keydown="vars.onKeydown"
+      :formatter="vars.numeric"
+      @onkeydown="vars.onKeydown"
       />
   </div>
-  <c-button class="btn-primary mx-1" @on-click="vars.onClick(1)">
+  <c-button class="btn-primary mx-1" @onclick="vars.onClick(1)">
     OK
   </c-button>
-  <c-button class="btn-primary mx-1" @on-click="vars.onClick(2)">
+  <c-button class="btn-primary mx-1" @onclick="vars.onClick(2)">
     닫기
   </c-button>
   <div>
@@ -24,6 +25,7 @@ const popdata = initpopup();
 putAll(vars, {
   /** 굳이 vars 에 넣는 이유는 화면에 바인딩 하기 위해 */
   popdata,
+  numeric,
   async onKeydown(e) {
     log.debug("CHECK:", e.target.value);
     popdata.message = String(e.target.value);

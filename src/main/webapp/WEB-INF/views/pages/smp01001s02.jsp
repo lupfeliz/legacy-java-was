@@ -5,14 +5,15 @@
   <div>
     <c-input
       v-model="vars.popdata.message"
-      @on-keydown="vars.onKeydown"
+      :value="vars.popdata.message"
+      @onkeydown="vars.onKeydown"
       />
   </div>
   <form name="form" action="/smp/smp01001s01">
     <input type="hidden" name="value1" value="123" />
     <input type="hidden" name="value2" value="456" />
   </form>
-  <c-button class="btn-primary" @click="vars.clicked()">
+  <c-button class="btn-primary" @onclick="vars.clicked()">
     OK
   </c-button>
   <div>
