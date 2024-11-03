@@ -15,6 +15,10 @@ function initEntryScript(callback, { vars, log, cbase }) {
   const nextTick = Vue.nextTick;
   const M_SHOWN = "shown.bs.modal";
   const M_HIDDEN = "hidden.bs.modal";
+  const DATE_FORMAT_YM = "YYYY-MM";
+  const DATE_FORMAT_YMD = "YYYY-MM-DD";
+  const DATE_FORMAT_NORM = "YYYY-MM-DD HH:mm:ss";
+  const DATE_FORMAT_CODE = "YYYYMMDDHHmmss";
   /** 필요한 라이브러리들을 추가한다. */
   const LOG = {
     trace: function() { },
@@ -94,27 +98,27 @@ function initEntryScript(callback, { vars, log, cbase }) {
      * IOS 는 물리키보드와 동일
      * 키코드 참고 : https://www.toptal.com/developers/keycode/table
      **/
-    Semicolon           : [ 59, 229, 186,  ';'],
-    Equal               : [ 61, 229, 186,  '='],
-    Comma               : [188, 229, 188,  ','],
-    Minus               : [189, 229, 189,  '-'],
-    Period              : [190, 229, 190,  '.'],
-    Slash               : [191, 229, 191,  '/'],
-    Backquote           : [192, 229, 192,  '`'],
-    BracketLeft         : [219, 229, 219,  '['],
-    Backslash           : [220, 229, 220, '\\'],
-    BracketRight        : [221, 229, 221,  ']'],
-    Quote               : [222, 229, 222, '\''],
+    Semicolon           : [ 59, 229, 186,  ";"],
+    Equal               : [ 61, 229, 186,  "="],
+    Comma               : [188, 229, 188,  ","],
+    Minus               : [189, 229, 189,  "-"],
+    Period              : [190, 229, 190,  "."],
+    Slash               : [191, 229, 191,  "/"],
+    Backquote           : [192, 229, 192,  "`"],
+    BracketLeft         : [219, 229, 219,  "["],
+    Backslash           : [220, 229, 220, "\\"],
+    BracketRight        : [221, 229, 221,  "]"],
+    Quote               : [222, 229, 222, "\'"],
     /** 동작키보드 (화살표, 엔터키 등) */
     Esc                 : [ 27,  27,  27,    U],
     Enter               : [ 13,  13,  13,    U],
-    /** IOS 에서는 'Delete' 가 아닌 'Undefined' */
+    /** IOS 에서는 "Delete" 가 아닌 "Undefined" */
     Delete              : [ 46,  46,  46,    U],
-    /** IOS 에서는 'Insert' 이벤트 자체가 없음 */
+    /** IOS 에서는 "Insert" 이벤트 자체가 없음 */
     Insert              : [ 45,  45,   U,    U],
     Tab                 : [  9,   9,   9,    U],
     Backspace           : [  8,   8,   8,    U],
-    Space               : [ 32, 229,  32,  ' '],
+    Space               : [ 32, 229,  32,  " "],
     ArrowLeft           : [ 37,  37,  37,    U],
     ArrowRight          : [ 39,  39,  39,    U],
     ArrowUp             : [ 38,  38,  38,    U],
@@ -133,53 +137,53 @@ function initEntryScript(callback, { vars, log, cbase }) {
     MetaLeft            : [ 91,  91,  91,    U],
     MetaRight           : [ 91,  91,  91,    U],
     /** 숫자키 */
-    Digit0              : [ 48, 229,  48,  '0'],
-    Digit1              : [ 49, 229,  49,  '1'],
-    Digit2              : [ 50, 229,  50,  '2'],
-    Digit3              : [ 51, 229,  51,  '3'],
-    Digit4              : [ 52, 229,  52,  '4'],
-    Digit5              : [ 53, 229,  53,  '5'],
-    Digit6              : [ 54, 229,  54,  '6'],
-    Digit7              : [ 55, 229,  55,  '7'],
-    Digit8              : [ 56, 229,  56,  '8'],
-    Digit9              : [ 57, 229,  57,  '9'],
+    Digit0              : [ 48, 229,  48,  "0"],
+    Digit1              : [ 49, 229,  49,  "1"],
+    Digit2              : [ 50, 229,  50,  "2"],
+    Digit3              : [ 51, 229,  51,  "3"],
+    Digit4              : [ 52, 229,  52,  "4"],
+    Digit5              : [ 53, 229,  53,  "5"],
+    Digit6              : [ 54, 229,  54,  "6"],
+    Digit7              : [ 55, 229,  55,  "7"],
+    Digit8              : [ 56, 229,  56,  "8"],
+    Digit9              : [ 57, 229,  57,  "9"],
     /** 키패드 */
-    Numpad0             : [ 96, 229,  96,  '0'],
-    Numpad1             : [ 97, 229,  97,  '1'],
-    Numpad2             : [ 98, 229,  98,  '2'],
-    Numpad3             : [ 99, 229,  99,  '3'],
-    Numpad4             : [100, 229, 100,  '4'],
-    Numpad5             : [101, 229, 101,  '5'],
-    Numpad6             : [102, 229, 102,  '6'],
-    Numpad7             : [103, 229, 103,  '7'],
-    Numpad8             : [104, 229, 104,  '8'],
-    Numpad9             : [105, 229, 105,  '9'],
-    KeyA                : [ 65, 229,  65,  'a'],
-    KeyB                : [ 66, 229,  66,  'b'],
-    KeyC                : [ 67, 229,  67,  'c'],
-    KeyD                : [ 68, 229,  68,  'd'],
-    KeyE                : [ 69, 229,  69,  'e'],
-    KeyF                : [ 70, 229,  70,  'f'],
-    KeyG                : [ 71, 229,  71,  'g'],
-    KeyH                : [ 72, 229,  72,  'h'],
-    KeyI                : [ 73, 229,  73,  'i'],
-    KeyJ                : [ 74, 229,  74,  'j'],
-    KeyK                : [ 75, 229,  75,  'k'],
-    KeyL                : [ 76, 229,  76,  'l'],
-    KeyM                : [ 77, 229,  77,  'm'],
-    KeyN                : [ 78, 229,  78,  'n'],
-    KeyO                : [ 79, 229,  79,  'o'],
-    KeyP                : [ 80, 229,  80,  'p'],
-    KeyQ                : [ 81, 229,  81,  'q'],
-    KeyR                : [ 82, 229,  82,  'r'],
-    KeyS                : [ 83, 229,  83,  's'],
-    KeyT                : [ 84, 229,  84,  't'],
-    KeyU                : [ 85, 229,  85,  'u'],
-    KeyV                : [ 86, 229,  86,  'v'],
-    KeyW                : [ 87, 229,  87,  'w'],
-    KeyX                : [ 88, 229,  88,  'x'],
-    KeyY                : [ 89, 229,  89,  'y'],
-    KeyZ                : [ 90, 229,  90,  'z'],
+    Numpad0             : [ 96, 229,  96,  "0"],
+    Numpad1             : [ 97, 229,  97,  "1"],
+    Numpad2             : [ 98, 229,  98,  "2"],
+    Numpad3             : [ 99, 229,  99,  "3"],
+    Numpad4             : [100, 229, 100,  "4"],
+    Numpad5             : [101, 229, 101,  "5"],
+    Numpad6             : [102, 229, 102,  "6"],
+    Numpad7             : [103, 229, 103,  "7"],
+    Numpad8             : [104, 229, 104,  "8"],
+    Numpad9             : [105, 229, 105,  "9"],
+    KeyA                : [ 65, 229,  65,  "a"],
+    KeyB                : [ 66, 229,  66,  "b"],
+    KeyC                : [ 67, 229,  67,  "c"],
+    KeyD                : [ 68, 229,  68,  "d"],
+    KeyE                : [ 69, 229,  69,  "e"],
+    KeyF                : [ 70, 229,  70,  "f"],
+    KeyG                : [ 71, 229,  71,  "g"],
+    KeyH                : [ 72, 229,  72,  "h"],
+    KeyI                : [ 73, 229,  73,  "i"],
+    KeyJ                : [ 74, 229,  74,  "j"],
+    KeyK                : [ 75, 229,  75,  "k"],
+    KeyL                : [ 76, 229,  76,  "l"],
+    KeyM                : [ 77, 229,  77,  "m"],
+    KeyN                : [ 78, 229,  78,  "n"],
+    KeyO                : [ 79, 229,  79,  "o"],
+    KeyP                : [ 80, 229,  80,  "p"],
+    KeyQ                : [ 81, 229,  81,  "q"],
+    KeyR                : [ 82, 229,  82,  "r"],
+    KeyS                : [ 83, 229,  83,  "s"],
+    KeyT                : [ 84, 229,  84,  "t"],
+    KeyU                : [ 85, 229,  85,  "u"],
+    KeyV                : [ 86, 229,  86,  "v"],
+    KeyW                : [ 87, 229,  87,  "w"],
+    KeyX                : [ 88, 229,  88,  "x"],
+    KeyY                : [ 89, 229,  89,  "y"],
+    KeyZ                : [ 90, 229,  90,  "z"],
     /** Android 전용 가상키눌림 */
     Virtual             : [229, 229, 229,    U],
   };
@@ -199,7 +203,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   LOOP1: for (const k in KEYCODE_TABLE) {
     for (const k2 in (KEYCODE_TABLE)[k]) {
       const v = (KEYCODE_TABLE)[k][k2];
-      if (k == 'ANDROID' && v == 229) { continue LOOP1; };
+      if (k == "ANDROID" && v == 229) { continue LOOP1; };
       if (v !== U) { put((KEYCODE_REV_TABLE)[k], v, k2); };
     };
   };
@@ -254,6 +258,51 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return ret;
   };
 
+  function parseDate(v, f) {
+    let ret = undefined;
+    if (v instanceof Date) {
+      return v;
+    } else if (typeof(v) == "string") {
+      /** TODO: 기호는 무작정 치환하지 않고 자릿수 커팅을 먼저 시도하도록 */
+      v = v.replace(/[^0-9]+/g, "");
+      if (!f) { f = DATE_FORMAT_CODE; };
+    } else if (typeof(v) == "number") {
+      v = new Date(v);
+    };
+    if (f === undefined) {
+      ret = moment(v).toDate();
+    } else {
+      ret = moment(v, f ? f: DATE_FORMAT_CODE).toDate();
+    };
+    return ret;
+  };
+
+  function dateStrFormat(v, of, nf) {
+    if (!v) { return v; };
+    return moment(parseDate(v), nf ? nf : DATE_FORMAT_CODE).format(of);
+  };
+
+  function formatDate(v, f) {
+    const date = parseDate(v);
+    if (date) { return moment(v).format(f ? f : DATE_FORMAT_NORM) };
+    return ""
+  };
+
+  function makeDate(y, m, d, h, i, s) {
+    let ret = new Date(0);
+    let t;
+    for (let inx = 0; inx < 2; inx ++) {
+      if ((t = Number(y)) >= 1) { ret.setFullYear(t); };
+      if ((t = Number(m)) >= 1) { ret.setMonth(t - 1); };
+      if ((t = Number(d)) >= 1) { ret.setDate(t); };
+      if ((t = Number(h)) >= 0) { ret.setHours(t); };
+      if ((t = Number(i)) >= 0) { ret.setMinutes(t); };
+      if ((t = Number(s)) >= 0) { ret.setSeconds(t); };
+    };
+    // log.trace(`FORMAT-DATE:${y || ""}-${m || ""}-${d || ""} / ${h || ""}:${i || ""}:${s || ""}`, ret);
+    return ret;
+  };
+
   function putAll(_target, source, opt) {
     let target = _target;
     if (target == null || source == null || target === source ) { return target; };
@@ -288,7 +337,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       // log.debug("D:", d1, d2);
       let len = d1.length > d2.length ? d1.length : d2.length;
       for (let inx = 0; inx < len; inx++) {
-        if (/[\[]([a-zA-Z0-9_-]+)[\]]/.test(d1[inx] || "")) {
+        if (/[\[]([a-zA-Z0-9_-]+)[\]]/.test(d1[inx] ? d1[inx] : "")) {
           prm[d1[inx].substring(1, d1[inx].length - 1)] = d2[inx];
         };
       };
@@ -507,7 +556,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     let s = 1;
     if (!str) { str = ""; };
     /** 부호체크 */
-    if (c) { if (str[0] == '-') { s = -1; }; };
+    if (c) { if (str[0] == "-") { s = -1; }; };
     ret = String(str).replace(/[^0-9]+/g, "");
     return String(Number(ret) * s);
   };
@@ -562,7 +611,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
     return ret;
   };
 
-  function item(a, i, v) {
+  function nitem(a, i, v) {
     if (a && (i !== U && i!== null) && i >= 0 && a[i]) {
       if (v) { a[i] = v; };
       return a[i];
@@ -840,14 +889,14 @@ function initEntryScript(callback, { vars, log, cbase }) {
   };
 
   function numeric(str) {
-    str = String(str ? str : '').trim();
+    str = String(str ? str : "").trim();
     let minus = /^[-]/.test(str);
-    let dpoint = '';
-    // str = str.replace(/^[0.]+/g, '');
-    str = str.replace(/[^0-9.]/g, '');
-    if (!str) { str = ''; };
+    let dpoint = "";
+    // str = str.replace(/^[0.]+/g, "");
+    str = str.replace(/[^0-9.]/g, "");
+    if (!str) { str = ""; };
     /** 앞자리 0 제거 */
-    if (str.length > 1) { str = str.replace(/^[0]+([1-9]+)/g, '$1'); };
+    if (str.length > 1) { str = str.replace(/^[0]+([1-9]+)/g, "$1"); };
     /** 소숫점 떼기 */
     {
       let d = str.split(/\./);
@@ -855,14 +904,14 @@ function initEntryScript(callback, { vars, log, cbase }) {
       str = d[0];
     };
     /** 공백이라면 0 으로 치환 */
-    if (str.length == 0) { str = '0'; };
-    let ret = '';
+    if (str.length == 0) { str = "0"; };
+    let ret = "";
     let len = str.length;
-    let digit = '';
+    let digit = "";
     for (let inx = 0; inx < len; inx++) {
       digit = str.substring(len - inx - 1, len - inx);
       if (inx > 0 && inx % 3 == 0) {
-        ret = digit + ',' + ret;
+        ret = digit + "," + ret;
       } else {
         ret = digit + ret;
       };
@@ -887,37 +936,37 @@ function initEntryScript(callback, { vars, log, cbase }) {
   function getPattern(t, v) {
     let ret = U;
     switch(t) {
-    case 'number':
+    case "number":
       ret = /^([\+\-]{0,1})[0-9]+$/;
       break;
-    case 'numeric':
+    case "numeric":
       ret = /^([\+\-]{0,1})[0-9]+(\,[0-9]{3})*(\.[0-9]+){0,1}$/;
       break;
-    case 'alpha':
+    case "alpha":
       ret = /^[a-zA-Z]+$/;
       break;
-    case 'alphaspc':
+    case "alphaspc":
       ret = /^[\sa-zA-Z]+$/;
       break;
-    case 'alphanum':
+    case "alphanum":
       ret = /^[a-zA-Z0-9]+$/;
       break;
-    case 'alphanumspc':
+    case "alphanumspc":
       ret = /^[\sa-zA-Z0-9]+$/;
       break;
-    case 'alphastart':
+    case "alphastart":
       ret = /^[a-zA-Z].*$/;
       break;
-    case 'ascii':
+    case "ascii":
       ret = /^[\x00-\x7F]+$/;
       break;
-    case 'date':
+    case "date":
       ret = /^([0-9]{4}[-]{0,1}[0-9]{2}[-]{0,1}[0-9]{2})([ ]{0,1}[0-9]{2}[:]{0,1}[0-9]{2}[:]{0,1}[0-9]{2}(.[0-9]{1,3}){0,1}){0,1}$/;
       break;
-    case 'email':
+    case "email":
       ret = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))\@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       break;
-    case 'password':
+    case "password":
       /** Minimum eight characters, at least one letter and one number: */
       // ret = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
       /** Minimum eight characters, at least one letter, one number and one special character: */
@@ -1141,9 +1190,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
   /** SLEEP (ms) */
   async function sleep(time) {
     return new Promise(function(resolve, _reject) {
-      log.trace('SLEEP', time);
+      log.trace("SLEEP", time);
       setTimeout(function() {
-        log.trace('SLEEP DONE!');
+        log.trace("SLEEP DONE!");
         resolve(null);
       }, time);
     });
@@ -1199,7 +1248,6 @@ function initEntryScript(callback, { vars, log, cbase }) {
     const { detectJosa } = hangul;
     function josa(name, tail, wrap) {
       const ret = detectJosa(name, tail, wrap);
-log.debug("JOSA:", name, tail, wrap, ret);
       return ret;
     };
     return {
@@ -1218,7 +1266,7 @@ log.debug("JOSA:", name, tail, wrap, ret);
         log.trace("V-REQUIRED:", value, p, !(value !== undefined && value !== "" && value !== false));
         if (!(value !== undefined && value !== null && value !== "" && value !== false)) {
           if (c && c.type == "checkbox") {
-            let name = josa(v.name, "에")
+            let name = josa(v.name, "에");
             return String(`#(name) 반드시 체크해 주세요`)
               .replace(/\#\(name\)/g, name);
           } else if (c && c.type == "select") {
@@ -1233,234 +1281,234 @@ log.debug("JOSA:", name, tail, wrap, ret);
         };
         return true;
       },
-      'nospc': function(v, p) {
+      "nospc": function(v, p) {
         if (/ /g.test(v.value)) {
-          let name = josa(v.name, '은');
+          let name = josa(v.name, "은");
           return String(`#(name) 공백을 입력할수 없어요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'number': function(v, p) {
-        if (!format.pattern('number', v.value)) {
-          let name = josa(v.name, '은');
+      "number": function(v, p) {
+        if (!getPattern("number", v.value)) {
+          let name = josa(v.name, "은");
           return String(`#(name) 숫자만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'numeric': function(v, p) {
-        if (!format.pattern('numeric', v.value)) {
-          let name = josa(v.name, '은');
+      "numeric": function(v, p) {
+        if (!getPattern("numeric", v.value)) {
+          let name = josa(v.name, "은");
           return String(`#(name) 숫자만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'alpha': function(v, p) {
-        if (!format.pattern('alpha', v.value)) {
-          let name = josa(v.name, '은');
+      "alpha": function(v, p) {
+        if (!getPattern("alpha", v.value)) {
+          let name = josa(v.name, "은");
           return String(`#(name) 영문으로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'alphaspc': function(v, p) {
-        if (!format.pattern('alphaspc', v.value)) {
-          let name = josa(v.name, '은');
+      "alphaspc": function(v, p) {
+        if (!getPattern("alphaspc", v.value)) {
+          let name = josa(v.name, "은");
           return String(`#(name) 영문으로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'alphastart': function(v, p) {
-        if (!(format.pattern(C.ALPHASTART, v.value))) {
-          let name = josa(v.name, '의');
+      "alphastart": function(v, p) {
+        if (!(getPattern(C.ALPHASTART, v.value))) {
+          let name = josa(v.name, "의");
           return String(`#(name) 첫글자는 반드시 영문으로 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'alphanum': function(v, p) {
-        if (!(format.pattern('alphanum', v.value))) {
-          let name = josa(v.name, '은');
+      "alphanum": function(v, p) {
+        if (!(getPattern("alphanum", v.value))) {
+          let name = josa(v.name, "은");
           return String(`#(name) 영문 또는 숫자로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'alphanumspc': function(v, p) {
-        if (!(format.pattern('alphanumspc', v.value))) {
-          let name = josa(v.name, '은');
+      "alphanumspc": function(v, p) {
+        if (!(getPattern("alphanumspc", v.value))) {
+          let name = josa(v.name, "은");
           return String(`#(name) 영문 또는 숫자로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      'ascii': function(v, p) {
-        if (!format.pattern('ascii', v.value)) {
-          let name = josa(v.name, '은');
+      "ascii": function(v, p) {
+        if (!getPattern("ascii", v.value)) {
+          let name = josa(v.name, "은");
           return String(`#(name) 영문, 숫자 또는 기호만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
       },
-      // 'hangul': (v: any, p: any) => {
-      //   if (!format.pattern(C.HANGUL, v.value)) {
-      //     let name = josa(v.name, '은')
-      //     return String(`#(name) 한글만 입력해 주세요`)
-      //       .replace(/\#\(name\)/g, name)
-      //   }
-      //   return true
-      // },
-      // 'date': (v: any, p: any) => {
-      //   let valid = true
-      //   if (valid && !format.pattern(C.DATE, v.value)) { valid = false }
-      //   if (valid) {
-      //     const d = String(v.value).split('-')
-      //     const f = format.formatDate(format.date(d[0], d[1], d[2]), C.DATE_FORMAT_YMD)
-      //     log.trace('CHECK-DATE:', v.value, valid, d, f);
-      //     if (v.value != f) { valid = false }
-      //   }
-      //   if (!valid) {
-      //     let name = josa(v.value, '은')
-      //     return String(`#(name) 올바른 날자 형식이 아니예요`)
-      //       .replace(/\#\(name\)/g, name)
-      //   }
-      //   return true
-      // },
-      // 'date-ym': (v: any, p: any) => {
-      //   let valid = true
-      //   if (valid && !/^([0-9]{4}-[0-9]{1,2})$/.test(v.value)) { valid = false }
-      //   if (valid) {
-      //     const d = String(v.value).split('-')
-      //     const f = format.formatDate(format.date(d[0], d[1]), C.DATE_FORMAT_YM)
-      //     const check = `${values.lpad(d[0], 4, '0')}-${values.lpad(d[1], 2, '0')}`
-      //     if (check != f) { valid = false }
-      //   }
-      //   if (!valid) {
-      //     let name = josa(v.value, '은')
-      //     return String(`#(name) 올바른 날자 형식이 아니예요`)
-      //       .replace(/\#\(name\)/g, name)
-      //   }
-      //   return true
-      // },
-      // 'email': (v: any, p: any) => {
-      //   let t: any
-      //   if (!format.pattern(C.EMAIL, v.value)) {
-      //     let name = josa(v.value, '은', '"')
-      //     return String(`#(name) 올바른 이메일 형식이 아니예요`)
-      //       .replace(/\#\(name\)/g, name)
-      //   }
-      //   return true
-      // },
-      // 'password': (v: any, p: any) => {
-      //   let t: any
-      //   if (!format.pattern(C.PASSWORD, v.value)) {
-      //     let name = josa(v.name, '은')
-      //     return String(`#(name) 4자리 이상, 영문자, 숫자, 기호를 반드시 섞어서 입력해 주세요.`)
-      //       .replace(/\#\(name\)/g, name)
-      //   }
-      //   return true
-      // },
-      // 'content-len': (v: any, p: any) => {
-      //   let t: any
-      //   const vmin = values.num(values.nval(p, 0), 0)
-      //   const vmax = values.num(values.nval(p, 1), 0)
-      //   const div = document.createElement('div')
-      //   div.innerHTML = v.value
-      //   const clen = String(div.innerText).trim().length
-      //   if (vmin > 0 && clen < vmin) {
-      //     let name = josa(v.name, '의')
-      //     return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
-      //       .replace(/\#\(name\)/g, name)
-      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
-      //   }
-      //   if (vmax > 0 && clen > vmax) {
-      //     let name = josa(v.name, '의')
-      //     return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
-      //       .replace(/\#\(name\)/g, name)
-      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
-      //   }
-      //   return true
-      // },
-      // 'len': (v: any, p: any, c: any) => {
-      //   let t: any
-      //   const vmin = values.num(values.item(p, 0), 0)
-      //   const vmax = values.num(values.item(p, 1), 0)
-      //   if (vmin > 0 && v.value && String(v.value || '').trim().length < vmin) {
-      //     let name = josa(v.name, '의')
-      //     return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
-      //       .replace(/\#\(name\)/g, name)
-      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
-      //   }
-      //   if (vmax > 0 && v.value && String(v.value).length > vmax) {
-      //     let name = josa(v.name, '의')
-      //     return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
-      //       .replace(/\#\(name\)/g, name)
-      //       .replace(/\#\(max\)/g, String(format.numeric(vmax)))
-      //   }
-      //   return true
-      // },
-      // 'minv': (v: any, p: any, c: any) => {
-      //   let t: any
-      //   const vmin = values.num(values.item(p, 0), 0)
-      //   /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
-      //   if (Number(format.numberOnly(v.value || 0)) < vmin) {
-      //     let name = josa(v.name, '은')
-      //     return String(`#(name) #(min) 이상의 값을 입력해 주세요`)
-      //       .replace(/\#\(name\)/g, name)
-      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
-      //   }
-      //   return true
-      // },
-      // 'maxv': (v: any, p: any, c: any) => {
-      //   let t: any
-      //   const vmax = values.num(values.item(p, 0), 0)
-      //   /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
-      //   if (Number(format.numberOnly(v.value || 0)) > vmax) {
-      //     let name = josa(v.name, '은')
-      //     return String(`#(name) #(max) 이하의 값을 입력해 주세요`)
-      //       .replace(/\#\(name\)/g, name)
-      //       .replace(/\#\(max\)/g, String(format.numeric(vmax)))
-      //   }
-      //   return true
-      // },
-      // 'atleast': (v: any, p: any, c: any) => {
-      //   log.trace('ATLEAST:', v, p, c)
-      //   const count = p[0]
-      //   let found = 0
-      //   let vv = p ? p[1] :  C.UNDEFINED
-      //   if (v.value && v.value instanceof Array) {
-      //     LOOP: for (const itm of v.value) {
-      //       if ((vv && itm == vv) || (!vv && itm)) {
-      //         found++
-      //         if (found >= count) { break LOOP }
-      //       }
-      //       continue LOOP
-      //     }
-      //   }
-      //   if (found < count) {
-      //     if (c && c.type == 'checkbox') {
-      //       let name = josa(v.name, '에')
-      //       return String(`#(name) 반드시 #(count)개 이상 체크해 주세요`)
-      //         .replace(/\#\(name\)/g, name)
-      //         .replace(/\#\(count\)/g, count)
-      //     } else if (c && c.type == 'select') {
-      //       let name = josa(v.name, '은')
-      //       return String(`#(name) 반드시 #(count)개 이상 선택해 주세요`)
-      //         .replace(/\#\(name\)/g, name)
-      //         .replace(/\#\(count\)/g, count)
-      //     } else {
-      //       let name = josa(v.name, '은')
-      //       return String(`#(name) 반드시 #(count)개 이상 입력해 주세요`)
-      //         .replace(/\#\(name\)/g, name)
-      //         .replace(/\#\(count\)/g, count)
-      //     }
-      //   } else {
-      //     return true
-      //   }
-      // }
+      "hangul": function(v, p) {
+        if (!getPattern("hangul", v.value)) {
+          let name = josa(v.name, "은");
+          return String(`#(name) 한글만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      "date": function(v, p) {
+        let valid = true;
+        if (valid && !getPattern("date", v.value)) { valid = false; };
+        if (valid) {
+          const d = String(v.value).split("-");
+          const f = formatDate(makeDate(d[0], d[1], d[2]), DATE_FORMAT_YMD);
+          log.trace("CHECK-DATE:", v.value, valid, d, f);
+          if (v.value != f) { valid = false; };
+        };
+        if (!valid) {
+          let name = josa(v.value, "은");
+          return String(`#(name) 올바른 날자 형식이 아니예요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      "date-ym": function(v, p) {
+        let valid = true;
+        if (valid && !/^([0-9]{4}-[0-9]{1,2})$/.test(v.value)) { valid = false; };
+        if (valid) {
+          const d = String(v.value).split("-");
+          const f = formatDate(makeDate(d[0], d[1]), DATE_FORMAT_YM);
+          const check = `${lpad(d[0], 4, "0")}-${lpad(d[1], 2, "0")}`;
+          if (check != f) { valid = false; };
+        };
+        if (!valid) {
+          let name = josa(v.value, "은");
+          return String(`#(name) 올바른 날자 형식이 아니예요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      "email": function(v, p) {
+        let t;
+        if (!getPattern("email", v.value)) {
+          let name = josa(v.value, "은");
+          return String(`#(name) 올바른 이메일 형식이 아니예요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      "password": function(v, p) {
+        let t;
+        if (!getPattern("password", v.value)) {
+          let name = josa(v.name, "은");
+          return String(`#(name) 4자리 이상, 영문자, 숫자, 기호를 반드시 섞어서 입력해 주세요.`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      "content-len": function(v, p) {
+        let t;
+        const vmin = num(nval(p, 0), 0);
+        const vmax = num(nval(p, 1), 0);
+        const div = document.createElement("div");
+        div.innerHTML = v.value;
+        const clen = String(div.innerText).trim().length;
+        if (vmin > 0 && clen < vmin) {
+          let name = josa(v.name, "의");
+          return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
+            .replace(/\#\(name\)/g, name)
+            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+        };
+        if (vmax > 0 && clen > vmax) {
+          let name = josa(v.name, "의");
+          return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
+            .replace(/\#\(name\)/g, name)
+            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+        };
+        return true;
+      },
+      "len": function(v, p, c) {
+        let t;
+        const vmin = num(nitem(p, 0), 0);
+        const vmax = num(nitem(p, 1), 0);
+        if (vmin > 0 && v.value && String(v.value ? v.value : "").trim().length < vmin) {
+          let name = josa(v.name, "의");
+          return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
+            .replace(/\#\(name\)/g, name)
+            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+        };
+        if (vmax > 0 && v.value && String(v.value).length > vmax) {
+          let name = josa(v.name, "의");
+          return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
+            .replace(/\#\(name\)/g, name)
+            .replace(/\#\(max\)/g, String(format.numeric(vmax)));
+        };
+        return true;
+      },
+      "minv": function(v, p, c) {
+        let t;
+        const vmin = num(item(p, 0), 0);
+        /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
+        if (Number(numberOnly(v.value ? v.value : 0)) < vmin) {
+          let name = josa(v.name, "은");
+          return String(`#(name) #(min) 이상의 값을 입력해 주세요`)
+            .replace(/\#\(name\)/g, name)
+            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+        };
+        return true;
+      },
+      "maxv": function(v, p, c) {
+        let t;
+        const vmax = num(item(p, 0), 0);
+        /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
+        if (Number(numberOnly(v.value ? v.value : 0)) > vmax) {
+          let name = josa(v.name, "은");
+          return String(`#(name) #(max) 이하의 값을 입력해 주세요`)
+            .replace(/\#\(name\)/g, name)
+            .replace(/\#\(max\)/g, String(format.numeric(vmax)));
+        };
+        return true;
+      },
+      "atleast": function(v, p, c) {
+        log.trace("ATLEAST:", v, p, c);
+        const count = p[0];
+        let found = 0;
+        let vv = p ? p[1] :  undefined;
+        if (v.value && v.value instanceof Array) {
+          LOOP: for (const itm of v.value) {
+            if ((vv && itm == vv) || (!vv && itm)) {
+              found++;
+              if (found >= count) { break LOOP; };
+            };
+            continue LOOP;
+          };
+        };
+        if (found < count) {
+          if (c && c.type == "checkbox") {
+            let name = josa(v.name, "에");
+            return String(`#(name) 반드시 #(count)개 이상 체크해 주세요`)
+              .replace(/\#\(name\)/g, name)
+              .replace(/\#\(count\)/g, count);
+          } else if (c && c.type == "select") {
+            let name = josa(v.name, "은");
+            return String(`#(name) 반드시 #(count)개 이상 선택해 주세요`)
+              .replace(/\#\(name\)/g, name)
+              .replace(/\#\(count\)/g, count);
+          } else {
+            let name = josa(v.name, "은");
+            return String(`#(name) 반드시 #(count)개 이상 입력해 주세요`)
+              .replace(/\#\(name\)/g, name)
+              .replace(/\#\(count\)/g, count);
+          }
+        } else {
+          return true;
+        };
+      },
     };
   };
 
@@ -1536,12 +1584,14 @@ log.debug("JOSA:", name, tail, wrap, ret);
   clone,
   copyExclude,
   copyExists,
+  dateStrFormat,
   dialog,
   dialogvars,
   doModal,
   equals,
   equalsIgnoreCase,
   find,
+  formatDate,
   genId,
   getFrom,
   getGlobalTmp,
@@ -1556,21 +1606,23 @@ log.debug("JOSA:", name, tail, wrap, ret);
   hierarchy,
   initpopup,
   isEvent,
-  item,
   lodash,
   log,
   lpad,
+  makeDate,
   max,
   mergeAll,
   mergeObj,
   min,
   near,
+  nitem,
   num,
   numberOnly,
   numeric,
   numToHangul,
   nval,
   Paging,
+  parseDate,
   put,
   putAll,
   px2rem,

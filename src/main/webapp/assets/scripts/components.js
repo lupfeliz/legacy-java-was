@@ -22,12 +22,14 @@ function registerComponent($SCRIPTPRM) {
   clone,
   copyExclude,
   copyExists,
+  dateStrFormat,
   dialog,
   dialogvars,
   doModal,
   equals,
   equalsIgnoreCase,
   find,
+  formatDate,
   genId,
   getFrom,
   getGlobalTmp,
@@ -42,21 +44,23 @@ function registerComponent($SCRIPTPRM) {
   hierarchy,
   initpopup,
   isEvent,
-  item,
   lodash,
   log,
   lpad,
+  makeDate,
   max,
   mergeAll,
   mergeObj,
   min,
   near,
+  nitem,
   num,
   numberOnly,
   numeric,
   numToHangul,
   nval,
   Paging,
+  parseDate,
   put,
   putAll,
   px2rem,
@@ -224,9 +228,8 @@ function registerComponent($SCRIPTPRM) {
               if (!item || !item.compo) { continue LOOP; };
               // if (!item?.self) { continue }
               let res = await validate(item, opt, validations);
-log.debug("V-RESULT:", item, res, validations);
               if (res === false) {
-                log.trace("INVALID:", item, opt)
+                log.trace("INVALID:", item, opt);
                 // const { props } = item.self()
                 // putAll(opt, { element: item.el })
                 // if (props?.onError) {
@@ -255,8 +258,6 @@ log.debug("V-RESULT:", item, res, validations);
               const rlist = String(item.rules).split(/\|/g);
               let label = props.label ? props.label : props.name;
               let name = props.name;
-log.debug("NAME:", label, name, props);
-log.debug("RLIST:", rlist);
               for (const rule of rlist) {
                 const rdata = rule.split(/\:/g);
                 const rparm = rdata.length > 1 ? String(rdata[1]).split(/\,/g) : [];

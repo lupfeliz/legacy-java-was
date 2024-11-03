@@ -17,6 +17,7 @@
 <script src="${cbase}/assets/libs/crypto-js-4.2.0.min.js"></script>
 <script src="${cbase}/assets/libs/jsencrypt-3.3.2.min.js"></script>
 <script src="${cbase}/assets/libs/lodash-4.17.21.min.js"></script>
+<script src="${cbase}/assets/libs/moment-2.30.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-3.7.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-ui-1.14.0.min.js"></script>
 <script src="${cbase}/assets/libs/bootstrap-5.3.3.min.js"></script>
