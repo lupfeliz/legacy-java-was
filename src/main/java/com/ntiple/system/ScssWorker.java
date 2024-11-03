@@ -69,11 +69,15 @@ public class ScssWorker {
     StringReader input = null;
     StringWriter output = null;
     try {
-      CompileSuccess cs = sc.compileScssString(content);
-      input = new StringReader(cs.getCss());
-      output = new StringWriter();
-      minify(input, output);
-      ret = output.toString();
+      if (Settings.getInstance().isJsMinify()) {
+        CompileSuccess cs = sc.compileScssString(content);
+        input = new StringReader(cs.getCss());
+        output = new StringWriter();
+        minify(input, output);
+        ret = output.toString();
+      } else {
+        ret = content;
+      }
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;
@@ -90,10 +94,15 @@ public class ScssWorker {
     StringWriter output = null;
     try {
       CompileSuccess cs = sc.compileFile(file);
-      input = new StringReader(cs.getCss());
-      output = new StringWriter();
-      minify(input, output);
-      ret = output.toString();
+      String content = cs.getCss();
+      if (Settings.getInstance().isJsMinify()) {
+        input = new StringReader(content);
+        output = new StringWriter();
+        minify(input, output);
+        ret = output.toString();
+      } else {
+        ret = content;
+      }
     } catch (Exception e) {
       log.debug("E:", e);
     }

@@ -79,11 +79,12 @@ public class CommonFilter implements Filter {
         if (rsc != null && (rfile = file(rsc.getFile())) != null && rfile.exists()) {
           String content = "";
           if (cachepath == null) {
-            if (!"".equals(settings.getScssCacheDir())) {
-              cachepath = file(settings.getScssCacheDir());
+            if (!"".equals(settings.getCacheDir())) {
+              cachepath = file(settings.getCacheDir());
             } else {
-              cachepath = File.createTempFile("cache", "tmp");
+              cachepath = file(System.getProperty("java.io.tmpdir"));
             }
+            if (!cachepath.exists()) { mkdirs(cachepath); }
           }
           File cache = file(cachepath, cat(rfile.getName(), ".cache"));
           log.debug("PATH:{}, {}, {} [{}/{}]", uri, rfile, cache, (curtime - cache.lastModified()), CACHE_INTERVAL);

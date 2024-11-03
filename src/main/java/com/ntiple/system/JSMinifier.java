@@ -59,11 +59,15 @@ public class JSMinifier {
     StringReader input = null;
     StringWriter output = null;
     try {
-      input = new StringReader(content);
-      output = new StringWriter();
-      minify(input, output);
-      ret = output.toString();
-      ret = PTN_NL.matcher(ret).replaceAll("");
+      if (Settings.getInstance().isJsMinify()) {
+        input = new StringReader(content);
+        output = new StringWriter();
+        minify(input, output);
+        ret = output.toString();
+        ret = PTN_NL.matcher(ret).replaceAll("");
+      } else {
+        ret = content;
+      }
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;
@@ -81,11 +85,15 @@ public class JSMinifier {
     StringWriter output = null;
     try {
       content = readAsString(file);
-      input = new StringReader(content);
-      output = new StringWriter();
-      minify(input, output);
-      ret = output.toString();
-      ret = PTN_NL.matcher(ret).replaceAll("");
+      if (Settings.getInstance().isJsMinify()) {
+        input = new StringReader(content);
+        output = new StringWriter();
+        minify(input, output);
+        ret = output.toString();
+        ret = PTN_NL.matcher(ret).replaceAll("");
+      } else {
+        ret = content;
+      }
     } catch (Exception e) {
       log.debug("E:", e);
       ret = content;

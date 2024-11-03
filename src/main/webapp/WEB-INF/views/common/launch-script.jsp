@@ -121,6 +121,7 @@ initEntryScript(async function($SCRIPTPRM) {
   until,
   update,
   val,
+  validateForm,
   } = $SCRIPTPRM;
   const vueapp = createApp({
   setup: function(props, context) {

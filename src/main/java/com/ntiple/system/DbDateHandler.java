@@ -26,7 +26,7 @@ public class DbDateHandler extends BaseTypeHandler<Date> {
   public void setNonNullParameter(PreparedStatement ps, int inx, Date prm, JdbcType typ) throws SQLException {
     Timestamp ts = null;
     if (prm != null) {
-      ts = new Timestamp(prm.getTime() - Settings.instance.getSystemTimeDiff());
+      ts = new Timestamp(prm.getTime() - Settings.getInstance().getSystemTimeDiff());
     }
     ps.setObject(inx, ts);
   }
@@ -37,7 +37,7 @@ public class DbDateHandler extends BaseTypeHandler<Date> {
     Timestamp ts = rs.getTimestamp(cnm);
     log.trace("TIMESTAMP1[{}]:{}", cnm, ts);
     if (ts != null) {
-      ret = new Date(ts.getTime() + Settings.instance.getSystemTimeDiff());
+      ret = new Date(ts.getTime() + Settings.getInstance().getSystemTimeDiff());
     }
     return ret;
   }
@@ -48,7 +48,7 @@ public class DbDateHandler extends BaseTypeHandler<Date> {
     Timestamp ts = rs.getTimestamp(cinx);
     log.trace("TIMESTAMP2[{}]:{}", cinx, ts);
     if (ts != null) {
-      ret = new Date(ts.getTime() + Settings.instance.getSystemTimeDiff());
+      ret = new Date(ts.getTime() + Settings.getInstance().getSystemTimeDiff());
     }
     return ret;
   }
@@ -59,7 +59,7 @@ public class DbDateHandler extends BaseTypeHandler<Date> {
     Timestamp ts = cs.getTimestamp(cinx);
     log.trace("TIMESTAMP3[{}]:{}", cinx, ts);
     if (ts != null) {
-      ret = new Date(ts.getTime() + Settings.instance.getSystemTimeDiff());
+      ret = new Date(ts.getTime() + Settings.getInstance().getSystemTimeDiff());
     }
     return ret;
   }

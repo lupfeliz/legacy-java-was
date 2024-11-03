@@ -85,21 +85,18 @@ putAll(vars, {
     dialog.winpopup("/smp/smp01001p01", vars);
   },
   async doSubmit() {
-    // log.debug("CHECK-FORM:", refs("form").test());
-    // log.debug("CHECK-FORM:", self.refs, $("form[name='form']")[0]);
-    // log.debug("CHECK-FORM:", $("form[name='form']")[0].TEST());
-    // $("form[name='form']")
-    //   .attr("method", "post")
-    //   .attr("enctype", "application/x-www-form-urlencoded")
-    //   .submit();
+    const result = {};
+    if (await $("form[name='form']")[0].validateForm(result)) {
+      log.debug("SUCCESS.");
+    } else {
+      log.debug("FAIL.", result);
+    }
   },
   async onEnter(e) {
     log.debug("ENTER:", vars.message);
   },
   async onKeydown(e) {
-    // log.debug("keyDown:", e.target.value);
-    // vars.message = e.target.value;
-    // update();
+    log.debug("keyDown:", e.target.value);
   },
   async onBlur(e) {
     log.debug("BLUR!");

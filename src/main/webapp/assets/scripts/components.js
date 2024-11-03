@@ -76,6 +76,7 @@ function registerComponent($SCRIPTPRM) {
   until,
   update,
   val,
+  validateForm,
   } = $SCRIPTPRM;
   const app = $SCRIPTPRM.app;
   const { debounce, throttle } = lodash;
@@ -104,10 +105,13 @@ function registerComponent($SCRIPTPRM) {
         };
         function registFormElement(compo, elem) {
           log.debug("REGIST-FORM:", compo, elem);
+          if (!formvars[formId]) { formvars[formId] = []; };
+          formvars[formId].push({ compo, elem });
         };
-        function validateForm() {
-
+        function validateForm(result, validations) {
+          log.debug("VALIDATE-FORM", formvars[formId]);
         };
+        putAll(vars, { validateForm })
         expose({ registFormElement, validateForm });
         const v = {
           attrs,
@@ -118,6 +122,7 @@ function registerComponent($SCRIPTPRM) {
       async mounted() {
         const self = getCurrentInstance();
         const { vars } = self.setupState;
+        vars.elem.value.validateForm = vars.validateForm;
         log.debug("FORM-MOUNTED!!!", this, vars.elem.value, vars.formId);
         vars.elem.value.TEST = function() {
           dialog.alert("OK");

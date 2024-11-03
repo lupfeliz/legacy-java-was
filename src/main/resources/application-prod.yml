@@ -8,3 +8,13 @@ debug: false
 logging:
   level:
     root: WARN
+
+system:
+  profile: "prod"
+  assets:
+    cache:
+      dir: "${java.io.tmpdir}/legacy-java-was/log"
+    js:
+      minify: true
+    scss:
+      minify: true

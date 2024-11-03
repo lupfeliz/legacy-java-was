@@ -1466,6 +1466,19 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
+  async function validateForm(form, result) {
+    let ret = false;
+    if (form) {
+      if (form.validateForm) {
+        ret = await form.validateForm(result, validations);
+      } else if (form instanceof jQuery && form[0] && form[0].validateForm) {
+        ret = await form[0].validateForm(result, validations);
+      };
+    } else {
+      log.debug("폼 객체가 올바르지 않아요");
+    };
+    return ret;
+  };
   watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
     if (o == 0 && n > 0) { doModal(); };
   });
@@ -1567,5 +1580,6 @@ function initEntryScript(callback, { vars, log, cbase }) {
   until,
   update,
   val,
+  validateForm,
   }); };
 }

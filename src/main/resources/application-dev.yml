@@ -4,3 +4,13 @@
 ## @Description : 환경설정파일
 ## @Site        : https://devlog.ntiple.com
 debug: false
+
+system:
+  profile: "local"
+  assets:
+    cache:
+      dir: "${java.io.tmpdir}/legacy-java-was/log"
+    js:
+      minify: true
+    scss:
+      minify: true

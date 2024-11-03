@@ -36,9 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component @Getter @Setter
 public class Settings {
-  public static Settings instance;
+  private static Settings instance;
 
-  @Value("${spring.profiles.active}") private String profile;
+  @Value("${system.profile}") private Object profile;
 
   /** dbcrypto 관련 파라메터 */
   @Value("${security.dbcrypt.cipher:aes}") private String dbcCipher;
@@ -46,9 +46,11 @@ public class Settings {
   @Value("${security.dbcrypt.secret:}") private String dbcSecret;
   @Value("${security.dbcrypt.charset:utf-8}") private String dbcCharset;
 
-  @Value("${system.scss.cache.dir:}") private String scssCacheDir;
+  @Value("${system.assets.cache.dir:}") private String cacheDir;
+  @Value("${system.assets.scss.minify:true}") private boolean scssMinify;
+  @Value("${system.assets.js.minify:true}") private boolean jsMinify;
 
-    /** 저장소 경로 */
+  /** 저장소 경로 */
   @Value("${storage.path:/tmp}") private String storagePath;
 
   /** 기본URL 주소 */
@@ -69,6 +71,28 @@ public class Settings {
     log.trace("INIT:{}", Settings.class);
     instance = this;
     reloadYmlSettings();
+  }
+
+  public static String getProfile() {
+    // return instance.profile;
+    return "";
+  }
+
+  public static boolean isProfile(String... profiles) {
+    boolean ret = false;
+    log.debug("CHECK:{}{} / {}", "", profiles, instance.profile);
+    if (profiles != null) {
+      for (String v : profiles) {
+        if (instance.profile.equals(v)) {
+          return true;
+        }
+      }
+    }
+    return ret;
+  }
+
+  public static Settings getInstance() {
+    return instance;
   }
 
   public void reloadYmlSettings() {
