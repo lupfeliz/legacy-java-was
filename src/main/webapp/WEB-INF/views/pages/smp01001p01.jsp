@@ -4,7 +4,7 @@
   샘플팝업 01
   <div>
     <c-input
-      :value="vars.popdata.message"
+      :value="vars.popdata.price"
       :formatter="vars.numeric"
       @onkeydown="vars.onKeydown"
       />
@@ -28,7 +28,7 @@ putAll(vars, {
   numeric,
   async onKeydown(e) {
     log.debug("CHECK:", e.target.value);
-    popdata.message = String(e.target.value);
+    popdata.price = String(e.target.value);
   },
   async onClick(v) {
     if (v == 1) {

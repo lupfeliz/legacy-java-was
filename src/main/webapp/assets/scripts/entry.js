@@ -400,12 +400,12 @@ function initEntryScript(callback, { vars, log, cbase }) {
       const hm = Number(window.screen.availHeight);
       if (!option) { option = {}; };
       let target = option.target ? option.target : "_blank";
-      let width = option.width ? option.width : wm / 3;
-      let height = option.height ? option.height : hm / 3;
+      let width = Math.round(option.width ? option.width : wm / 3);
+      let height = Math.round(option.height ? option.height : hm / 3);
       /** 화면중앙 */
-      let left = option.left ? option.left : (wm - width) / 2;
+      let left = Math.round(option.left ? option.left : (wm - width) / 2);
       /** 상단 1/4 지점 */
-      let top = option.top ? option.top : (hm - height) / 4;
+      let top = Math.round(option.top ? option.top : (hm - height) / 4);
       let menubar = option.menubar ? option.menubar : "no";
       let scrollbars = option.scrollbars ? option.scrollbars : "yes";
       let status = option.status ? option.status : "no";
@@ -1194,6 +1194,278 @@ function initEntryScript(callback, { vars, log, cbase }) {
     }
   };
 
+  /** 사전 정의된 validation 함수들 */
+  function validations() {
+    return {
+      "auto": {
+        validate(v, p) {
+          log.trace("V-AUTO:", v, p, (v !== undefined && v !== "" && v !== false));
+          return true;
+        }
+      },
+      "test": {
+        validate(v, p) { return true; },
+        message(v, p) { }
+      },
+      "required": function(v, p, c) {
+        const value = v.value;
+        log.trace("V-REQUIRED:", value, p, !(value !== undefined && value !== "" && value !== false));
+        if (!(value !== undefined && value !== null && value !== "" && value !== false)) {
+          if (c && c.type == "checkbox") {
+            let name = josa(v.name, "에")
+            return String(`#(name) 반드시 체크해 주세요`)
+              .replace(/\#\(name\)/g, name);
+          } else if (c && c.type == "select") {
+            let name = josa(v.name, "은");
+            return String(`#(name) 반드시 선택해 주세요`)
+              .replace(/\#\(name\)/g, name);
+          } else {
+            let name = josa(v.name, "은");
+            return String(`#(name) 반드시 입력해 주세요`)
+              .replace(/\#\(name\)/g, name);
+          }
+        };
+        return true;
+      },
+      'nospc': function(v, p) {
+        if (/ /g.test(v.value)) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 공백을 입력할수 없어요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'number': function(v, p) {
+        if (!format.pattern('number', v.value)) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 숫자만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'numeric': function(v, p) {
+        if (!format.pattern('numeric', v.value)) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 숫자만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'alpha': function(v, p) {
+        if (!format.pattern('alpha', v.value)) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 영문으로만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'alphaspc': function(v, p) {
+        if (!format.pattern('alphaspc', v.value)) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 영문으로만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'alphastart': function(v, p) {
+        if (!(format.pattern(C.ALPHASTART, v.value))) {
+          let name = josa(v.name, '의');
+          return String(`#(name) 첫글자는 반드시 영문으로 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'alphanum': function(v, p) {
+        if (!(format.pattern('alphanum', v.value))) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 영문 또는 숫자로만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'alphanumspc': function(v, p) {
+        if (!(format.pattern('alphanumspc', v.value))) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 영문 또는 숫자로만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      'ascii': function(v, p) {
+        if (!format.pattern('ascii', v.value)) {
+          let name = josa(v.name, '은');
+          return String(`#(name) 영문, 숫자 또는 기호만 입력해 주세요`)
+            .replace(/\#\(name\)/g, name);
+        };
+        return true;
+      },
+      // 'hangul': (v: any, p: any) => {
+      //   if (!format.pattern(C.HANGUL, v.value)) {
+      //     let name = josa(v.name, '은')
+      //     return String(`#(name) 한글만 입력해 주세요`)
+      //       .replace(/\#\(name\)/g, name)
+      //   }
+      //   return true
+      // },
+      // 'date': (v: any, p: any) => {
+      //   let valid = true
+      //   if (valid && !format.pattern(C.DATE, v.value)) { valid = false }
+      //   if (valid) {
+      //     const d = String(v.value).split('-')
+      //     const f = format.formatDate(format.date(d[0], d[1], d[2]), C.DATE_FORMAT_YMD)
+      //     log.trace('CHECK-DATE:', v.value, valid, d, f);
+      //     if (v.value != f) { valid = false }
+      //   }
+      //   if (!valid) {
+      //     let name = josa(v.value, '은')
+      //     return String(`#(name) 올바른 날자 형식이 아니예요`)
+      //       .replace(/\#\(name\)/g, name)
+      //   }
+      //   return true
+      // },
+      // 'date-ym': (v: any, p: any) => {
+      //   let valid = true
+      //   if (valid && !/^([0-9]{4}-[0-9]{1,2})$/.test(v.value)) { valid = false }
+      //   if (valid) {
+      //     const d = String(v.value).split('-')
+      //     const f = format.formatDate(format.date(d[0], d[1]), C.DATE_FORMAT_YM)
+      //     const check = `${values.lpad(d[0], 4, '0')}-${values.lpad(d[1], 2, '0')}`
+      //     if (check != f) { valid = false }
+      //   }
+      //   if (!valid) {
+      //     let name = josa(v.value, '은')
+      //     return String(`#(name) 올바른 날자 형식이 아니예요`)
+      //       .replace(/\#\(name\)/g, name)
+      //   }
+      //   return true
+      // },
+      // 'email': (v: any, p: any) => {
+      //   let t: any
+      //   if (!format.pattern(C.EMAIL, v.value)) {
+      //     let name = josa(v.value, '은', '"')
+      //     return String(`#(name) 올바른 이메일 형식이 아니예요`)
+      //       .replace(/\#\(name\)/g, name)
+      //   }
+      //   return true
+      // },
+      // 'password': (v: any, p: any) => {
+      //   let t: any
+      //   if (!format.pattern(C.PASSWORD, v.value)) {
+      //     let name = josa(v.name, '은')
+      //     return String(`#(name) 4자리 이상, 영문자, 숫자, 기호를 반드시 섞어서 입력해 주세요.`)
+      //       .replace(/\#\(name\)/g, name)
+      //   }
+      //   return true
+      // },
+      // 'content-len': (v: any, p: any) => {
+      //   let t: any
+      //   const vmin = values.num(values.nval(p, 0), 0)
+      //   const vmax = values.num(values.nval(p, 1), 0)
+      //   const div = document.createElement('div')
+      //   div.innerHTML = v.value
+      //   const clen = String(div.innerText).trim().length
+      //   if (vmin > 0 && clen < vmin) {
+      //     let name = josa(v.name, '의')
+      //     return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
+      //       .replace(/\#\(name\)/g, name)
+      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
+      //   }
+      //   if (vmax > 0 && clen > vmax) {
+      //     let name = josa(v.name, '의')
+      //     return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
+      //       .replace(/\#\(name\)/g, name)
+      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
+      //   }
+      //   return true
+      // },
+      // 'len': (v: any, p: any, c: any) => {
+      //   let t: any
+      //   const vmin = values.num(values.item(p, 0), 0)
+      //   const vmax = values.num(values.item(p, 1), 0)
+      //   if (vmin > 0 && v.value && String(v.value || '').trim().length < vmin) {
+      //     let name = josa(v.name, '의')
+      //     return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
+      //       .replace(/\#\(name\)/g, name)
+      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
+      //   }
+      //   if (vmax > 0 && v.value && String(v.value).length > vmax) {
+      //     let name = josa(v.name, '의')
+      //     return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
+      //       .replace(/\#\(name\)/g, name)
+      //       .replace(/\#\(max\)/g, String(format.numeric(vmax)))
+      //   }
+      //   return true
+      // },
+      // 'minv': (v: any, p: any, c: any) => {
+      //   let t: any
+      //   const vmin = values.num(values.item(p, 0), 0)
+      //   /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
+      //   if (Number(format.numberOnly(v.value || 0)) < vmin) {
+      //     let name = josa(v.name, '은')
+      //     return String(`#(name) #(min) 이상의 값을 입력해 주세요`)
+      //       .replace(/\#\(name\)/g, name)
+      //       .replace(/\#\(min\)/g, String(format.numeric(vmin)))
+      //   }
+      //   return true
+      // },
+      // 'maxv': (v: any, p: any, c: any) => {
+      //   let t: any
+      //   const vmax = values.num(values.item(p, 0), 0)
+      //   /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
+      //   if (Number(format.numberOnly(v.value || 0)) > vmax) {
+      //     let name = josa(v.name, '은')
+      //     return String(`#(name) #(max) 이하의 값을 입력해 주세요`)
+      //       .replace(/\#\(name\)/g, name)
+      //       .replace(/\#\(max\)/g, String(format.numeric(vmax)))
+      //   }
+      //   return true
+      // },
+      // 'atleast': (v: any, p: any, c: any) => {
+      //   log.trace('ATLEAST:', v, p, c)
+      //   const count = p[0]
+      //   let found = 0
+      //   let vv = p ? p[1] :  C.UNDEFINED
+      //   if (v.value && v.value instanceof Array) {
+      //     LOOP: for (const itm of v.value) {
+      //       if ((vv && itm == vv) || (!vv && itm)) {
+      //         found++
+      //         if (found >= count) { break LOOP }
+      //       }
+      //       continue LOOP
+      //     }
+      //   }
+      //   if (found < count) {
+      //     if (c && c.type == 'checkbox') {
+      //       let name = josa(v.name, '에')
+      //       return String(`#(name) 반드시 #(count)개 이상 체크해 주세요`)
+      //         .replace(/\#\(name\)/g, name)
+      //         .replace(/\#\(count\)/g, count)
+      //     } else if (c && c.type == 'select') {
+      //       let name = josa(v.name, '은')
+      //       return String(`#(name) 반드시 #(count)개 이상 선택해 주세요`)
+      //         .replace(/\#\(name\)/g, name)
+      //         .replace(/\#\(count\)/g, count)
+      //     } else {
+      //       let name = josa(v.name, '은')
+      //       return String(`#(name) 반드시 #(count)개 이상 입력해 주세요`)
+      //         .replace(/\#\(name\)/g, name)
+      //         .replace(/\#\(count\)/g, count)
+      //     }
+      //   } else {
+      //     return true
+      //   }
+      // }
+    };
+  };
+
+  function registFormElement(self, elem) {
+    const { props, attrs } = (self && self.setupState) ? self.setupState : {};
+    let o;
+    if ((self.setupState) && (o = self.root) && (o = o.refs) && (o = o[props.form]) && (o.registFormElement)) {
+      o.registFormElement(self.setupState, elem);
+    };
+  };
+
   watch(function() { return dialogvars.value.modal.queue.length }, function(n, o) {
     if (o == 0 && n > 0) { doModal(); };
   });
@@ -1206,6 +1478,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   /** [ 레이어팝업 관련 스크립트 */
   MOUNT_HOOK_PROCS.push(async function(app) {
+    // log.debug("MOUNT:", app._.refs);
     appvars.instance = app;
     const modalref = app.$refs["dialogvars.modal.ref"];
     const progressref = app.$refs["dialogvars.progress.ref"];
@@ -1225,11 +1498,12 @@ function initEntryScript(callback, { vars, log, cbase }) {
   /** ] 레이어팝업 관련 스크립트 */
 
   function BIND_VALUES({ props, context }) {
-    return { vars, dialogvars };
+    return { vars, dialogvars, props, context };
   };
 
   /** 공통 사용을 위해 entry.js 와 launch-script.jsp 의 항목을 맞춰 주어야 한다. */
   if (callback) { callback({
+  vars: vars.value,
   BIND_VALUES,
   KEYCODE_REV_TABLE,
   KEYCODE_TABLE,
@@ -1279,6 +1553,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   px2rem,
   randomChar,
   randomStr,
+  registFormElement,
   rem2px,
   replaceLink,
   rpad,
@@ -1292,6 +1567,5 @@ function initEntryScript(callback, { vars, log, cbase }) {
   until,
   update,
   val,
-  vars,
   }); };
 }

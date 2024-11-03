@@ -57,6 +57,7 @@ const log = { };
 
 initEntryScript(async function($SCRIPTPRM) {
   const {
+  vars,
   BIND_VALUES,
   KEYCODE_REV_TABLE,
   KEYCODE_TABLE,
@@ -106,6 +107,7 @@ initEntryScript(async function($SCRIPTPRM) {
   px2rem,
   randomChar,
   randomStr,
+  registFormElement,
   rem2px,
   replaceLink,
   rpad,
@@ -119,27 +121,33 @@ initEntryScript(async function($SCRIPTPRM) {
   until,
   update,
   val,
-  vars,
   } = $SCRIPTPRM;
   const vueapp = createApp({
   setup: function(props, context) {
-window.APP = getCurrentInstance();
+    const self = getCurrentInstance();
+    const refs = function(name) {
+      let ret = self.refs[name];
+      if (!ret) { ret = {}; };
+      return ret;
+    };
+    log.debug("SELF:", self, refs);
     <script:names var="scripts"/>
     <c:forEach items="${scripts}" var="name">
       <c:if test="${name != '#launcher#'}">
       try { <script:ex name="${name}" /> } catch (e) { log.debug("E:", e); };
       </c:if>
     </c:forEach>
-    return putAll(BIND_VALUES({ props, context, app: vueapp, instance: getCurrentInstance() }), {
+    return putAll(BIND_VALUES({ props, context }), {
+      app: vueapp, instance: getCurrentInstance(),
     });
   },
   mounted: async function() { for (const proc of MOUNT_HOOK_PROCS) { proc(this); }; },
   beforeUnmount: async function() { for (const proc of UNMOUNT_HOOK_PROCS) { proc(this); }; }
   });
-  $SCRIPTPRM.app = vueapp;
+  putAll($SCRIPTPRM, { app: vueapp });
   registerComponent($SCRIPTPRM);
   vueapp.mount(document.body);
-}, { vars: vars.value, log, cbase: "${cbase}" });
+}, { vars, log, cbase: "${cbase}" });
 /** ] 페이지 스크립트 실행 */
 }, 0);
 </script:ex>

@@ -1,5 +1,5 @@
 /**
- * @File        : c-input.js
+ * @File        : components.js
  * @Author      : 정재백
  * @Since       : 2024-10-31
  * @Description : 입력컴포넌트
@@ -11,6 +11,7 @@ function registerComponent($SCRIPTPRM) {
   const useAttrs = Vue.useAttrs;
   const defineProps = Vue.defineProps;
   const defineComponent = Vue.defineComponent;
+  const getCurrentInstance = Vue.getCurrentInstance;
   const {
   BIND_VALUES,
   KEYCODE_REV_TABLE,
@@ -61,6 +62,7 @@ function registerComponent($SCRIPTPRM) {
   px2rem,
   randomChar,
   randomStr,
+  registFormElement,
   rem2px,
   replaceLink,
   rpad,
@@ -77,17 +79,67 @@ function registerComponent($SCRIPTPRM) {
   } = $SCRIPTPRM;
   const app = $SCRIPTPRM.app;
   const { debounce, throttle } = lodash;
+  const formvars = {
+  };
+  {
+    const name = "c-form";
+    const CForm = defineComponent({
+      name,
+      template: `
+      \ <form
+      \   v-bind="attrs"
+      \   :ref="vars.elem"
+      \   :data-form-ref="vars.formId"
+      \   >
+      \   <slot />
+      \ </form>`,
+      props: {
+      },
+      setup: function(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const formId = genId();
+        const vars = {
+          elem: ref(),
+          formId: formId,
+        };
+        function registFormElement(compo, elem) {
+          log.debug("REGIST-FORM:", compo, elem);
+        };
+        function validateForm() {
+
+        };
+        expose({ registFormElement, validateForm });
+        const v = {
+          attrs,
+          vars,
+        };
+        return v;
+      },
+      async mounted() {
+        const self = getCurrentInstance();
+        const { vars } = self.setupState;
+        log.debug("FORM-MOUNTED!!!", this, vars.elem.value, vars.formId);
+        vars.elem.value.TEST = function() {
+          dialog.alert("OK");
+        };
+      }
+    });
+    app.component(name, CForm);
+  };
   {
     const name = "c-button";
     const CButton = defineComponent({
       name,
       template: `
       \ <button
+      \   v-bind="attrs"
       \   class="btn"
       \   @click="onClick"
       \   >
       \   <slot />
       \ </button>`,
+      props: {
+      },
       setup: function(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
@@ -109,6 +161,7 @@ function registerComponent($SCRIPTPRM) {
       name,
       template: `
       \ <input
+      \   v-bind="attrs"
       \   class="form-control"
       \   :ref="vars.elem"
       \   :vrules=""
@@ -116,11 +169,11 @@ function registerComponent($SCRIPTPRM) {
       \   @keyup="onKeyup"
       \   @focus="onFocus"
       \   @blur="onBlur"
-      \   v-bind="attrs"
       \   />`,
       props: {
         formatter: function() { },
         rtformatter: function() { },
+        form: undefined,
         modelValue: '',
         type: '',
         minvalue: undefined,
@@ -355,6 +408,7 @@ function registerComponent($SCRIPTPRM) {
           };
         };
         const v = {
+          props,
           attrs,
           onBlur,
           onFocus,
@@ -363,6 +417,11 @@ function registerComponent($SCRIPTPRM) {
           vars,
         };
         return v;
+      },
+      async mounted() {
+        const self = getCurrentInstance();
+        const { vars } = self.setupState
+        registFormElement(self, vars.elem.value);
       }
     });
     app.component(name, CInput);
