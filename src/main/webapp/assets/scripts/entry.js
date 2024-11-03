@@ -1422,13 +1422,13 @@ function initEntryScript(callback, { vars, log, cbase }) {
           let name = josa(v.name, "의");
           return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
-            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+            .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
         if (vmax > 0 && clen > vmax) {
           let name = josa(v.name, "의");
           return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
-            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+            .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
         return true;
       },
@@ -1440,37 +1440,37 @@ function initEntryScript(callback, { vars, log, cbase }) {
           let name = josa(v.name, "의");
           return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
-            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+            .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
         if (vmax > 0 && v.value && String(v.value).length > vmax) {
           let name = josa(v.name, "의");
           return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
-            .replace(/\#\(max\)/g, String(format.numeric(vmax)));
+            .replace(/\#\(max\)/g, String(numeric(vmax)));
         };
         return true;
       },
       "minv": function(v, p, c) {
         let t;
-        const vmin = num(item(p, 0), 0);
+        const vmin = num(nitem(p, 0), 0);
         /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
         if (Number(numberOnly(v.value ? v.value : 0)) < vmin) {
           let name = josa(v.name, "은");
           return String(`#(name) #(min) 이상의 값을 입력해 주세요`)
             .replace(/\#\(name\)/g, name)
-            .replace(/\#\(min\)/g, String(format.numeric(vmin)));
+            .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
         return true;
       },
       "maxv": function(v, p, c) {
         let t;
-        const vmax = num(item(p, 0), 0);
+        const vmax = num(nitem(p, 0), 0);
         /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
         if (Number(numberOnly(v.value ? v.value : 0)) > vmax) {
           let name = josa(v.name, "은");
           return String(`#(name) #(max) 이하의 값을 입력해 주세요`)
             .replace(/\#\(name\)/g, name)
-            .replace(/\#\(max\)/g, String(format.numeric(vmax)));
+            .replace(/\#\(max\)/g, String(numeric(vmax)));
         };
         return true;
       },

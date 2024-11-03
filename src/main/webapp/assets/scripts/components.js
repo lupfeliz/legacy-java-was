@@ -203,7 +203,7 @@ function registerComponent($SCRIPTPRM) {
               const ivars = item.vars;
               const elem = item.elem;
               // const ref = item.ref()
-              // const elem = ref?.current ? ref.current : C.UNDEFINED
+              // const elem = ref.current ? ref.current : C.UNDEFINED
               item.rules = parseRules(props, attrs, elem);
               if (elem) {
                 log.trace("ELEM:", elem);
@@ -226,15 +226,15 @@ function registerComponent($SCRIPTPRM) {
             log.trace("VALIDATION-COUNT:", elist.length);
             LOOP: for (const item of elist) {
               if (!item || !item.compo) { continue LOOP; };
-              // if (!item?.self) { continue }
+              // if (!item.self) { continue }
               let res = await validate(item, opt, validations);
               if (res === false) {
                 log.trace("INVALID:", item, opt);
                 // const { props } = item.self()
                 // putAll(opt, { element: item.el })
-                // if (props?.onError) {
+                // if (props.onError) {
                 //   props.onError(opt)
-                // } else if (vform?.current?.onError) {
+                // } else if (vform.current.onError) {
                 //   vform.current.onError(opt)
                 // }
                 ret = false;
@@ -253,7 +253,7 @@ function registerComponent($SCRIPTPRM) {
             // const { props, vars } = self
             // let { value } = self
             const { props, vars } = item.compo;
-            let value = undefined;
+            let value = props.modelValue;
             try {
               const rlist = String(item.rules).split(/\|/g);
               let label = props.label ? props.label : props.name;
@@ -268,14 +268,14 @@ function registerComponent($SCRIPTPRM) {
                 if (rdata[0] == "atleast" && /\.[0-9]+$/g.test(name)) {
                   name = name.replace(/\.[0-9]+$/g, "");
                   label = label.replace(/\.[0-9]+$/g, "");
-                  // value = (props?.model || {})[name];
+                  // value = (props.model : props.model : {})[name];
                   if (rparm.length == 0) { rparm.push("1"); };
-                  if (props?.value !== undefined) { rparm.push(props.value); };
+                  if (props.value !== undefined) { rparm.push(props.value); };
                 };
                 let vitm = undefined, ufnc = undefined;
                 /** 사용자함수 를 우선한다 (원래함수 덮어쓰기 용도) */
                 if (!vitm && props && props.validctx) { ufnc = vitm = props.validctx[rdata[0]]; };
-                // if (!vitm && vform?.current?.validctx) { ufnc = vitm = vform.current.validctx[rdata[0]] }
+                // if (!vitm && vform.current.validctx) { ufnc = vitm = vform.current.validctx[rdata[0]] }
                 if (!vitm) { vitm = validations()[rdata[0]]; };
                 log.debug("VITM:", rule, rdata[0], vitm ? true: false, value, rparm);
                 if (!vitm) { continue; };
@@ -298,7 +298,7 @@ function registerComponent($SCRIPTPRM) {
                   break;
                 };
               };
-              // log.trace("FINAL-RESULT:", props?.name, ret)
+              // log.trace("FINAL-RESULT:", props.name, ret)
             } catch (e) {
               log.debug("E:", e);
             };
@@ -366,6 +366,8 @@ function registerComponent($SCRIPTPRM) {
       \   v-bind="attrs"
       \   class="form-control"
       \   :ref="vars.elem"
+      \   :name="props.name"
+      \   :type="props.type"
       \   @keydown="onKeydown"
       \   @keyup="onKeyup"
       \   @focus="onFocus"
@@ -434,8 +436,8 @@ function registerComponent($SCRIPTPRM) {
             let o;
             /** 1. 선처리, 직접적인 하드웨어 키보드 (scan-code) 입력에 대한 이벤트처리 */
             const el = (o = $(vars.elem.value)[0]) ? o : {};
-            let st = Number(el.selectionStart || 0);
-            let ed = Number(el.selectionEnd || 0);
+            let st = Number(el.selectionStart ? el.selectionStart : 0);
+            let ed = Number(el.selectionEnd ? el.selectionEnd : 0);
             /** 허용키 : ctrl+c ctrl+v 방향키 bs delete tab enter space */
             if (vars.itype === "number" || vars.itype === "numeric") {
               let v = 0;
@@ -522,7 +524,7 @@ function registerComponent($SCRIPTPRM) {
                   /** NO-OP */
                 } else if ((
                   /** Ctrl+C, Ctrl+V, Ctrl-A, Ctrl+R 허용 */
-                  ([KEYCODE_TABLE.PC.KeyA, KEYCODE_TABLE.PC.KeyC, KEYCODE_TABLE.PC.KeyV, KEYCODE_TABLE.PC.KeyR].indexOf(kcode) !== -1) &&
+                  ([KEYCODE_TABLE.PC.KeyA, KEYCODE_TABLE.PC.KeyC, KEYCODE_TABLE.PC.KeyV, KEYCODE_TABLE.PC.KeyR, KEYCODE_TABLE.PC.KeyW].indexOf(kcode) !== -1) &&
                   e.ctrlKey)) {
                   /** NO-OP */
                 } else {
