@@ -1269,7 +1269,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
             let name = josa(v.name, "에");
             return String(`#(name) 반드시 체크해 주세요`)
               .replace(/\#\(name\)/g, name);
-          } else if (v.type == "select") {
+          } else if (v.type == "select" || v.type == "combobox") {
             let name = josa(v.name, "은");
             return String(`#(name) 반드시 선택해 주세요`)
               .replace(/\#\(name\)/g, name);

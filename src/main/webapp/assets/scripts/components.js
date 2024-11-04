@@ -19,6 +19,7 @@ function registerComponent($SCRIPTPRM) {
   const ONFOCUS = "onfocus";
   const ONBLUR = "onblur";
   const ONENTER = "onenter";
+  const ONCHANGE = "onchange";
   const {
   BIND_VALUES,
   KEYCODE_REV_TABLE,
@@ -290,7 +291,9 @@ function registerComponent($SCRIPTPRM) {
                 if (rule !== "required" && !ufnc && (value === "" || value === undefined)) {
                   result = true;
                 } else {
-                  result = vitm({ value, name: label, type: item.elem.type }, rparm, vars.valid);
+                  let type = item.elem.type;
+                  if ($(item.elem).attr("role") === "combobox") { type = "select"; };
+                  result = vitm({ value, name: label, type }, rparm, vars.valid);
                 };
                 log.trace("RESULT:", result, typeof result);
                 if (typeof result === "string") {
@@ -629,6 +632,9 @@ function registerComponent($SCRIPTPRM) {
         const self = getCurrentInstance();
         const { vars } = self.setupState;
         registFormElement(self, vars.elem.value);
+      },
+      async updated() {
+        log.trace("UPDATE-INPUT");
       }
     });
     app.component(name, CInput);
@@ -696,11 +702,14 @@ function registerComponent($SCRIPTPRM) {
     const CSelect = defineComponent({
       name,
       template: `
-      \ <div class="dropdown">
+      \ <div
+      \   class="dropdown"
+      \   @keyup="onKeypress"
+      \   >
       \   <button
       \     type="button"
       \     :ref="vars.elem"
-      \     :class="strm('btn dropdown-toggle ' + 'btn-secondary ')"
+      \     :class="getClass('btn dropdown-toggle ', 'button')"
       \     data-bs-toggle="dropdown"
       \     aria-expanded="false"
       \     role="combobox"
@@ -713,7 +722,9 @@ function registerComponent($SCRIPTPRM) {
       \       :key="inx"
       \       >
       \       <a
-      \         class="dropdown-item"
+      \         data=""
+      \         :class="getClass('dropdown-item cursor-pointer ', 'item', inx)"
+      \         @click="onSelect(inx)"
       \         >
       \         {{ itm.name }}
       \       </a>
@@ -729,6 +740,7 @@ function registerComponent($SCRIPTPRM) {
         required: false,
         options: [],
         vrules: "",
+        variant: "",
       },
       setup: function(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
@@ -736,14 +748,91 @@ function registerComponent($SCRIPTPRM) {
           avail: true,
           elem: ref(),
           text: "",
+          index: 0,
           options: [],
+          menuvisb: false,
         };
-        vars.options = props.options;
+        function setOptions(options) {
+          const ret = [];
+          for (let inx = 0; inx < options.length; inx++) {
+            const item = options[inx];
+            if (!item) { continue; };
+            let value = typeof item === 'string' ? item : item.value ? item.value : '';
+            let name = item.name ? item.name : value;
+            let selected = false;
+            if (value === props.modelValue) {
+              vars.index = inx;
+              selected = true;
+            };
+            ret.push({ name, value, selected });
+          }
+          if (vars.index < 0 || vars.index >= ret.length) { vars.index = 0; };
+          vars.text = ret[vars.index].name;
+          return vars.options = ret;
+        };
+        function onSelect(select) {
+          for (var inx = 0; inx < vars.options.length; inx++) { vars.options[inx].selected = false; };
+          const item = vars.options[select];
+          item.selected = true;
+          vars.text = item.name;
+          vars.index = select;
+          console.log("OK:", select, vars, vars.elem.value);
+          /** FIXME: 임시코드 */
+          $(vars.elem.value).text(item.name);
+          emit(UPDATE_MV, item.value);
+          emitChange();
+        };
+        function onKeypress(e) {
+          log.debug("KEYDOWN:", e);
+          switch (Number(e.keyCode)) {
+          case KEYCODE_TABLE.PC.ArrowUp: {
+            if (vars.index > 0) { vars.index -= 1 }
+            if (isEvent(e)) { cancelEvent(e) }
+            // update(C.UPDATE_SELF)
+          } break;
+          case KEYCODE_TABLE.PC.ArrowDown: {
+            if (vars.index < vars.options.length - 1) { vars.index += 1 }
+            if (isEvent(e)) { cancelEvent(e) }
+            // update(C.UPDATE_SELF)
+          } break ;
+          default: };
+          const item = vars.options[vars.index];
+          item.selected = true;
+          vars.text = item.name;
+          /** FIXME: 임시코드 */
+          $(vars.elem.value).text(item.name);
+          emit(UPDATE_MV, item.value);
+          emitChange();
+        };
+        function getClass(ocls, type, inx) {
+          let ret = ocls;
+          switch (type) {
+          case 'button': {
+            if (props.variant) {
+              ret = `${ret} btn-${props.variant}`;
+            };
+          } break;
+          case 'item': {
+            if (inx === vars.index) {
+              ret = `${ret} active`;
+            };
+          } break;
+          };
+          return ret;
+        };
+        const emitChange = debounce(function() {
+          emit(ONCHANGE, props.modelValue);
+        }, 300);
+        setOptions(props.options);
         const v = {
           props,
           attrs,
           vars,
           strm,
+          setOptions,
+          onSelect,
+          onKeypress,
+          getClass,
         };
         return v;
       },
@@ -751,6 +840,10 @@ function registerComponent($SCRIPTPRM) {
         const self = getCurrentInstance();
         const { vars } = self.setupState;
         registFormElement(self, vars.elem.value);
+      },
+      async updated() {
+        const { vars } = getCurrentInstance().setupState;
+        log.debug("UPDATE-SELECT");
       }
     });
     app.component(name, CSelect);

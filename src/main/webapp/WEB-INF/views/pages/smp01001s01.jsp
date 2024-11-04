@@ -45,16 +45,27 @@
     </div>
     <div>
       <c-select
-        :options="
-        [
+        v-model="vars.select"
+        form="form"
+        name="select"
+        label="선택박스"
+        required
+        :options="[
           { name: '선택해주세요', value: '' },
-        ]
-        "
+          'gmail.com',
+          'hotmail.com',
+          'honmail.com',
+          'naver.com',
+          { name: '직접입력', value: '_' }
+        ]"
+        vrules="auto"
+        variant="secondary"
         />
     </div>
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
   <div>[{{ vars.check }}]</div>
+  <div>[{{ vars.select }}]</div>
   <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
     대기
   </c-button>
