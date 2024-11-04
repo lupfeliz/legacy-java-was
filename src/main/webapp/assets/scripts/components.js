@@ -105,6 +105,7 @@ function registerComponent($SCRIPTPRM) {
       \   <slot />
       \ </form>`,
       props: {
+        validctx: {},
       },
       setup: function(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
@@ -255,6 +256,7 @@ function registerComponent($SCRIPTPRM) {
           return ret;
         };
         function validate(item, opt, validations) {
+          const fprops = props;
           return new Promise(function (resolve, _) {
             let ret = true;
             let result;
@@ -283,7 +285,7 @@ function registerComponent($SCRIPTPRM) {
                 };
                 let vitm = undefined, ufnc = undefined;
                 /** 사용자함수 를 우선한다 (원래함수 덮어쓰기 용도) */
-                if (!vitm && props && props.validctx) { ufnc = vitm = props.validctx[rdata[0]]; };
+                if (!vitm && fprops && fprops.validctx) { ufnc = vitm = fprops.validctx[rdata[0]]; };
                 // if (!vitm && vform.current.validctx) { ufnc = vitm = vform.current.validctx[rdata[0]] }
                 if (!vitm) { vitm = validations()[rdata[0]]; };
                 log.trace("VITM:", rule, rdata[0], vitm ? true: false, value, rparm);

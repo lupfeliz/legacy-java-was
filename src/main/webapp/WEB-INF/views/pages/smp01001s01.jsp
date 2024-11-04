@@ -7,6 +7,7 @@
     ref="form"
     name="form"
     action="${cbase}/smp/smp01001s02"
+    :validctx="vars.validctx"
     >
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
@@ -136,6 +137,14 @@ putAll(vars, {
   },
   async onBlur(e) {
     log.debug("BLUR!");
+  },
+  validctx: {
+    check2: function(v, p) {
+      /** 숫자 2 는 사용할수 없도록 하는 규칙. */
+      log.debug('VALIDATION-CHECK2:', v, p, String(v).indexOf('2'));
+      if (String(v.value).indexOf('2') != -1) { return `숫자 '2' 는 사용할 수 없어요.`; };
+      return true;
+    }
   },
 });
 </script:ex>
