@@ -64,7 +64,7 @@
         label="체크리스트"
         value="Y"
         required
-        vrules="auto"
+        vrules="auto|atleast:2|atmost:3"
         />
     </div>
     <div>
@@ -118,7 +118,7 @@ putAll(vars, {
   numToHangul,
   price: numeric(1000),
   check: "Y",
-  checklist: ["Y", "Y", "Y", "", ""],
+  checklist: ["Y", "", "", "", ""],
   select: "hotmail.com",
   teststr: `
   \ 텍스트 문자열 테스트 중입니다.

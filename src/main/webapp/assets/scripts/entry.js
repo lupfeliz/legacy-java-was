@@ -1509,6 +1509,38 @@ function initEntryScript(callback, { vars, log, cbase }) {
           return true;
         };
       },
+      "atmost": function(v, p, c) {
+        log.debug("ATMOST:", v, p, c);
+        const count = p[0];
+        let found = 0;
+        let vv = p ? p[1] :  undefined;
+        if (v.value && v.value instanceof Array) {
+          LOOP: for (const itm of v.value) {
+            if ((vv && itm == vv) || (!vv && itm)) { found++; };
+            continue LOOP;
+          };
+        };
+        if (found > count) {
+          if (v.type == "checkbox") {
+            let name = josa(v.name, "은");
+            return String(`#(name) #(count)개 이상 체크할 수 없어요`)
+              .replace(/\#\(name\)/g, name)
+              .replace(/\#\(count\)/g, count);
+          } else if (v.type == "select") {
+            let name = josa(v.name, "은");
+            return String(`#(name) #(count)개 이상 선택할 수 없어요`)
+              .replace(/\#\(name\)/g, name)
+              .replace(/\#\(count\)/g, count);
+          } else {
+            let name = josa(v.name, "은");
+            return String(`#(name) #(count)개 이상 입력할 수 없어요`)
+              .replace(/\#\(name\)/g, name)
+              .replace(/\#\(count\)/g, count);
+          }
+        } else {
+          return true;
+        };
+      },
     };
   };
 
