@@ -15,8 +15,6 @@ import static com.ntiple.commons.Constants.X_FORWARDED_FOR;
 import static com.ntiple.commons.ConvertUtil.asList;
 import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.ConvertUtil.cat;
-import static com.ntiple.commons.ConvertUtil.convert;
-import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.IOUtils.passthrough;
 import static com.ntiple.commons.IOUtils.reader;
@@ -28,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -318,43 +318,76 @@ public class WebUtil {
     return ret;
   }
 
-  public static JSONObject params() {
+  public static RequestParameter params() {
     return params(curRequest());
   }
-  public static JSONObject params(HttpServletRequest req) {
-    return params(req, new JSONObject());
+  public static RequestParameter params(HttpServletRequest req) {
+    return new RequestParameter(req);
   }
 
-  public static <T> T params(HttpServletRequest req, T t) {
-    Map<String, String[]> pmap = req.getParameterMap();
-    Object ret = null;
-    if (t != null) {
-      if (t instanceof JSONObject) {
-        JSONObject obj = new JSONObject();
-        for (String key : pmap.keySet()) {
-          String[] val = pmap.get(key);
-          log.debug("GET-PARAM:{} = {}[{}]", key, val, val.length);
-          if (val != null && val.length > 0) { obj.put(key, val[0]); }
-        }
-        ret = obj;
-      } else if (t instanceof Map) {
-        Map<String, Object> obj = newMap();
-        for (String key : pmap.keySet()) {
-          String[] val = pmap.get(key);
-          log.debug("GET-PARAM:{} = {}[{}]", key, val, val.length);
-          if (val != null && val.length > 0) { obj.put(key, val[0]); }
-        }
-        ret = obj;
-      } else {
-        Map<String, Object> obj = newMap();
-        for (String key : pmap.keySet()) {
-          String[] val = pmap.get(key);
-          log.debug("GET-PARAM:{} = {}[{}]", key, val, val.length);
-          if (val != null && val.length > 0) { obj.put(key, val[0]); }
-        }
-        ret = convert(obj, t);
-      }
+  public static class RequestParameter {
+    private Map<String, String[]> pmap;
+
+    public RequestParameter(HttpServletRequest request) {
+      pmap = request.getParameterMap();
     }
-    return cast(ret, t);
+
+    public String get(String name) { return get(name, String.class, 0); }
+    public String get(String name, Integer seq) { return get(name, String.class, seq); }
+    public <T> T get(String name, Class<T> cls) { return get(name, cls, 0); }
+    public <T> T get(String name, Class<T> cls, Integer seq) {
+      T ret = null;
+      String[] v = pmap.get(name);
+      Object o = null;
+      if (v == null) { return null; }
+      if (seq == null) { seq = 0; }
+      if (cls == String.class || cls.isAssignableFrom(String.class)) {
+        if (v.length > seq && (o = v[seq]) != null) { ret = cast(o, ret); }
+      } else if (cls == int.class || cls.isAssignableFrom(int.class)) {
+        if (v.length > seq && (o = v[seq]) != null) { ret = cast(parseInt(o), ret); }
+      } else if (cls == Integer.class || cls.isAssignableFrom(Integer.class)) {
+        if (v.length > seq && (o = v[seq]) != null) { ret = cast(parseInt(o), ret); }
+      } else if (cls == List.class || cls.isAssignableFrom(List.class)) {
+        List<String> list = new ArrayList<>();
+        for (String itm : v) { list.add(itm); }
+        ret = cast(list, ret);
+      } else if (cls == String[].class || cls.isAssignableFrom(String[].class)) {
+        ret = cast(v, ret);
+      } else if (cls == int[].class || cls.isAssignableFrom(int[].class)) {
+        int[] list = new int[v.length];
+        for (int inx = 0; inx < v.length; inx++) { list[inx] = parseInt(v[inx]); }
+        ret = cast(list, ret);
+      } else if (cls == Integer[].class || cls.isAssignableFrom(Integer[].class)) {
+        Integer[] list = new Integer[v.length];
+        for (int inx = 0; inx < v.length; inx++) { list[inx] = parseInt(v[inx]); }
+        ret = cast(list, ret);
+      }
+      return ret;
+    }
+
+    public List<String> keys() {
+      return new ArrayList<String>(pmap.keySet());
+    }
+
+    public JSONObject toJSON() {
+      JSONObject ret = new JSONObject();
+      for (String key : this.pmap.keySet()) {
+        String[] v = this.pmap.get(key);
+        JSONArray l = new JSONArray();
+        if (v != null) {
+          for (int inx = 0; inx < v.length; inx++) { l.put(v[inx]); }
+        }
+        ret.put(key, l);
+      }
+      return ret;
+    }
+
+    public Map<String, String[]> toMap() {
+      return this.pmap;
+    }
+
+    @Override public String toString() {
+      return String.valueOf(toJSON());
+    }
   }
 }

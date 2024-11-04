@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
+import com.ntiple.system.WebUtil.RequestParameter;
 import com.ntiple.work.cmn.CommonEntity.Login;
 import com.ntiple.work.cmn.CommonEntity.Result;
 
@@ -35,12 +36,16 @@ public class SampleService {
 
   /** 페이지용 서비스 */
   public String smp01001s02() throws Exception { 
-    log.debug("CHECK-PARAM:{}", params());
+    RequestParameter params = params();
+    log.debug("CHECK-PARAM:{} / {}", params.keys(), params);
+    for (String key : params.keys()) {
+      log.debug("PARAMS:{}", params.get(key));
+    }
     return "/smp01001s02";
   }
 
   public String smp01001p01() {
-    log.debug("CHECK-PARAM:{}", params());
+    log.debug("CHECK-PARAM:{}", params().toString());
     return "/smp01001p01";
   }
 

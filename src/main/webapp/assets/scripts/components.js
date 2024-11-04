@@ -20,6 +20,7 @@ function registerComponent($SCRIPTPRM) {
   const ONBLUR = "onblur";
   const ONENTER = "onenter";
   const ONCHANGE = "onchange";
+  const DATA_VALID_INX = "data-valid-inx";
   const {
   BIND_VALUES,
   KEYCODE_REV_TABLE,
@@ -198,7 +199,6 @@ function registerComponent($SCRIPTPRM) {
           ret = list.join("|");
           return ret;
         };
-        const DATA_VALID_INX = "data-valid-inx";
         async function validateForm(opt, validations) {
           log.trace("VALIDATE-FORM", vars.items[formId]);
           let ret = true;
@@ -706,7 +706,6 @@ function registerComponent($SCRIPTPRM) {
               } else {
                 vars.checked = false;
                 props.modelValue[inx] = props.nvalue ? props.nvalue : "";
-                emit(UPDATE_MV, props.modelValue);
               };
             } else {
               if (props.modelValue[inx]) {
@@ -714,10 +713,10 @@ function registerComponent($SCRIPTPRM) {
               } else {
                 vars.checked = false;
                 props.modelValue[inx] = "";
-                emit(UPDATE_MV, props.modelValue);
               };
             };
             vars.value = props.modelValue[inx];
+            emit(UPDATE_MV, clone(props.modelValue));
           };
         } else {
           if ((props.value && props.modelValue === props.value) || (!props.value && props.modelValue)) {
@@ -742,6 +741,7 @@ function registerComponent($SCRIPTPRM) {
               value[vars.index] = props.nvalue ? props.nvalue : "";
               vars.checked = false;
             };
+            vars.value = value[vars.index];
             value = clone(value);
             log.trace("CHECK:", value, vars.index, vars.elem.value);
           } else {

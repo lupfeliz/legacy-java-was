@@ -1619,7 +1619,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
         .attr("enctype", "application/x-www-form-urlencoded");
       $(document.body).append($vform);
       log.debug("FORM:", $vform[0].outerHTML);
-      // $vform.submit();
+      $vform.submit();
       $vform.remove();
     } catch (e) {
       log.debug("E:", e);
