@@ -262,18 +262,16 @@ function registerComponent($SCRIPTPRM) {
           return new Promise(function (resolve, _) {
             let ret = true;
             let result;
-            // const self = modelValue(item.self()) as any
-            // const { props, vars } = self
-            // let { value } = self
             const { attrs, props, vars } = item.compo;
-            let value = props.modelValue;
             try {
               const rlist = String(item.rules).split(/\|/g);
               let label;
               let name;
+              let value;
               for (const rule of rlist) {
                 label =  props.label ? props.label : props.name;
                 name = props.name;
+                value = props.modelValue;
                 const rdata = rule.split(/\:/g);
                 const rparm = rdata.length > 1 ? String(rdata[1]).split(/\,/g) : [];
                 /** NULL, UNDEFINED 값 통일 */
@@ -298,6 +296,10 @@ function registerComponent($SCRIPTPRM) {
                   result = true;
                 } else {
                   let type = item.elem.type;
+                  /** FIXME: checkbox, radio, combobox 예외조항 간결하게 할 수 있는 방법 강구 */
+                  if (["checkbox", "radio"].indexOf($(item.elem).attr("type")) !== -1 && $(item.elem).attr("value")) {
+                    if (typeof value !="object" && value != $(item.elem).attr("value")) { value = ""; };
+                  };
                   if ($(item.elem).attr("role") === "combobox") { type = "select"; };
                   result = vitm({ value, name: label, type, t: props.value, f: props.nvalue }, rparm, vars.valid);
                 };

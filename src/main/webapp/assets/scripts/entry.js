@@ -1282,8 +1282,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
       },
       "required": function(v, p, c) {
         const value = v.value;
-        log.trace("V-REQUIRED:", value, p, !(value !== undefined && value !== "" && value !== false));
-        if (!(value !== undefined && value !== null && value !== "" && value !== false)) {
+        let invalid = !(value !== undefined && value !== null && value !== "" && value !== false);
+        log.trace("V-REQUIRED:", v.name, value, p, invalid);
+        if (invalid) {
           if (v.type == "checkbox") {
             let name = josa(v.name, "에");
             return String(`#(name) 반드시 체크해 주세요`)
@@ -1592,7 +1593,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
         const group = $elem.attr("data-group");
         const index = $elem.attr("data-index");
         const checked = $elem.attr("checked");
-        log.debug("FORM-ELEMENT:", inx, name, tagName, type, value, checked, group, index);
+        log.trace("FORM-ELEMENT:", inx, name, tagName, type, value, checked, group, index);
         let $velem = $(document.createElement("input"))
           .attr("type", "hidden");
         if (tagName === "input") {
@@ -1618,10 +1619,8 @@ function initEntryScript(callback, { vars, log, cbase }) {
         .attr("enctype", "application/x-www-form-urlencoded");
       $(document.body).append($vform);
       log.debug("FORM:", $vform[0].outerHTML);
-      // setTimeout(() => {
-      //   $vform.remove();
-      // }, 5000);
       // $vform.submit();
+      $vform.remove();
     } catch (e) {
       log.debug("E:", e);
     } finally {
