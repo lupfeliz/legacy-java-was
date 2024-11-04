@@ -333,6 +333,7 @@ public class WebUtil {
         JSONObject obj = new JSONObject();
         for (String key : pmap.keySet()) {
           String[] val = pmap.get(key);
+          log.debug("GET-PARAM:{} = {}[{}]", key, val, val.length);
           if (val != null && val.length > 0) { obj.put(key, val[0]); }
         }
         ret = obj;
@@ -340,6 +341,7 @@ public class WebUtil {
         Map<String, Object> obj = newMap();
         for (String key : pmap.keySet()) {
           String[] val = pmap.get(key);
+          log.debug("GET-PARAM:{} = {}[{}]", key, val, val.length);
           if (val != null && val.length > 0) { obj.put(key, val[0]); }
         }
         ret = obj;
@@ -347,6 +349,7 @@ public class WebUtil {
         Map<String, Object> obj = newMap();
         for (String key : pmap.keySet()) {
           String[] val = pmap.get(key);
+          log.debug("GET-PARAM:{} = {}[{}]", key, val, val.length);
           if (val != null && val.length > 0) { obj.put(key, val[0]); }
         }
         ret = convert(obj, t);

@@ -83,6 +83,9 @@ public class Constants {
   public static final String ATTR_KEY_IS_GUEST = "@%ATTR_IS_GUEST%";
   public static final String ATTR_KEY_EXTRAINFO = "@%ATTR_EXTRAINFO%";
 
+  public static final String TYPE_XLSX = "xlsx";
+  public static final String TYPE_XLS = "xls";
+
   public static class TMPCLS { }
   public static Object TMPOBJ = new TMPCLS();
 

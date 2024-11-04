@@ -12,7 +12,7 @@
 <script:ex name="#launcher#">
 /** window 에 중요 변수들이 바인드 되지 않도록 setTimeout 상에서 실행한다. */
 setTimeout(function() {
-  /** [ 리소스 구동적재 대기 스크립트 --%>*/
+  /** [ 리소스 구동적재 대기 스크립트 */
   /** 글꼴과 전역 스타일까지 로드된 시점에서 화면을 보여준다 (깜빡거림 이슈) */
   var body = document.body;
   function fnunload() {
@@ -75,6 +75,7 @@ initEntryScript(async function($SCRIPTPRM) {
   equalsIgnoreCase,
   find,
   formatDate,
+  formSubmit,
   genId,
   getFrom,
   getGlobalTmp,
@@ -115,6 +116,7 @@ initEntryScript(async function($SCRIPTPRM) {
   rem2px,
   replaceLink,
   rpad,
+  secureRandom,
   setGlobalTmp,
   setOpenerTmp,
   sleep,

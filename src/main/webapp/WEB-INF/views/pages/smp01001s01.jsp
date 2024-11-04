@@ -59,10 +59,11 @@
         v-for="(itm, inx) in vars.checklist"
         v-model="vars.checklist"
         form="form"
-        :name="'check.' + inx"
+        :name="'checklist.' + inx"
         :checked="vars.checklist[inx] == 'Y'"
         label="체크리스트"
         value="Y"
+        nvalue="N"
         required
         vrules="auto|atleast:2|atmost:3"
         />
@@ -148,8 +149,10 @@ putAll(vars, {
   },
   async doSubmit() {
     const result = {};
-    if (await validateForm($("form[name='form']"), result)) {
+    const $form = $("form[name='form']");
+    if (await validateForm($form, result)) {
       log.debug("SUCCESS.");
+      formSubmit($form);
     } else {
       log.debug("FAIL.", result);
       await dialog.alert(result.message);

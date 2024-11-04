@@ -38,6 +38,7 @@ function registerComponent($SCRIPTPRM) {
   equalsIgnoreCase,
   find,
   formatDate,
+  formSubmit,
   genId,
   getFrom,
   getGlobalTmp,
@@ -78,6 +79,7 @@ function registerComponent($SCRIPTPRM) {
   rem2px,
   replaceLink,
   rpad,
+  secureRandom,
   setGlobalTmp,
   setOpenerTmp,
   sleep,
@@ -116,7 +118,7 @@ function registerComponent($SCRIPTPRM) {
           items: [],
         };
         function registFormElement(compo, elem) {
-          log.debug("REGIST-FORM:", compo, elem);
+          log.trace("REGIST-FORM:", compo, elem);
           vars.items.push({ compo, elem });
         };
 
@@ -267,16 +269,18 @@ function registerComponent($SCRIPTPRM) {
             let value = props.modelValue;
             try {
               const rlist = String(item.rules).split(/\|/g);
-              let label = props.label ? props.label : props.name;
-              let name = props.name;
+              let label;
+              let name;
               for (const rule of rlist) {
+                label =  props.label ? props.label : props.name;
+                name = props.name;
                 const rdata = rule.split(/\:/g);
                 const rparm = rdata.length > 1 ? String(rdata[1]).split(/\,/g) : [];
                 /** NULL, UNDEFINED 값 통일 */
                 value = nval(value, undefined);
-                log.trace("RULE:", rule, rdata, value, props);
+                log.trace("RULE:", name, rule, rdata, value, props);
                 if (!rdata || rdata.length < 1) { continue; };
-                if (rdata[0] == "atleast" && /\.[0-9]+$/g.test(name)) {
+                if ((rdata[0] == "atleast" || rdata[0] == "atmost") && /\.[0-9]+$/g.test(name)) {
                   name = name.replace(/\.[0-9]+$/g, "");
                   label = label.replace(/\.[0-9]+$/g, "");
                   // value = (props.model : props.model : {})[name];
@@ -295,9 +299,9 @@ function registerComponent($SCRIPTPRM) {
                 } else {
                   let type = item.elem.type;
                   if ($(item.elem).attr("role") === "combobox") { type = "select"; };
-                  result = vitm({ value, name: label, type }, rparm, vars.valid);
+                  result = vitm({ value, name: label, type, t: props.value, f: props.nvalue }, rparm, vars.valid);
                 };
-                log.trace("RESULT:", result, typeof result);
+                log.debug("RESULT:", name, result, typeof result);
                 if (typeof result === "string") {
                   if (!(opt && opt.noerror)) {
                     // vars.valid.error = true;
@@ -311,7 +315,7 @@ function registerComponent($SCRIPTPRM) {
                   break;
                 };
               };
-              // log.trace("FINAL-RESULT:", props.name, ret)
+              log.debug("FINAL-RESULT:", props.name, ret)
             } catch (e) {
               log.debug("E:", e);
             };
@@ -657,7 +661,9 @@ function registerComponent($SCRIPTPRM) {
       \   :type="vars.type"
       \   :ref="vars.elem"
       \   :name="vars.name"
+      \   :value="props.modelValue[vars.index]"
       \   :checked="vars.checked"
+      \   :data-nvalue="props.nvalue"
       \   @click="onClick"
       \   />`,
       props: {
@@ -666,6 +672,8 @@ function registerComponent($SCRIPTPRM) {
         type: "",
         name: "",
         label: "",
+        value: "",
+        nvalue: "",
         required: false,
         vrules: "",
       },
@@ -686,8 +694,23 @@ function registerComponent($SCRIPTPRM) {
           if ((mat = PTN_GRP.exec(props.name))) {
             vars.name = mat[1];
             const inx = vars.index = Number(mat[2]);
-            if ((props.value && props.modelValue[inx] === props.value) || (!props.value && props.modelValue[inx])) {
-              vars.checked = true;
+
+            if (props.value) {
+              if (props.modelValue[inx] === props.value) {
+                vars.checked = true;
+              } else {
+                vars.checked = false;
+                props.modelValue[inx] = props.nvalue ? props.nvalue : "";
+                emit(UPDATE_MV, props.modelValue);
+              };
+            } else {
+              if (props.modelValue[inx]) {
+                vars.checked = true;
+              } else {
+                vars.checked = false;
+                props.modelValue[inx] = "";
+                emit(UPDATE_MV, props.modelValue);
+              };
             };
           };
         } else {
@@ -700,25 +723,29 @@ function registerComponent($SCRIPTPRM) {
           let value = props.modelValue;
           if (value instanceof Array) {
             if ((o = vars.elem.value) && (o.checked) === true) {
-              if (o.value !== undefined) {
-                value[vars.index] = o.value;
+              if (props.value !== undefined) {
+                value[vars.index] = props.value;
               } else {
                 value[vars.index] = true;
               };
+              vars.checked = true;
             } else {
-              value[vars.index] = "";
+              value[vars.index] = props.nvalue ? props.nvalue : "";
+              vars.checked = false;
             };
             value = clone(value);
             log.debug("CHECK:", value, vars.index, vars.elem.value);
           } else {
             if ((o = vars.elem.value) && (o.checked) === true) {
-              if (o.value !== undefined) {
-                value = o.value;
+              if (props.value !== undefined) {
+                value = props.value;
               } else {
                 value = true;
               };
+              vars.checked = true;
             } else {
               value = "";
+              vars.checked = false;
             };
           };
           emit(ONCLICK, e);

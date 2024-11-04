@@ -211,6 +211,25 @@ function initEntryScript(callback, { vars, log, cbase }) {
   /** 앱 내 유일키 생성 */
   function genId() { return (new Date().getTime()) + String((appvars.uidseq = (appvars.uidseq + 1) % 1000) + 1000).substring(1, 4) };
 
+  /** [출처] [javascript] securerandom|작성자 alucard99 */
+  function secureRandom(wordCount) {
+    var randomWords;
+    if (window.crypto && window.crypto.getRandomValues) {
+      /** 크롬 등에서 지원 */
+      randomWords = new Int32Array(wordCount);
+      window.crypto.getRandomValues(randomWords);
+    } else if (window.msCrypto && window.msCrypto.getRandomValues) {
+      /** Internet Explorer 11에서 지원 */
+      randomWords = new Int32Array(wordCount);
+      window.msCrypto.getRandomValues(randomWords);
+    } else {
+      return Math.random(); 
+    };
+    var result = randomWords[0] * Math.pow(2, -32);
+    result = Math.abs(result);
+    return result;
+  };
+
   /** 최소(min)~최대(max)값 사이의 난수 생성, 최소값을 입력하지 않을경우 자동으로 0 으로 지정됨 */
   function getRandom(max, min) {
     if (max === U) { max = 0; };
@@ -1510,7 +1529,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
         };
       },
       "atmost": function(v, p, c) {
-        log.debug("ATMOST:", v, p, c);
+        log.trace("ATMOST:", v, p, c);
         const count = p[0];
         let found = 0;
         let vv = p ? p[1] :  undefined;
@@ -1552,19 +1571,35 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
+  async function formSubmit(form) {
+    if (!form) { return; };
+    if (!form instanceof jQuery) { form = $(form); }
+    try {
+      dialog.progress(true);
+      form 
+        .attr("method", "post")
+        .attr("enctype", "application/x-www-form-urlencoded")
+        .submit();
+    } catch (e) {
+      log.debug("E:", e);
+    } finally {
+      dialog.progress(false);
+    };
+  };
+
   async function validateForm(form, opt) {
     let ret = false;
-    if (form) {
-      if (form.validateForm) {
-        /** NO-OP */
-      } else if (form instanceof jQuery && form[0] && form[0].validateForm) {
-        form = form[0];
-      };
-      if (form && form.validateForm) {
-        ret = await form.validateForm(opt, validations);
-      }
-    } else {
+    if (!form) {
       log.debug("폼 객체가 올바르지 않아요");
+      return ret;
+    }
+    if (form.validateForm) {
+      /** NO-OP */
+    } else if (form instanceof jQuery && form[0] && form[0].validateForm) {
+      form = form[0];
+    };
+    if (form && form.validateForm) {
+      ret = await form.validateForm(opt, validations);
     };
     return ret;
   };
@@ -1623,6 +1658,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   equalsIgnoreCase,
   find,
   formatDate,
+  formSubmit,
   genId,
   getFrom,
   getGlobalTmp,
@@ -1663,6 +1699,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   rem2px,
   replaceLink,
   rpad,
+  secureRandom,
   setGlobalTmp,
   setOpenerTmp,
   sleep,
