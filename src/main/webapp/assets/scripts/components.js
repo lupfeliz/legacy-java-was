@@ -408,6 +408,7 @@ function registerComponent($SCRIPTPRM) {
           avail: true,
           elem: ref(),
         };
+        const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
         /** 입력컴포넌트 키입력 이벤트 처리 */
         const onKeydown = async function(e) {
           if (vars.avail) {
@@ -489,6 +490,7 @@ function registerComponent($SCRIPTPRM) {
                 vars.avail = true;
                 emit(UPDATE_MV, el.value);
                 emit(ONKEYDOWN, e);
+                emitChange();
                 return;
               } break;
               case KEYCODE_TABLE.PC.ArrowDown: {
@@ -513,6 +515,7 @@ function registerComponent($SCRIPTPRM) {
                 vars.avail = true;
                 emit(UPDATE_MV, el.value);
                 emit(ONKEYDOWN, e);
+                emitChange();
                 return;
               } break;
               default: {
@@ -551,6 +554,7 @@ function registerComponent($SCRIPTPRM) {
                 if (el.value === null || el.value === undefined || el.value === "") {
                   emit(UPDATE_MV, value = el.value = "");
                   emit(ONKEYDOWN, e);
+                  emitChange();
                   return vars.avail = true;
                 };
                 LOOP: while(true) {
@@ -614,6 +618,7 @@ function registerComponent($SCRIPTPRM) {
               };
               emit(ONKEYDOWN, e);
               emit(UPDATE_MV, `${value}`);
+              emitChange();
               if (e.keyCode === KEYCODE_TABLE.PC.Enter) { setTimeout(function() { emit(ONENTER, e); }, 50); };
               vars.avail = true
             }, 50);
@@ -651,7 +656,8 @@ function registerComponent($SCRIPTPRM) {
       \   class="form-check-input"
       \   :type="vars.type"
       \   :ref="vars.elem"
-      \   :name="props.name"
+      \   :name="vars.name"
+      \   :checked="vars.checked"
       \   @click="onClick"
       \   />`,
       props: {
@@ -667,21 +673,57 @@ function registerComponent($SCRIPTPRM) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
           type: props.type === 'radio' ? props.type : 'checkbox',
+          name: props.name,
+          index: 0,
           avail: true,
           elem: ref(),
+          checked: false,
+        };
+        const PTN_GRP = /^([^.]+)[.]([0-9]+)$/g;
+        const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
+        let mat;
+        if (props.modelValue instanceof Array) {
+          if ((mat = PTN_GRP.exec(props.name))) {
+            vars.name = mat[1];
+            const inx = vars.index = Number(mat[2]);
+            if ((props.value && props.modelValue[inx] === props.value) || (!props.value && props.modelValue[inx])) {
+              vars.checked = true;
+            };
+          };
+        } else {
+          if ((props.value && props.modelValue === props.value) || (!props.value && props.modelValue)) {
+            vars.checked = true;
+          };
         };
         async function onClick(e) {
           let o;
-          let value = "";
-          if ((o = vars.elem.value) && (o.checked) === true) {
-            if (o.value !== undefined) {
-              value = o.value;
+          let value = props.modelValue;
+          if (value instanceof Array) {
+            if ((o = vars.elem.value) && (o.checked) === true) {
+              if (o.value !== undefined) {
+                value[vars.index] = o.value;
+              } else {
+                value[vars.index] = true;
+              };
             } else {
-              value = true;
+              value[vars.index] = "";
+            };
+            value = clone(value);
+            log.debug("CHECK:", value, vars.index, vars.elem.value);
+          } else {
+            if ((o = vars.elem.value) && (o.checked) === true) {
+              if (o.value !== undefined) {
+                value = o.value;
+              } else {
+                value = true;
+              };
+            } else {
+              value = "";
             };
           };
           emit(ONCLICK, e);
           emit(UPDATE_MV, value);
+          emitChange();
         };
         const v = {
           props,
@@ -767,7 +809,7 @@ function registerComponent($SCRIPTPRM) {
               selected = true;
             };
             ret.push({ name, value, selected });
-          }
+          };
           if (vars.index < 0 || vars.index >= ret.length) { vars.index = 0; };
           vars.text = ret[vars.index].name;
           return vars.options = ret;
@@ -788,13 +830,13 @@ function registerComponent($SCRIPTPRM) {
           log.debug("KEYDOWN:", e);
           switch (Number(e.keyCode)) {
           case KEYCODE_TABLE.PC.ArrowUp: {
-            if (vars.index > 0) { vars.index -= 1 }
-            if (isEvent(e)) { cancelEvent(e) }
+            if (vars.index > 0) { vars.index -= 1; };
+            if (isEvent(e)) { cancelEvent(e); };
             // update(C.UPDATE_SELF)
           } break;
           case KEYCODE_TABLE.PC.ArrowDown: {
-            if (vars.index < vars.options.length - 1) { vars.index += 1 }
-            if (isEvent(e)) { cancelEvent(e) }
+            if (vars.index < vars.options.length - 1) { vars.index += 1; };
+            if (isEvent(e)) { cancelEvent(e); };
             // update(C.UPDATE_SELF)
           } break ;
           default: };
@@ -822,9 +864,7 @@ function registerComponent($SCRIPTPRM) {
           };
           return ret;
         };
-        const emitChange = debounce(function() {
-          emit(ONCHANGE, props.modelValue);
-        }, 300);
+        const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
         setOptions(props.options);
         const v = {
           props,

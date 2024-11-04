@@ -36,9 +36,32 @@
     <div>
       <c-check
         v-model="vars.check"
+        :checked="vars.check == 'Y'"
         form="form"
         name="check"
         label="체크박스"
+        value="Y"
+        required
+        vrules="auto"
+        />
+    </div>
+    <div>
+      <c-check
+        v-model="vars.check"
+        :checked="vars.check != 'Y'"
+        name="check"
+        label="체크박스"
+        value="N"
+        />
+    </div>
+    <div>
+      <c-check
+        v-for="(itm, inx) in vars.checklist"
+        v-model="vars.checklist"
+        form="form"
+        :name="'check.' + inx"
+        :checked="vars.checklist[inx] == 'Y'"
+        label="체크리스트"
         value="Y"
         required
         vrules="auto"
@@ -67,6 +90,7 @@
   <div>{{ vars.numToHangul(vars.price) }}원</div>
   <div>[{{ vars.check }}]</div>
   <div>[{{ vars.select }}]</div>
+  <div>[{{ vars.checklist }}]</div>
   <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
     대기
   </c-button>
@@ -92,7 +116,10 @@ log.debug("MAIN-PAGE-LOADED!");
 putAll(vars, {
   numeric,
   numToHangul,
-  price: "",
+  price: numeric(1000),
+  check: "Y",
+  checklist: ["Y", "Y", "Y", "", ""],
+  select: "hotmail.com",
   teststr: `
   \ 텍스트 문자열 테스트 중입니다.
   \ 백틱을 사용하는 경우 여러줄에 걸쳐서 작성 할 수 있습니다.
