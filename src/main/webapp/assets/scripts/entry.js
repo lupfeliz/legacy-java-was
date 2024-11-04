@@ -1027,6 +1027,152 @@ function initEntryScript(callback, { vars, log, cbase }) {
     ["에", "에"],
   ];
 
+  /** 암호화 기본키 저장소 */
+  const cryptovars = {
+    NIL_ARR: CryptoJS.enc.Hex.parse('00'),
+    aes: {
+      defbit: 256,
+      defkey: undefined,
+      opt: {
+        iv: undefined,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      }
+    },
+    rsa: {
+      JSEncrypt: undefined,
+      BigInteger: undefined,
+      SecureRandom: undefined,
+      parseBigInt: undefined,
+      b64tohex: undefined,
+      hex2b64: undefined,
+      cryptor: undefined,
+      defkey: ''
+    }
+  };
+
+  const crypto = {
+    /** AES 모듈 */
+    aes: {
+      init: async function(key) {
+        if (key) { cryptovars.aes.defkey = crypto.aes.key(key); };
+      },
+      decrypt: function(msg, key) {
+        let hkey = key ? crypto.aes.key(key) : cryptovars.aes.defkey;
+        return CryptoJS.AES.decrypt(msg, hkey, cryptovars.aes.opt).toString(CryptoJS.enc.Utf8);
+      },
+      encrypt: function(msg, key) {
+        let hkey = key ? crypto.aes.key(key) : cryptovars.aes.defkey;
+        return CryptoJS.AES.encrypt(msg, hkey, cryptovars.aes.opt).toString();
+      },
+      key: function(key, bit = cryptovars.aes.defbit) {
+        let ret = undefined;
+        if (key) {
+          if (typeof key === 'string' || typeof key === 'number') {
+            key = String(key);
+            const b64len = Math.round(bit * 3 / 2 / 8);
+            if (key.length > (b64len)) { key = String(key).substring(0, b64len); };
+            if (key.length < (b64len)) { key = String(key).padEnd(b64len, '\0'); };
+            if (ret === undefined) { try { ret = crypto.b64dec(key); } catch (e) { log.debug('E:', e); }; };
+            if (ret === undefined) { try { ret = crypto.hexdec(key); } catch (e) { log.debug('E:', e); }; };
+          } else {
+            if (key.__proto__ === CryptoJS.lib.WordArray) { ret = key; };
+          };
+        };
+        return ret;
+      },
+      setDefaultKey(key, bit = cryptovars.aes.defbit) {
+        if (bit && bit !== cryptovars.aes.defbit) { cryptovars.aes.defbit = bit; };
+        cryptovars.aes.defkey = crypto.aes.key(key, bit);
+      }
+    },
+    /** RSA 모듈 / JSEncrypt 에서는 private key 를 사용해야만 암/복호화가 모두 지원된다 */
+    rsa: {
+      init: async function(keyval, keytype) {
+        if (!cryptovars.rsa.JSEncrypt) {
+          cryptovars.rsa.JSEncrypt = JSEncrypt;
+          /** 우선 pubkey 로직은 생각하지 않는다. */
+          // const { parseBigInt, BigInteger } = (await import('jsencrypt/lib/lib/jsbn/jsbn'))
+          // const { SecureRandom } = (await import('jsencrypt/lib/lib/jsbn/rng'))
+          // const { b64tohex, hex2b64 } = (await import('jsencrypt/lib/lib/jsbn/base64'))
+          // cryptovars.rsa.BigInteger = BigInteger
+          // cryptovars.rsa.SecureRandom = SecureRandom
+          // cryptovars.rsa.parseBigInt = parseBigInt
+          // cryptovars.rsa.b64tohex = b64tohex
+          // cryptovars.rsa.hex2b64 = hex2b64
+          const cryptor = cryptovars.rsa.cryptor = new cryptovars.rsa.JSEncrypt();
+          // switch (keytype) {
+          // case C.PRIVATE_KEY: case undefined: { cryptor.setPrivateKey(keyval) } break
+          // case C.PUBLIC_KEY: { cryptor.setPublicKey(keyval) } break
+          // }
+          cryptor.setPrivateKey(keyval);
+        };
+      },
+      decrypt: function(msg, key) {
+        let cryptor = cryptovars.rsa.cryptor;
+        if (key) {
+          cryptor = new cryptovars.rsa.JSEncrypt();
+          cryptor.setKey(key);
+        };
+        const kobj = cryptor.getKey();
+        if (kobj.d) {
+          // log.trace('PRV-DEC', msg)
+          return cryptor.decrypt(msg)
+        } else {
+          /** 우선 pubkey 로직은 생각하지 않는다. */
+          // // log.trace('PUB-DEC', msg)
+          // let ret = undefined;
+          // const c = cryptovars.rsa.parseBigInt(cryptovars.rsa.b64tohex(msg), 16)
+          // const e = tobig(kobj.e)
+          // ret = c.modPow(e, kobj.n)
+          // // log.trace('N:', tohex(kobj?.n))
+          // // log.trace('E:', tohex(kobj?.e))
+          // // log.trace('DECRYPT:', tohex(ret))
+          // ret = pkcsunpad(ret, (kobj.n.bitLength() + 7) >> 3)
+          // return ret
+        }
+      },
+      encrypt: function(msg, key) {
+        let cryptor = cryptovars.rsa.cryptor;
+        if (key) {
+          cryptor = new cryptovars.rsa.JSEncrypt();
+          cryptor.setKey(key);
+        };
+        const kobj = cryptor.getKey();
+        if (!kobj.d) {
+          return cryptor.encrypt(msg);
+        } else {
+          /** 우선 pubkey 로직은 생각하지 않는다. */
+          // // log.trace('PRV-ENC', msg)
+          // let ret = undefined
+          // let maxLength = (kobj.n.bitLength() + 7) >> 3
+          // let c = pkcspad(msg, maxLength);
+          // ret = c.modPow(tobig(kobj.d), kobj.n)
+          // // log.trace('PADDING:', tohex(c))
+          // // log.trace('N:', tohex(kobj?.n))
+          // // log.trace('D:', tohex(kobj?.d))
+          // // log.trace('ENCRYPT:', tohex(ret))
+          // ret = ret.toString(16)
+          // let length = ret.length
+          // /** fix zero before result */
+          // for (var inx = 0; inx < maxLength * 2 - length; inx++) { ret = '0' + ret }
+          // ret = cryptovars.rsa.hex2b64(ret)
+          // return ret
+        }
+      }
+    },
+    b64dec: function(key) {
+      let ret = cryptovars.NIL_ARR;
+      try { ret = CryptoJS.enc.Base64.parse(key); } catch (e) { log.debug('E:', e); };
+      return ret;
+    },
+    hexdec: function(key) {
+      let ret = cryptovars.NIL_ARR;
+      try { ret = CryptoJS.enc.Hex.parse(key);k } catch (e) { log.debug('E:', e); };
+      return ret;
+    },
+  };
+
   class Hangul {
     /** 1글자의 초, 중, 종성을 분리한다. */
     extract(ch) {
