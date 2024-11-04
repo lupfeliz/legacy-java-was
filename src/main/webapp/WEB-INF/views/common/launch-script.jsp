@@ -76,6 +76,7 @@ initEntryScript(async function($SCRIPTPRM) {
   find,
   formatDate,
   formSubmit,
+  formToJson,
   genId,
   getFrom,
   getGlobalTmp,

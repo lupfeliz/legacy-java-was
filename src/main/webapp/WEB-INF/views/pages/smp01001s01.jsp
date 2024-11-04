@@ -109,6 +109,9 @@
   <c-button class="btn-primary mx-1" @onclick="vars.doSubmit">
     SUBMIT
   </c-button>
+  <c-button class="btn-primary mx-1" @onclick="vars.doGetJson">
+    JSON
+  </c-button>
   <div>
   </div>
 </page:ex>
@@ -153,6 +156,19 @@ putAll(vars, {
     if (await validateForm($form, result)) {
       log.debug("SUCCESS.");
       formSubmit($form);
+    } else {
+      log.debug("FAIL.", result);
+      await dialog.alert(result.message);
+      $(result.element).focus();
+    }
+  },
+  async doGetJson() {
+    const result = {};
+    const $form = $("form[name='form']");
+    if (await validateForm($form, result)) {
+      let json = JSON.stringify(await formToJson($form));
+      log.debug("SUCCESS.", json);
+      await dialog.alert(String(`결과값 : \${json}`));
     } else {
       log.debug("FAIL.", result);
       await dialog.alert(result.message);

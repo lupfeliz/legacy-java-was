@@ -40,6 +40,7 @@ function registerComponent($SCRIPTPRM) {
   find,
   formatDate,
   formSubmit,
+  formToJson,
   genId,
   getFrom,
   getGlobalTmp,

@@ -1574,7 +1574,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   async function formSubmit($form, opt) {
     if (!$form) { return; };
-    if (!$form instanceof jQuery) { $form = $($form); }
+    if (!$form instanceof jQuery) { $form = $($form); };
     try {
       dialog.progress(true);
       const $elist = $form.find("input,textarea,select");
@@ -1628,12 +1628,55 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
+  async function formToJson($form, opt) {
+    let ret = {};
+    if (!$form) { return; };
+    if (!$form instanceof jQuery) { $form = $($form); };
+    try {
+      dialog.progress(true);
+      const $elist = $form.find("input,textarea,select");
+      for(let inx = 0; inx < $elist.length; inx++) {
+        const $elem = $($elist[inx]);
+        const tagName = String($elem.prop("tagName")).toLowerCase();
+        const type = $elem.prop("type");
+        const name = $elem.attr("name");
+        const value = $elem.attr("value");
+        const group = $elem.attr("data-group");
+        const index = $elem.attr("data-index");
+        const checked = $elem.attr("checked");
+        log.trace("FORM-ELEMENT:", inx, name, tagName, type, value, checked, group, index);
+        if (tagName === "input") {
+          switch (type) {
+          case "checkbox": case "radio": {
+            if (group !== undefined && index !== undefined) {
+              if (!ret[name]) { ret[name] = []; };
+              ret[name][index] = value;
+            } else if (checked) {
+              ret[name] = value;
+            } else {
+            };
+          } break;
+          case "text": case "hidden": default: {
+            ret[name] = value;
+          } break;
+          };
+        };
+      };
+      log.debug("RET:", ret);
+    } catch (e) {
+      log.debug("E:", e);
+    } finally {
+      dialog.progress(false);
+    };
+    return ret;
+  };
+
   async function validateForm(form, opt) {
     let ret = false;
     if (!form) {
       log.debug("폼 객체가 올바르지 않아요");
       return ret;
-    }
+    };
     if (form.validateForm) {
       /** NO-OP */
     } else if (form instanceof jQuery && form[0] && form[0].validateForm) {
@@ -1700,6 +1743,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   find,
   formatDate,
   formSubmit,
+  formToJson,
   genId,
   getFrom,
   getGlobalTmp,
