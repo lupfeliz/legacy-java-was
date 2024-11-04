@@ -1571,15 +1571,57 @@ function initEntryScript(callback, { vars, log, cbase }) {
     };
   };
 
-  async function formSubmit(form) {
-    if (!form) { return; };
-    if (!form instanceof jQuery) { form = $(form); }
+  async function formSubmit($form, opt) {
+    if (!$form) { return; };
+    if (!$form instanceof jQuery) { $form = $($form); }
     try {
       dialog.progress(true);
-      form 
+      const $elist = $form.find("input,textarea,select");
+      const $vform = $(document.createElement("form"));
+      $(["action"]).each(
+        function(i, k) {
+          let v = $form.attr(k);
+          if (v) { $vform.attr(k, v); };
+        }); 
+      for(let inx = 0; inx < $elist.length; inx++) {
+        const $elem = $($elist[inx]);
+        const tagName = String($elem.prop("tagName")).toLowerCase();
+        const type = $elem.prop("type");
+        const name = $elem.attr("name");
+        const value = $elem.attr("value");
+        const group = $elem.attr("data-group");
+        const index = $elem.attr("data-index");
+        const checked = $elem.attr("checked");
+        log.debug("FORM-ELEMENT:", inx, name, tagName, type, value, checked, group, index);
+        let $velem = $(document.createElement("input"))
+          .attr("type", "hidden");
+        if (tagName === "input") {
+          switch (type) {
+          case "checkbox": case "radio": {
+            if (group !== undefined && index !== undefined) {
+              $velem.attr("name", name).attr("value", value);
+            } else if (checked) {
+              $velem.attr("name", name).attr("value", value);
+            } else {
+              $velem = undefined;
+            };
+          } break;
+          case "text": case "hidden": default: {
+            $velem.attr("name", name).attr("value", value);
+          } break;
+          };
+        };
+        if ($velem) { $vform.append($velem); }
+      };
+      $vform
         .attr("method", "post")
-        .attr("enctype", "application/x-www-form-urlencoded")
-        .submit();
+        .attr("enctype", "application/x-www-form-urlencoded");
+      $(document.body).append($vform);
+      log.debug("FORM:", $vform[0].outerHTML);
+      // setTimeout(() => {
+      //   $vform.remove();
+      // }, 5000);
+      // $vform.submit();
     } catch (e) {
       log.debug("E:", e);
     } finally {

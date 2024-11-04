@@ -301,7 +301,7 @@ function registerComponent($SCRIPTPRM) {
                   if ($(item.elem).attr("role") === "combobox") { type = "select"; };
                   result = vitm({ value, name: label, type, t: props.value, f: props.nvalue }, rparm, vars.valid);
                 };
-                log.debug("RESULT:", name, result, typeof result);
+                log.trace("RESULT:", name, result, typeof result);
                 if (typeof result === "string") {
                   if (!(opt && opt.noerror)) {
                     // vars.valid.error = true;
@@ -315,7 +315,7 @@ function registerComponent($SCRIPTPRM) {
                   break;
                 };
               };
-              log.debug("FINAL-RESULT:", props.name, ret)
+              log.trace("FINAL-RESULT:", props.name, ret)
             } catch (e) {
               log.debug("E:", e);
             };
@@ -661,9 +661,11 @@ function registerComponent($SCRIPTPRM) {
       \   :type="vars.type"
       \   :ref="vars.elem"
       \   :name="vars.name"
-      \   :value="props.modelValue[vars.index]"
+      \   :value="vars.value"
       \   :checked="vars.checked"
       \   :data-nvalue="props.nvalue"
+      \   :data-group="vars.group"
+      \   :data-index="vars.index"
       \   @click="onClick"
       \   />`,
       props: {
@@ -682,19 +684,20 @@ function registerComponent($SCRIPTPRM) {
         const vars = {
           type: props.type === 'radio' ? props.type : 'checkbox',
           name: props.name,
-          index: 0,
+          index: undefined,
           avail: true,
           elem: ref(),
           checked: false,
+          value: "",
+          group: undefined,
         };
         const PTN_GRP = /^([^.]+)[.]([0-9]+)$/g;
         const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
         let mat;
         if (props.modelValue instanceof Array) {
           if ((mat = PTN_GRP.exec(props.name))) {
-            vars.name = mat[1];
+            vars.group = vars.name = mat[1];
             const inx = vars.index = Number(mat[2]);
-
             if (props.value) {
               if (props.modelValue[inx] === props.value) {
                 vars.checked = true;
@@ -712,10 +715,14 @@ function registerComponent($SCRIPTPRM) {
                 emit(UPDATE_MV, props.modelValue);
               };
             };
+            vars.value = props.modelValue[inx];
           };
         } else {
           if ((props.value && props.modelValue === props.value) || (!props.value && props.modelValue)) {
             vars.checked = true;
+            vars.value = props.modelValue;
+          } else {
+            vars.value = "";
           };
         };
         async function onClick(e) {
@@ -734,7 +741,7 @@ function registerComponent($SCRIPTPRM) {
               vars.checked = false;
             };
             value = clone(value);
-            log.debug("CHECK:", value, vars.index, vars.elem.value);
+            log.trace("CHECK:", value, vars.index, vars.elem.value);
           } else {
             if ((o = vars.elem.value) && (o.checked) === true) {
               if (props.value !== undefined) {
@@ -787,6 +794,10 @@ function registerComponent($SCRIPTPRM) {
       \     >
       \     {{ vars.text }}
       \   </button>
+      \   <input type="hidden"
+      \     :name="props.name"
+      \     :value="props.modelValue"
+      \     />
       \   <ul class="dropdown-menu">
       \     <li
       \       v-for="(itm, inx) in vars.options"
@@ -912,7 +923,7 @@ function registerComponent($SCRIPTPRM) {
       },
       async updated() {
         const { vars } = getCurrentInstance().setupState;
-        log.debug("UPDATE-SELECT");
+        log.trace("UPDATE-SELECT");
       }
     });
     app.component(name, CSelect);
