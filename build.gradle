@@ -58,12 +58,12 @@ repositories {
     maven { url 'https://repo.spring.io/milestone' }
   } else {
     println('USE NEXUS REPOSITORY : ' + NEXUS_REPO)
-    maven {
-      // NEXUS_SPRING_IO
-      // NEXUS_MAVEN_PLUGINS
-      url 'http://192.168.0.2:8081/repository/maven-spring-io/'
-      allowInsecureProtocol = true
-    }
+    // maven {
+    //   // NEXUS_SPRING_IO
+    //   // NEXUS_MAVEN_PLUGINS
+    //   url 'http://192.168.0.2:8081/repository/maven-spring-io/'
+    //   allowInsecureProtocol = true
+    // }
     maven {
       url NEXUS_REPO
       allowInsecureProtocol = true
