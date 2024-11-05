@@ -19,6 +19,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
   const DATE_FORMAT_YMD = "YYYY-MM-DD";
   const DATE_FORMAT_NORM = "YYYY-MM-DD HH:mm:ss";
   const DATE_FORMAT_CODE = "YYYYMMDDHHmmss";
+  const PTN_CRYPTOKEY_HDR = /([-]{5}(BEGIN|END) (RSA ){0,1}(PRIVATE|PUBLIC) KEY[-]{5})/gm;
+  const PTN_NL = /[\r\n]/gm;
+
   /** 필요한 라이브러리들을 추가한다. */
   const LOG = {
     trace: function() { },
@@ -1029,7 +1032,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
 
   /** 암호화 기본키 저장소 */
   const cryptovars = {
-    NIL_ARR: CryptoJS.enc.Hex.parse('00'),
+    NIL_ARR: CryptoJS.enc.Hex.parse("00"),
     aes: {
       defbit: 256,
       defkey: undefined,
@@ -1047,7 +1050,71 @@ function initEntryScript(callback, { vars, log, cbase }) {
       b64tohex: undefined,
       hex2b64: undefined,
       cryptor: undefined,
-      defkey: ''
+      defkey: ""
+    },
+    tobig: function(v) {
+      let ret = v;
+      if (v && typeof v === "number") {
+        ret = cryptovars.rsa.parseBigInt(v.toString(16), 16);
+      };
+      return ret;
+    },
+    pkcsunpad: function(bint, len) {
+      var buf = bint.toByteArray();
+      var inx = 0;
+      while (buf[inx] != 0) {
+        if (++inx >= buf.length) { return null; };
+      };
+      var ret = "";
+      while (++inx < buf.length) {
+        var c = buf[inx] & 255;
+        if (c < 128) {
+          ret += String.fromCharCode(c);
+        } else if ((c > 191) && (c < 224)) {
+          ret += String.fromCharCode(((c & 31) << 6) | (buf[inx + 1] & 63));
+          ++inx;
+        } else {
+          ret += String.fromCharCode(((c & 15) << 12) | ((buf[inx + 1] & 63) << 6) | (buf[inx + 2] & 63));
+          inx += 2;
+        };
+      };
+      return ret;
+    },
+    pkcspad: function(msg, pos) {
+      /** TODO: fix for utf-8 */
+      if (pos < msg.length + 11) { return (log.error("Message too long for RSA")); };
+      let buf = [];
+      let inx = msg.length - 1;
+      while (inx >= 0 && pos > 0) {
+        let ch = msg.charCodeAt(inx--);
+        /** encode using utf-8 */
+        if (ch < 128) {
+          buf[--pos] = ch;
+        } else if ((ch > 127) && (ch < 2048)) {
+          buf[--pos] = (ch & 63) | 128;
+          buf[--pos] = (ch >> 6) | 192;
+        } else {
+          buf[--pos] = (ch & 63) | 128;
+          buf[--pos] = ((ch >> 6) & 63) | 128;
+          buf[--pos] = (ch >> 12) | 224;
+        };
+      };
+      buf[--pos] = 0;
+      let rng = new cryptovars.rsa.SecureRandom();
+      let x = [];
+      /** random non-zero pad */
+      while (pos > 2) {
+        x[0] = 0;
+        /** PUBLIC-KEY ENCRYPTION 인 경우 rng 적용, PRIVATE 인 경우 255 */
+        // while (x[0] == 0) { rng.nextBytes(x) }
+        x[0] = 255;
+        buf[--pos] = x[0];
+      };
+      /** PUBLIC-KEY ENCRYPTION 인 경우 2,  PRIVATE 인 경우 1 */
+      // buf[--pos] = 2
+      buf[--pos] = 1;
+      buf[--pos] = 0;
+      return new cryptovars.rsa.BigInteger(buf);
     }
   };
 
@@ -1068,13 +1135,13 @@ function initEntryScript(callback, { vars, log, cbase }) {
       key: function(key, bit = cryptovars.aes.defbit) {
         let ret = undefined;
         if (key) {
-          if (typeof key === 'string' || typeof key === 'number') {
+          if (typeof key === "string" || typeof key === "number") {
             key = String(key);
             const b64len = Math.round(bit * 3 / 2 / 8);
             if (key.length > (b64len)) { key = String(key).substring(0, b64len); };
-            if (key.length < (b64len)) { key = String(key).padEnd(b64len, '\0'); };
-            if (ret === undefined) { try { ret = crypto.b64dec(key); } catch (e) { log.debug('E:', e); }; };
-            if (ret === undefined) { try { ret = crypto.hexdec(key); } catch (e) { log.debug('E:', e); }; };
+            if (key.length < (b64len)) { key = String(key).padEnd(b64len, "\0"); };
+            if (ret === undefined) { try { ret = crypto.b64dec(key); } catch (e) { log.debug("E:", e); }; };
+            if (ret === undefined) { try { ret = crypto.hexdec(key); } catch (e) { log.debug("E:", e); }; };
           } else {
             if (key.__proto__ === CryptoJS.lib.WordArray) { ret = key; };
           };
@@ -1091,22 +1158,34 @@ function initEntryScript(callback, { vars, log, cbase }) {
       init: async function(keyval, keytype) {
         if (!cryptovars.rsa.JSEncrypt) {
           cryptovars.rsa.JSEncrypt = JSEncrypt;
-          /** 우선 pubkey 로직은 생각하지 않는다. */
-          // const { parseBigInt, BigInteger } = (await import('jsencrypt/lib/lib/jsbn/jsbn'))
-          // const { SecureRandom } = (await import('jsencrypt/lib/lib/jsbn/rng'))
-          // const { b64tohex, hex2b64 } = (await import('jsencrypt/lib/lib/jsbn/base64'))
-          // cryptovars.rsa.BigInteger = BigInteger
-          // cryptovars.rsa.SecureRandom = SecureRandom
-          // cryptovars.rsa.parseBigInt = parseBigInt
-          // cryptovars.rsa.b64tohex = b64tohex
-          // cryptovars.rsa.hex2b64 = hex2b64
+          cryptovars.rsa.BigInteger = BigInteger;
+          cryptovars.rsa.SecureRandom = SecureRandom;
+          cryptovars.rsa.parseBigInt = parseBigInt;
+          cryptovars.rsa.b64tohex = b64tohex;
+          cryptovars.rsa.hex2b64 = hex2b64;
           const cryptor = cryptovars.rsa.cryptor = new cryptovars.rsa.JSEncrypt();
-          // switch (keytype) {
-          // case C.PRIVATE_KEY: case undefined: { cryptor.setPrivateKey(keyval) } break
-          // case C.PUBLIC_KEY: { cryptor.setPublicKey(keyval) } break
-          // }
-          cryptor.setPrivateKey(keyval);
+          switch (keytype) {
+          case "privateKey": case undefined: { cryptor.setPrivateKey(keyval); } break;
+          case "publicKey": { cryptor.setPublicKey(keyval); } break;
+          };
         };
+      },
+      keygen: function(bit = 1024) {
+        const crypt = new JSEncrypt({ default_key_size: bit });
+        crypt.getKey();
+        const privatekey = String(crypt.getPrivateKey())
+          .replace(PTN_CRYPTOKEY_HDR, "")
+          .replace(PTN_NL, "")
+          .trim();
+        const pubkey = String(crypt.getPublicKey())
+          .replace(PTN_CRYPTOKEY_HDR, "")
+          .replace(PTN_NL, "")
+          .trim();
+        // const privatekey = String(crypt.getPrivateKey())
+        //   .trim();
+        // const pubkey = String(crypt.getPublicKey())
+        //   .trim();
+        return [privatekey, pubkey];
       },
       decrypt: function(msg, key) {
         let cryptor = cryptovars.rsa.cryptor;
@@ -1116,20 +1195,19 @@ function initEntryScript(callback, { vars, log, cbase }) {
         };
         const kobj = cryptor.getKey();
         if (kobj.d) {
-          // log.trace('PRV-DEC', msg)
+          // log.trace("PRV-DEC", msg)
           return cryptor.decrypt(msg)
         } else {
-          /** 우선 pubkey 로직은 생각하지 않는다. */
-          // // log.trace('PUB-DEC', msg)
-          // let ret = undefined;
-          // const c = cryptovars.rsa.parseBigInt(cryptovars.rsa.b64tohex(msg), 16)
-          // const e = tobig(kobj.e)
-          // ret = c.modPow(e, kobj.n)
-          // // log.trace('N:', tohex(kobj?.n))
-          // // log.trace('E:', tohex(kobj?.e))
-          // // log.trace('DECRYPT:', tohex(ret))
-          // ret = pkcsunpad(ret, (kobj.n.bitLength() + 7) >> 3)
-          // return ret
+          // log.trace("PUB-DEC", msg)
+          let ret = undefined;
+          const c = cryptovars.rsa.parseBigInt(cryptovars.rsa.b64tohex(msg), 16);
+          const e = cryptovars.tobig(kobj.e);
+          ret = c.modPow(e, kobj.n);
+          // log.trace("N:", tohex(kobj?.n))
+          // log.trace("E:", tohex(kobj?.e))
+          // log.trace("DECRYPT:", tohex(ret))
+          ret = cryptovars.pkcsunpad(ret, (kobj.n.bitLength() + 7) >> 3);
+          return ret;
         }
       },
       encrypt: function(msg, key) {
@@ -1142,33 +1220,32 @@ function initEntryScript(callback, { vars, log, cbase }) {
         if (!kobj.d) {
           return cryptor.encrypt(msg);
         } else {
-          /** 우선 pubkey 로직은 생각하지 않는다. */
-          // // log.trace('PRV-ENC', msg)
-          // let ret = undefined
-          // let maxLength = (kobj.n.bitLength() + 7) >> 3
-          // let c = pkcspad(msg, maxLength);
-          // ret = c.modPow(tobig(kobj.d), kobj.n)
-          // // log.trace('PADDING:', tohex(c))
-          // // log.trace('N:', tohex(kobj?.n))
-          // // log.trace('D:', tohex(kobj?.d))
-          // // log.trace('ENCRYPT:', tohex(ret))
-          // ret = ret.toString(16)
-          // let length = ret.length
-          // /** fix zero before result */
-          // for (var inx = 0; inx < maxLength * 2 - length; inx++) { ret = '0' + ret }
-          // ret = cryptovars.rsa.hex2b64(ret)
-          // return ret
+          // log.trace("PRV-ENC", msg);
+          let ret = undefined;
+          let maxLength = (kobj.n.bitLength() + 7) >> 3;
+          let c = cryptovars.pkcspad(msg, maxLength);
+          ret = c.modPow(cryptovars.tobig(kobj.d), kobj.n);
+          // log.trace("PADDING:", tohex(c));
+          // log.trace("N:", tohex(kobj?.n));
+          // log.trace("D:", tohex(kobj?.d));
+          // log.trace("ENCRYPT:", tohex(ret));
+          ret = ret.toString(16);
+          let length = ret.length;
+          /** fix zero before result */
+          for (var inx = 0; inx < maxLength * 2 - length; inx++) { ret = "0" + ret; };
+          ret = cryptovars.rsa.hex2b64(ret);
+          return ret;
         }
       }
     },
     b64dec: function(key) {
       let ret = cryptovars.NIL_ARR;
-      try { ret = CryptoJS.enc.Base64.parse(key); } catch (e) { log.debug('E:', e); };
+      try { ret = CryptoJS.enc.Base64.parse(key); } catch (e) { log.debug("E:", e); };
       return ret;
     },
     hexdec: function(key) {
       let ret = cryptovars.NIL_ARR;
-      try { ret = CryptoJS.enc.Hex.parse(key);k } catch (e) { log.debug('E:', e); };
+      try { ret = CryptoJS.enc.Hex.parse(key);k } catch (e) { log.debug("E:", e); };
       return ret;
     },
   };
@@ -1880,6 +1957,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   clone,
   copyExclude,
   copyExists,
+  crypto,
   dateStrFormat,
   dialog,
   dialogvars,

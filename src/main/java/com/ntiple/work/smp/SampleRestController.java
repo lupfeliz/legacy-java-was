@@ -7,6 +7,8 @@
  **/
 package com.ntiple.work.smp;
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,13 @@ public class SampleRestController {
 
   @Operation(summary = "테스트API (smp01001a02)", tags = { CONTROLLER_TAG1 })
   @PostMapping("smp01001a02")
-  public Object smp01001a02(@RequestBody Login prm) {
+  public Object smp01001a02(@RequestBody Login prm) throws Exception {
     return service.smp01001a02(prm);
+  }
+
+  @Operation(summary = "테스트API (smp01001a03)", tags = { CONTROLLER_TAG1 })
+  @PostMapping("smp01001a03")
+  public Object smp01001a03(@RequestBody Map<String, Object> prm) throws Exception {
+    return service.smp01001a03(prm);
   }
 }

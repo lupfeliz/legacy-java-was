@@ -112,6 +112,9 @@
   <c-button class="btn-primary mx-1" @onclick="vars.doGetJson">
     JSON
   </c-button>
+  <c-button class="btn-primary mx-1" @onclick="vars.testEncrypt">
+    CRYPTO
+  </c-button>
   <div>
   </div>
 </page:ex>
@@ -187,10 +190,55 @@ putAll(vars, {
   validctx: {
     check2: function(v, p) {
       /** 숫자 2 는 사용할수 없도록 하는 규칙. */
-      log.debug('VALIDATION-CHECK2:', v, p, String(v).indexOf('2'));
-      if (String(v.value).indexOf('2') != -1) { return `숫자 '2' 는 사용할 수 없어요.`; };
+      log.debug("VALIDATION-CHECK2:", v, p, String(v).indexOf("2"));
+      if (String(v.value).indexOf("2") != -1) { return `숫자 "2" 는 사용할 수 없어요.`; };
       return true;
     }
+  },
+  async testEncrypt() {
+    const keys=[];
+    keys[0] = "MIICWwIBAAKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQABAoGAFwKz5he/KVRMMeuZ9kB89t0GHFOBIcu93OWiR7Zi8igKRmS4ltXy7uE6hrc46zZAzmo6jC+PRbKG+5FTuKJEzq9/D58TJY3s1Ftf5qnStyLv+hzLpcfKF6KPnoLa59ZQoShHktVTKsk9wR3c3ul+2RMLJymHnlEY5Z7+ZTnJBEECQQDPfGGMfIEzIPkCdXmfvvmgz8ESyMFeqBQPK9cWQ5aFO38R1Ke6p+S5a15+p2E055Q0d56+xT0OwoxVKiF5iMQjAkEAnxWf/QMRnKq6S7WWNttmHXRR5Zp2UAh99zJ9QSpYNNBEP07nJx5Rg6ZjRr9QrFvWXi7ROnN5CFWq69mMyXB2pwJAar1PJcnLYbU9xSEQP7ksjKk0Z2h16i9HmoJwNVjx73qrJU4kN6c1yJnO1BNhs6jLGq7LMNMhVR2KuilhbTeJxwJAOJyfdJBVAiWXaj3SmO72peCxDD4tgEmlWgSzoi8JeLHst4LCq58Ubv8VMSX/9XYxEQ8kEeLp3VdvHcMrYLwO3QJARQX/u+YY/fOVm7vLpAEv0De8wl9gltG0/Erf3zYdqTrDHTX+3cwSwIY6JwGR6tsvi0hYCAy/uAVXSUsYptLHrA==";
+    keys[1]  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQAB";
+    let msg, enc, dec;
+    {
+      crypto.rsa.init(keys[0], "privateKey")
+      enc = crypto.rsa.encrypt("test...");
+      log.debug("ENCRYPT:", msg, enc);
+    }
+    {
+      crypto.rsa.init(keys[1], "publicKey");
+      dec = crypto.rsa.decrypt(enc);
+      log.debug("DECRYPT:", enc, dec);
+    }
+  },
+  async testEncrypt2() {
+    // const keys = crypto.rsa.keygen();
+    // log.debug("KEYS:", keys);
+    const keys=[];
+    keys[0] = "MIICWwIBAAKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQABAoGAFwKz5he/KVRMMeuZ9kB89t0GHFOBIcu93OWiR7Zi8igKRmS4ltXy7uE6hrc46zZAzmo6jC+PRbKG+5FTuKJEzq9/D58TJY3s1Ftf5qnStyLv+hzLpcfKF6KPnoLa59ZQoShHktVTKsk9wR3c3ul+2RMLJymHnlEY5Z7+ZTnJBEECQQDPfGGMfIEzIPkCdXmfvvmgz8ESyMFeqBQPK9cWQ5aFO38R1Ke6p+S5a15+p2E055Q0d56+xT0OwoxVKiF5iMQjAkEAnxWf/QMRnKq6S7WWNttmHXRR5Zp2UAh99zJ9QSpYNNBEP07nJx5Rg6ZjRr9QrFvWXi7ROnN5CFWq69mMyXB2pwJAar1PJcnLYbU9xSEQP7ksjKk0Z2h16i9HmoJwNVjx73qrJU4kN6c1yJnO1BNhs6jLGq7LMNMhVR2KuilhbTeJxwJAOJyfdJBVAiWXaj3SmO72peCxDD4tgEmlWgSzoi8JeLHst4LCq58Ubv8VMSX/9XYxEQ8kEeLp3VdvHcMrYLwO3QJARQX/u+YY/fOVm7vLpAEv0De8wl9gltG0/Erf3zYdqTrDHTX+3cwSwIY6JwGR6tsvi0hYCAy/uAVXSUsYptLHrA==";
+    keys[1]  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQAB";
+
+    // crypto.rsa.init(keys[0], "privateKey");
+    crypto.rsa.init(keys[1], "publicKey");
+    // const cipher = new JSEncrypt();
+    // cipher.setKey(keys[0]);
+    // const msg = cipher.encrypt("test...");
+
+    const msg = crypto.rsa.encrypt("test..");
+    log.debug("ENCRYPTED:", msg);
+//    let res = await fetch("/api/smp/smp01001a03", {
+//      method: "POST",
+//      headers: {
+//        "content-type": "application/json"
+//      },
+//      body: JSON.stringify({
+//        "message": msg,
+//        "key": keys[0]
+//      })
+//    });
+//    log.debug("RESULT:", res);
+//    res = await res.json();
+//    log.debug("RESULT:", res);
   },
 });
 </script:ex>

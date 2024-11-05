@@ -31,6 +31,7 @@ function registerComponent($SCRIPTPRM) {
   clone,
   copyExclude,
   copyExists,
+  crypto,
   dateStrFormat,
   dialog,
   dialogvars,

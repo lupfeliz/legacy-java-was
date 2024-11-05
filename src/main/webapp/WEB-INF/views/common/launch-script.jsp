@@ -67,6 +67,7 @@ initEntryScript(async function($SCRIPTPRM) {
   clone,
   copyExclude,
   copyExists,
+  crypto,
   dateStrFormat,
   dialog,
   dialogvars,

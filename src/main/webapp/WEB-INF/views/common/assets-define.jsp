@@ -14,9 +14,13 @@
 <link rel="stylesheet" href="${cbase}/assets/styles/globals.scss" />
 <link rel="stylesheet" href="${cbase}/assets/styles/util.scss" />
 <script src="${cbase}/assets/libs/core-js-3.38.1.min.js"></script>
-<script src="${cbase}/assets/libs/biginteger-1.6.52.min.js"></script>
 <script src="${cbase}/assets/libs/crypto-js-4.2.0.min.js"></script>
 <script src="${cbase}/assets/libs/jsencrypt-3.3.2.min.js"></script>
+<script src="${cbase}/assets/libs/jsbn-1.4.min.js"></script>
+<script src="${cbase}/assets/libs/jsbn-base64-1.4.min.js"></script>
+<script src="${cbase}/assets/libs/jsbn-prng4-1.4.min.js"></script>
+<script src="${cbase}/assets/libs/jsbn-rng-1.4.min.js"></script>
+<script src="${cbase}/assets/libs/jsbn-rsa-1.4.min.js"></script>
 <script src="${cbase}/assets/libs/lodash-4.17.21.min.js"></script>
 <script src="${cbase}/assets/libs/moment-2.30.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-3.7.1.min.js"></script>
