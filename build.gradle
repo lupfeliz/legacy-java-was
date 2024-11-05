@@ -58,8 +58,8 @@ if (ENVFILE != null && ENVFILE.exists()) {
 if (System.properties['spring.profiles.active'] != null) {
   String profile = System.properties['spring.profiles.active']
   if (profile != null && !''.equals(profile)) { PROFILE = profile }
-  if (PROFILE == null || ''.equals(PROFILE)) { PROFILE = 'local' }
 }
+if (PROFILE == null || ''.equals(PROFILE)) { PROFILE = 'local' }
 
 println('PROFILE:' + PROFILE)
 println('NEXUS_REPO:' + NEXUS_REPO)
