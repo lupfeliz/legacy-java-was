@@ -8,9 +8,9 @@ if (ENVFILE != null && ENVFILE.exists()) {
   String nexusMavenPlugin = DOTENV.'NEXUS_PLUGIN_REPO'
   if (nexusMavenPlugin != null && !''.equals(nexusMavenPlugin)) { NEXUS_PLUGIN_REPO = nexusMavenPlugin }
 }
-pluginManagement {
-  repositories {
-    if (NEXUS_PLUGIN_REPO != null && !''.equals(NEXUS_PLUGIN_REPO)) {
+if (NEXUS_PLUGIN_REPO != null && !''.equals(NEXUS_PLUGIN_REPO)) {
+  pluginManagement {
+    repositories {
       maven {
         url NEXUS_PLUGIN_REPO
         allowInsecureProtocol = true
