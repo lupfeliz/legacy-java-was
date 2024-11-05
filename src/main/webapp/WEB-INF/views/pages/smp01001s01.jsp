@@ -198,47 +198,27 @@ putAll(vars, {
   async testEncrypt() {
     const keys=[];
     keys[0] = "MIICWwIBAAKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQABAoGAFwKz5he/KVRMMeuZ9kB89t0GHFOBIcu93OWiR7Zi8igKRmS4ltXy7uE6hrc46zZAzmo6jC+PRbKG+5FTuKJEzq9/D58TJY3s1Ftf5qnStyLv+hzLpcfKF6KPnoLa59ZQoShHktVTKsk9wR3c3ul+2RMLJymHnlEY5Z7+ZTnJBEECQQDPfGGMfIEzIPkCdXmfvvmgz8ESyMFeqBQPK9cWQ5aFO38R1Ke6p+S5a15+p2E055Q0d56+xT0OwoxVKiF5iMQjAkEAnxWf/QMRnKq6S7WWNttmHXRR5Zp2UAh99zJ9QSpYNNBEP07nJx5Rg6ZjRr9QrFvWXi7ROnN5CFWq69mMyXB2pwJAar1PJcnLYbU9xSEQP7ksjKk0Z2h16i9HmoJwNVjx73qrJU4kN6c1yJnO1BNhs6jLGq7LMNMhVR2KuilhbTeJxwJAOJyfdJBVAiWXaj3SmO72peCxDD4tgEmlWgSzoi8JeLHst4LCq58Ubv8VMSX/9XYxEQ8kEeLp3VdvHcMrYLwO3QJARQX/u+YY/fOVm7vLpAEv0De8wl9gltG0/Erf3zYdqTrDHTX+3cwSwIY6JwGR6tsvi0hYCAy/uAVXSUsYptLHrA==";
-    keys[1]  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQAB";
+    keys[1] = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQAB";
+    // keys[0] = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIklL0trECmxNh3gBScQAGa5hqILaLXyxFg4VAh6MktDTdZbbvpHeMq4owGF0i1RWgTsudOjcT1Su6Jp+2+bQGEGdjow37qOHPuErQXtDXWxAJmnn8RBTpO/w96DZatzg9fU2Ib0fSGDlXTHaRbvSInCpbEwM5h7efnuKjA11VBXAgMBAAECgYAXeaf4zuC7YjwTLQ90ukZ3TvZ+sllAG8gEGdA4i0Iko+ak9I2whZ9lg+lTD2cEntI72ZGNaoKtroWzrVR+rCJ+uLbSVB8n0JAkrtd1eg/dbxIQNFkaFGpwkC0AtQSpgsLly7HjVQ5MrIAlP63ZiK9JdTBdXyajsLJX+R7Dyll6MQJBAKmPt/ZY0rKj21KirA8T4afW2qMVpMyIRTvbvaW7BU69pxyBwJEY3okwNCE4SK94GebVaXR2B7vANCI64NizBw0CQQDPDw9IgT9nLlZk+PRfYcm729qHotm6Uc8GrY0Iz8nkxrmszIz+/XBTsjV4na1gJ6dNMJHdg7gbR9ZsEm7I9FvzAkBsk7krKGmTNtXErqIa7ZI8FZrff4aN6lzbHbTtITse1tbhrDyRLSmjE5juBMqWggOkCtiCWOpO0Z8QpD9CxDEpAkABYXNTo3D9yiRPVg2jGS7ULtodL2vOPz9nJv8awO/ys5SHX3HNPXljRXvvyvVd/8Ww0RMX7AntPKRkYhcVBfQbAkAfups6liYVJLHON6vcVQTh0G9EaSZWDyFdxn+QVNA1BTgyqyA76VUywkiDviDbjWK1gv3UtiF19aQBlDFsvzcq";
+    // keys[1] = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCJJS9LaxApsTYd4AUnEABmuYaiC2i18sRYOFQIejJLQ03WW276R3jKuKMBhdItUVoE7LnTo3E9Uruiaftvm0BhBnY6MN+6jhz7hK0F7Q11sQCZp5/EQU6Tv8Peg2Wrc4PX1NiG9H0hg5V0x2kW70iJwqWxMDOYe3n57iowNdVQVwIDAQAB";
     let msg, enc, dec;
     {
-      crypto.rsa.init(keys[0], "privateKey")
-      enc = crypto.rsa.encrypt("test...");
+      msg = "test...";
+      enc = crypto.rsa.encrypt(msg, keys[0]);
       log.debug("ENCRYPT:", msg, enc);
     }
     {
-      crypto.rsa.init(keys[1], "publicKey");
-      dec = crypto.rsa.decrypt(enc);
+      dec = crypto.rsa.decrypt(enc, keys[1]);
       log.debug("DECRYPT:", enc, dec);
     }
-  },
-  async testEncrypt2() {
-    // const keys = crypto.rsa.keygen();
-    // log.debug("KEYS:", keys);
-    const keys=[];
-    keys[0] = "MIICWwIBAAKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQABAoGAFwKz5he/KVRMMeuZ9kB89t0GHFOBIcu93OWiR7Zi8igKRmS4ltXy7uE6hrc46zZAzmo6jC+PRbKG+5FTuKJEzq9/D58TJY3s1Ftf5qnStyLv+hzLpcfKF6KPnoLa59ZQoShHktVTKsk9wR3c3ul+2RMLJymHnlEY5Z7+ZTnJBEECQQDPfGGMfIEzIPkCdXmfvvmgz8ESyMFeqBQPK9cWQ5aFO38R1Ke6p+S5a15+p2E055Q0d56+xT0OwoxVKiF5iMQjAkEAnxWf/QMRnKq6S7WWNttmHXRR5Zp2UAh99zJ9QSpYNNBEP07nJx5Rg6ZjRr9QrFvWXi7ROnN5CFWq69mMyXB2pwJAar1PJcnLYbU9xSEQP7ksjKk0Z2h16i9HmoJwNVjx73qrJU4kN6c1yJnO1BNhs6jLGq7LMNMhVR2KuilhbTeJxwJAOJyfdJBVAiWXaj3SmO72peCxDD4tgEmlWgSzoi8JeLHst4LCq58Ubv8VMSX/9XYxEQ8kEeLp3VdvHcMrYLwO3QJARQX/u+YY/fOVm7vLpAEv0De8wl9gltG0/Erf3zYdqTrDHTX+3cwSwIY6JwGR6tsvi0hYCAy/uAVXSUsYptLHrA==";
-    keys[1]  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCA78d1ktnZ50Gf3T1Tk9tjrUkMHg/gEBoasS+R4AOwZMfu0WaDS4IIJVPfeBzFJbwpkNS3B0FA080ttWQGyPY4giHryJiKFHz0RdtCew32dIc/udOwlBJD2xoQGwzPPChLCparLkAV8OlcHZva/kgGdKABwum8la0zOWXUnPAU1QIDAQAB";
-
-    // crypto.rsa.init(keys[0], "privateKey");
-    crypto.rsa.init(keys[1], "publicKey");
-    // const cipher = new JSEncrypt();
-    // cipher.setKey(keys[0]);
-    // const msg = cipher.encrypt("test...");
-
-    const msg = crypto.rsa.encrypt("test..");
-    log.debug("ENCRYPTED:", msg);
-//    let res = await fetch("/api/smp/smp01001a03", {
-//      method: "POST",
-//      headers: {
-//        "content-type": "application/json"
-//      },
-//      body: JSON.stringify({
-//        "message": msg,
-//        "key": keys[0]
-//      })
-//    });
-//    log.debug("RESULT:", res);
-//    res = await res.json();
-//    log.debug("RESULT:", res);
+    {
+      enc= crypto.rsa.encrypt(msg, keys[1]);
+      log.debug("ENCRYPT:", msg, enc);
+    }
+    {
+      dec = crypto.rsa.decrypt(enc, keys[0]);
+      log.debug("DECRYPT:", enc, dec);
+    }
   },
 });
 </script:ex>

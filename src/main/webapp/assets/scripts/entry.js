@@ -1043,12 +1043,12 @@ function initEntryScript(callback, { vars, log, cbase }) {
       }
     },
     rsa: {
-      JSEncrypt: undefined,
-      BigInteger: undefined,
-      SecureRandom: undefined,
-      parseBigInt: undefined,
-      b64tohex: undefined,
-      hex2b64: undefined,
+      JSEncrypt: JSEncrypt,
+      BigInteger: BigInteger,
+      SecureRandom: SecureRandom,
+      parseBigInt: parseBigInt,
+      b64tohex: b64tohex,
+      hex2b64: hex2b64,
       cryptor: undefined,
       defkey: ""
     },
@@ -1157,12 +1157,6 @@ function initEntryScript(callback, { vars, log, cbase }) {
     rsa: {
       init: async function(keyval, keytype) {
         if (!cryptovars.rsa.JSEncrypt) {
-          cryptovars.rsa.JSEncrypt = JSEncrypt;
-          cryptovars.rsa.BigInteger = BigInteger;
-          cryptovars.rsa.SecureRandom = SecureRandom;
-          cryptovars.rsa.parseBigInt = parseBigInt;
-          cryptovars.rsa.b64tohex = b64tohex;
-          cryptovars.rsa.hex2b64 = hex2b64;
           const cryptor = cryptovars.rsa.cryptor = new cryptovars.rsa.JSEncrypt();
           switch (keytype) {
           case "privateKey": case undefined: { cryptor.setPrivateKey(keyval); } break;

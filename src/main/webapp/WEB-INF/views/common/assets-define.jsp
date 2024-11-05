@@ -17,6 +17,7 @@
 <script src="${cbase}/assets/libs/crypto-js-4.2.0.min.js"></script>
 <script src="${cbase}/assets/libs/jsencrypt-3.3.2.min.js"></script>
 <script src="${cbase}/assets/libs/jsbn-1.4.min.js"></script>
+<script src="${cbase}/assets/libs/jsbn2-1.4.min.js"></script>
 <script src="${cbase}/assets/libs/jsbn-base64-1.4.min.js"></script>
 <script src="${cbase}/assets/libs/jsbn-prng4-1.4.min.js"></script>
 <script src="${cbase}/assets/libs/jsbn-rng-1.4.min.js"></script>
