@@ -34,18 +34,35 @@ configurations {
   }
 }
 
-def NEXUS_REPO = System.env['NEXUS_REPO']
-def CURRENT_DIR = System.properties['user.dir']
-def DOTENV = new Properties()
+String PROFILE = System.env['PROFILE']
+String NEXUS_REPO = System.env['NEXUS_REPO']
+String NEXUS_SPRING_IO = System.env['NEXUS_SPRING_IO']
+String CURRENT_DIR = System.properties['user.dir']
+Object DOTENV = new Properties()
 
 File ENVFILE = new File(CURRENT_DIR + '/.env')
-String envstr = ''
 if (ENVFILE != null && ENVFILE.exists()) {
   InputStream is = new ByteArrayInputStream(ENVFILE.getText('UTF-8').getBytes())
   DOTENV.load(is)
-  println('ENV.PROFILE:' + DOTENV.'PROFILE')
-  NEXUS_REPO = DOTENV.'NEXUS_REPO'
+  String profile = DOTENV.'PROFILE'
+  String nexusRepo = DOTENV.'NEXUS_REPO'
+  // String nexusSpring = DOTENV.'NEXUS_SPRING_IO'
+  // println('NEXUS_SPRING_IO:' + nexusSpring)
+
+  if (profile != null && !''.equals(profile)) { PROFILE = profile }
+  if (nexusRepo != null && !''.equals(nexusRepo)) { NEXUS_REPO = nexusRepo }
+  // if (nexusSpring != null && !''.equals(nexusSpring)) { NEXUS_SPRING_IO = nexusSpring }
+  // println('NEXUS_SPRING_IO:' + NEXUS_SPRING_IO)
 }
+
+if (System.properties['spring.profiles.active'] != null) {
+  String profile = System.properties['spring.profiles.active']
+  if (profile != null && !''.equals(profile)) { PROFILE = profile }
+  if (PROFILE == null || ''.equals(PROFILE)) { PROFILE = 'local' }
+}
+
+println('PROFILE:' + PROFILE)
+println('NEXUS_REPO:' + NEXUS_REPO)
 
 /**
  * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
@@ -59,9 +76,7 @@ repositories {
   } else {
     println('USE NEXUS REPOSITORY : ' + NEXUS_REPO)
     // maven {
-    //   // NEXUS_SPRING_IO
-    //   // NEXUS_MAVEN_PLUGINS
-    //   url 'http://192.168.0.2:8081/repository/maven-spring-io/'
+    //   url NEXUS_SPRING_IO
     //   allowInsecureProtocol = true
     // }
     maven {
@@ -169,12 +184,9 @@ test {
 }
 
 bootRun {
-  String profile = System.properties['spring.profiles.active']
-  if (profile == null || ''.equals(profile)) { profile = 'local' }
-  systemProperty('spring.profiles.active', profile)
-
+  systemProperty('spring.profiles.active', PROFILE)
   println('================================================================================')
   println('LEGACY-JAVA-WEB APPLICATION SYSTEM')
-  println('PROFILE:' + profile)
+  println('PROFILE:' + PROFILE)
   println('================================================================================')
 }

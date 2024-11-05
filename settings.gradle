@@ -1,10 +1,21 @@
+String NEXUS_PLUGIN_REPO = System.env['NEXUS_PLUGIN_REPO']
+String CURRENT_DIR = System.properties['user.dir']
+Object DOTENV = new Properties()
+File ENVFILE = new File(CURRENT_DIR + '/.env')
+if (ENVFILE != null && ENVFILE.exists()) {
+  InputStream is = new ByteArrayInputStream(ENVFILE.getText('UTF-8').getBytes())
+  DOTENV.load(is)
+  String nexusMavenPlugin = DOTENV.'NEXUS_PLUGIN_REPO'
+  if (nexusMavenPlugin != null && !''.equals(nexusMavenPlugin)) { NEXUS_PLUGIN_REPO = nexusMavenPlugin }
+}
 pluginManagement {
   repositories {
-    // maven { url "https://plugins.gradle.org/m2/" }
-    maven {
-      url "http://192.168.0.2:8081/repository/maven-plugins/"
-      allowInsecureProtocol = true
+    if (NEXUS_PLUGIN_REPO != null && !''.equals(NEXUS_PLUGIN_REPO)) {
+      maven {
+        url NEXUS_PLUGIN_REPO
+        allowInsecureProtocol = true
+      }
+      gradlePluginPortal()
     }
-    gradlePluginPortal()
   }
 }
