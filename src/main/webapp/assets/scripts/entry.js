@@ -1264,6 +1264,8 @@ function initEntryScript(callback, { vars, log, cbase }) {
     },
   };
 
+  const keepalive = true;
+
   const apivars = {
     /** 초기화, 기본적으로 사용되는 통신헤더 등을 만들어 준다 */
     init: async function(method, apicd, data, opt) {
@@ -1310,7 +1312,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       let t = '';
       const state = { error: false, message: '', msgcode: '' };
       try {
-        resp = await run();
+        resp = await run().catch(function() { log.debug("ERROR!!!!"); });
         hdrs = (resp && resp.headers) ? resp.headers : { get: function(v) {} };
         /** 정상처리 되었으므로 abort signal 취소 */
         t = (opt && opt.abortclr) ? opt.abortclr() : "";
@@ -1354,6 +1356,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
         //   }
         // }
       } catch(e) {
+        log.debug("E:", e);
         resp = {
           headers: {},
           status: SC_UNKNOWN,
@@ -1362,7 +1365,17 @@ function initEntryScript(callback, { vars, log, cbase }) {
         };
       };
       /** 상태값에 따른 오류처리 */
-      let msgcode = async function() { let o = (resp && resp.json) ? (await resp.json()) : {}; return (o && o.message) ? o.message : ""; };
+      let msgcode = async function() {
+        try {
+          if (resp && resp.json) {
+            const data = await resp.json();
+            if (data && data.message) { return data.message; };
+          };
+        } catch (e) {
+          log.debug("E:", e);
+        };
+        return "";
+      };
       switch (resp.status) {
       case SC_BAD_GATEWAY:
       case SC_GATEWAY_TIMEOUT:
@@ -1373,7 +1386,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       } break;
       case SC_UNAUTHORIZED: {
         putAll(state, { error: true, message: `로그인을 해 주세요`, msgcode: await msgcode() });
-        await userContext.logout(false)
+        // await userContext.logout(false)
       } break;
       case SC_FORBIDDEN: {
         putAll(state, { error: true, message: `접근 권한이 없어요`, msgcode: await msgcode() });
@@ -1414,6 +1427,20 @@ function initEntryScript(callback, { vars, log, cbase }) {
     },
   };
 
+  const errorCodes = {
+    USER_NOT_FOUND: '사용자 아이디 혹은 비밀번호가 잘못되었어요',
+    getMessage(prm) {
+      let ret = '';
+      if (typeof (prm) === 'string') {
+      } else if (typeof(prm) === 'object') {
+        // ret = (errorCodes)[(prm.msgcode || prm.errcd)] || prm?.message
+        ret = (errorCodes)[(prm.msgcode ?  prm.msgcode : prm.errcd)];
+        if (!ret) { ret = prm.message; };
+      };
+      return ret;
+    },
+  };
+
   const api = {
     nextping: 0,
     /** PING, 백엔드가 정상인지 체크하는 용도 */
@@ -1437,7 +1464,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       return new Promise(async function(resolve, reject) {
         // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
         await api.ping(opt);
-        const { method, url, body, headers, signal, abortclr } = await init(MTD_POST, apicd, data, opt);
+        const { method, url, body, headers, signal, abortclr } = await apivars.init(MTD_POST, apicd, data, opt);
         const run = function() { return fetch(url, { method, body, headers, signal, keepalive }); };
         return await apivars.mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
       });
@@ -1447,7 +1474,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       return new Promise<any>(async function(resolve, reject) {
         // if (apicd !== 'cmn01001') { await proc.until(() => app.ready(), { maxcheck: 1000, interval: 10 }); };
         await api.ping(opt);
-        const { method, url, headers, signal, abortclr } = await init(MTD_GET, apicd, data, opt);
+        const { method, url, headers, signal, abortclr } = await apivars.init(MTD_GET, apicd, data, opt);
         const run = function() { return fetch(url, { method, headers, signal, keepalive }); };
         return await apivars.mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
       });
@@ -1457,7 +1484,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       return new Promise<any>(async function(resolve, reject) {
         // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
         await api.ping(opt);
-        const { method, url, body, headers, signal, abortclr } = await init(MTD_PUT, apicd, data, opt);
+        const { method, url, body, headers, signal, abortclr } = await apivars.init(MTD_PUT, apicd, data, opt);
         const run = function() { return fetch(url, { method, body, headers, signal, keepalive }); };
         return await apivars.mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
       });
@@ -1467,7 +1494,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
       return new Promise<any>(async function(resolve, reject) {
         // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
         await api.ping(opt);
-        const { method, headers, signal, url, abortclr } = await init(MTD_DELETE, apicd, data, opt);
+        const { method, headers, signal, url, abortclr } = await apivars.init(MTD_DELETE, apicd, data, opt);
         const run = function() { return fetch(url, { method, headers, signal, keepalive }); };
         return await apivars.mkres(run, putAll(opt || {}, { apicd, method, resolve, reject, abortclr }))
       });

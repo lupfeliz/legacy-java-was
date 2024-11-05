@@ -8,21 +8,12 @@
 package com.ntiple.work.smp;
 
 import static com.ntiple.commons.ConvertUtil.cast;
-import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.system.WebUtil.params;
-import static com.ntiple.commons.CryptoUtil.RSA.encrypt;
 
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.crypto.Cipher;
 
 import org.springframework.stereotype.Service;
 
@@ -77,29 +68,9 @@ public class SampleService {
     String key = cast(prm.get("key"), key = null);
     log.debug("MESSAGE:{}", msg);
     log.debug("KEY:{}", key);
-
-    // Key pubk = KeyFactory.getInstance("RSA")
-    //   .generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(key)));
-    // log.debug("PUBLIC-KEY:{}", pubk);
-
-    Key prvk = KeyFactory.getInstance("RSA")
-      .generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key)));
-    log.debug("PRIVATE-KEY:{}", prvk);
-
-    // Cipher cipher = Cipher.getInstance("RSA");
-    // cipher.init(Cipher.DECRYPT_MODE, pubk);
-    // byte[] dec = cipher.doFinal(Base64.getDecoder().decode(msg));
-    Cipher cipher = Cipher.getInstance("RSA");
-    cipher.init(Cipher.DECRYPT_MODE, prvk);
-    byte[] dec = cipher.doFinal(Base64.getDecoder().decode(msg));
-
-    log.debug("DEC:{}", new String(dec, UTF8));
-
-    
-    // String dec = CryptoUtil.RSA.decrypt(1, key, msg);
-    // log.debug("DECRYPTED:{}", dec);
+    String dec = CryptoUtil.RSA.decrypt(1, key, msg);
     Map<String, Object> ret = newMap();
-    // ret.put("DEC", dec);
+    ret.put("dec", dec);
     return ret;
   }
 }
