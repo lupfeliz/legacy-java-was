@@ -21,6 +21,26 @@ function initEntryScript(callback, { vars, log, cbase }) {
   const DATE_FORMAT_CODE = "YYYYMMDDHHmmss";
   const PTN_CRYPTOKEY_HDR = /([-]{5}(BEGIN|END) (RSA ){0,1}(PRIVATE|PUBLIC) KEY[-]{5})/gm;
   const PTN_NL = /[\r\n]/gm;
+  const CONTENT_TYPE = "content-type";
+  const CTYPE_JSON = "application/json";
+  const SC_OK = 200;
+  const SC_MOVED_PERMANENTLY = 301;
+  const SC_MOVED_TEMPORARILY = 302;
+  const SC_UNAUTHORIZED = 401;
+  const SC_FORBIDDEN = 403;
+  const SC_NOT_FOUND = 404;
+  const SC_METHOD_NOT_ALLOWD = 405;
+  const SC_BAD_REQUEST = 400;
+  const SC_INTERNAL_SERVER_ERROR = 500;
+  const SC_BAD_GATEWAY = 502;
+  const SC_SERVICE_UNAVAILABLE = 503;
+  const SC_GATEWAY_TIMEOUT = 504;
+  const SC_RESOURCE_LIMIT_IS_REACHED = 508;
+  const SC_UNKNOWN = -1;
+  const MTD_GET = "get";
+  const MTD_POST = "post";
+  const MTD_PUT = "put";
+  const MTD_DELETE = "delete";
 
   /** 필요한 라이브러리들을 추가한다. */
   const LOG = {
@@ -1244,6 +1264,226 @@ function initEntryScript(callback, { vars, log, cbase }) {
     },
   };
 
+  const apivars = {
+    /** 초기화, 기본적으로 사용되는 통신헤더 등을 만들어 준다 */
+    init: async function(method, apicd, data, opt) {
+      if (!(opt && opt.noprogress)) { dialog.progress(true); };
+      const headers = putAll({}, (opt && opt.headers) ? opt.headers : {});
+      // const timeout = opt?.timeout || (getConfig()?.api[0] || {})?.timeout || 10000;
+      const timeout = 10000;
+      /** timeout 구현을 위해 AbortController 생성 (구형 브라우저 지원용) */
+      const abortctl = new AbortController();
+      const signal = abortctl.signal;
+      const url = api.mkuri(apicd);
+      let body = "";
+      if (!headers[CONTENT_TYPE]) {
+        headers[CONTENT_TYPE] = CTYPE_JSON;
+      };
+      if (String(headers[CONTENT_TYPE]).startsWith(CTYPE_JSON)) {
+        body = JSON.stringify(data ? data : {});
+      };
+      /** JWT 토큰이 저장되어있는 경우 헤더에 Bearer 추가 */
+      // const user = userContext.getUserInfo();
+      // if (user && user?.accessToken?.value) {
+      //   switch (opt?.authtype) {
+      //   case undefined: {
+      //     /** 일반적인 경우 */
+      //     headers[C.AUTHORIZATION] = `${C.BEARER} ${user.accessToken?.value}`
+      //   } break
+      //   case C.TOKEN_REFRESH: {
+      //     /** 추가 헤더가 필요한 경우 */
+      //     headers[C.AUTHORIZATION] = `${C.BEARER} ${user.refreshToken?.value}`
+      //   } break
+      //   }
+      // }
+      /** timeout 시간동안 request 가 처리되지 않으면 abort signal 발생 */
+      const hndtimeout = setTimeout(function () { return abortctl.abort(); }, timeout);
+      /** 정상처리되어 abort signal 이 발생하지 않도록 clear 한다. */
+      const abortclr = function() { clearTimeout(hndtimeout); };
+      return { method, url, body, headers, signal, abortclr };
+    },
+    /** 통신결과 처리 */
+    mkres: async function(run , opt) {
+      let ret = { };
+      let resp = { };
+      let hdrs = { };
+      let t = '';
+      const state = { error: false, message: '', msgcode: '' };
+      try {
+        resp = await run();
+        hdrs = (resp && resp.headers) ? resp.headers : { get: function(v) {} };
+        /** 정상처리 되었으므로 abort signal 취소 */
+        t = (opt && opt.abortclr) ? opt.abortclr() : "";
+        /** 통신결과 헤더에서 로그인 JWT 토큰이 발견된 경우 토큰저장소에 저장 */
+        // if ((t = hdrs.get(C.AUTHORIZATION.toLowerCase()))) {
+        //   const auth: string[] = String(t).split(' ')
+        //   if (auth.length > 1 && auth[0] === C.BEARER) {
+        //     const current = new Date().getTime()
+        //     const decval = String(crypto.aes.decrypt(auth[1]) || '').split(' ')
+        //     log.debug('AUTH:', decval)
+        //     if (decval && decval.length > 5) {
+        //       /** 로그인 인경우 */
+        //       userContext.setUserInfo({
+        //         userId: decval[0],
+        //         userNm: decval[1],
+        //         accessToken: {
+        //           value: decval[2],
+        //           expireTime: current + Number(decval[4])
+        //         },
+        //         refreshToken: {
+        //           value: (decval[3] !== '_' ? decval[3] : C.UNDEFINED),
+        //           expireTime: current + Number(decval[3] !== '_' ? decval[5] : 0),
+        //         },
+        //         notifyExpire: false
+        //       })
+        //       log.debug('CHECK:', decval[3].length, decval[3])
+        //       userContext.checkExpire()
+        //     } else if (decval && decval.length > 3) {
+        //       /** 로그인 연장 인경우 */
+        //       userContext.setUserInfo({
+        //         userId: decval[0],
+        //         userNm: decval[1],
+        //         accessToken: {
+        //           value: decval[2],
+        //           expireTime: current + Number(decval[3])
+        //         }
+        //       })
+        //       /** 토큰 만료시간을 모니터링 한다 */
+        //       userContext.checkExpire()
+        //     }
+        //   }
+        // }
+      } catch(e) {
+        resp = {
+          headers: {},
+          status: SC_UNKNOWN,
+          error: true,
+          json: async function() { return { message: "unknown error" }; },
+        };
+      };
+      /** 상태값에 따른 오류처리 */
+      let msgcode = async function() { let o = (resp && resp.json) ? (await resp.json()) : {}; return (o && o.message) ? o.message : ""; };
+      switch (resp.status) {
+      case SC_BAD_GATEWAY:
+      case SC_GATEWAY_TIMEOUT:
+      case SC_INTERNAL_SERVER_ERROR:
+      case SC_RESOURCE_LIMIT_IS_REACHED:
+      case SC_SERVICE_UNAVAILABLE: {
+        putAll(state, { error: true, message: `처리 중 오류가 발생했어요`, msgcode: await msgcode() });
+      } break;
+      case SC_UNAUTHORIZED: {
+        putAll(state, { error: true, message: `로그인을 해 주세요`, msgcode: await msgcode() });
+        await userContext.logout(false)
+      } break;
+      case SC_FORBIDDEN: {
+        putAll(state, { error: true, message: `접근 권한이 없어요`, msgcode: await msgcode() });
+      } break;
+      case SC_NOT_FOUND:
+      case SC_BAD_REQUEST: {
+        putAll(state, { error: true, message: `처리할 수 없는 요청이예요`, msgcode: await msgcode() });
+      } break;
+      case SC_UNKNOWN: {
+        putAll(state, { error: true, message: `처리 중 오류가 발생했어요`, msgcode: await msgcode() });
+      };
+      case SC_OK: {
+      } break;
+      default: };
+      /** 정상인경우 결과값 리턴처리 */
+      if (!state.error) {
+        switch (String(hdrs.get(CONTENT_TYPE)).toLowerCase().split(/[ ]*;[ ]*/)[0]) {
+        /** 결과 타입이 JSON 인경우 */
+        case "application/json": {
+          ret = await resp.json();
+        } break;
+        /** 결과 타입이 OCTET-STREAM (다운로드) 인경우 */
+        case "application/octet-stream": {
+          ret = await resp.blob();
+        } break;
+        default: };
+        if (opt && opt.resolve) { opt.resolve(ret); };
+      } else {
+        if (!(opt && (opt.noerror || opt.noalert))) {
+          dialog.alert(state.message = errorCodes.getMessage(state));
+          ret = (opt && opt.reject) ? opt.reject(state) : {};
+        } else if (!(opt && opt.noerror)) {
+          ret = (opt && opt.reject) ? opt.reject(state) : {};
+        };
+      };
+      if (!(opt && opt.noprogress)) { dialog.progress(false); };
+      return ret;
+    },
+  };
+
+  const api = {
+    nextping: 0,
+    /** PING, 백엔드가 정상인지 체크하는 용도 */
+    async ping(opt) {
+      // return new Promise(async function(resolve, reject) {
+      //   const apicd = `cmn00000`;
+      //   const curtime = new Date().getTime();
+      //   if (opt && opt.noping) { return resolve(true); };
+      //   if (curtime < api.nextping) { return resolve(true); };
+      //   const { method, headers, signal, url, abortclr } = await init(MTD_GET, apicd, {}, { noprogress: true });
+      //   const run = function() { return fetch(url, { method, headers, signal, keepalive }); };
+      //   const res = await mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
+      //   /** 다음 ping 은 10초 이후 */
+      //   api.nextping = curtime + (1000 * 10);
+      //   return res;
+      // });
+      return {};
+    },
+    /** POST 메소드 처리 */
+    async post(apicd, data, opt) {
+      return new Promise(async function(resolve, reject) {
+        // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
+        await api.ping(opt);
+        const { method, url, body, headers, signal, abortclr } = await init(MTD_POST, apicd, data, opt);
+        const run = function() { return fetch(url, { method, body, headers, signal, keepalive }); };
+        return await apivars.mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
+      });
+    },
+    /** GET 메소드 처리 */
+    async get(apicd, data, opt) {
+      return new Promise<any>(async function(resolve, reject) {
+        // if (apicd !== 'cmn01001') { await proc.until(() => app.ready(), { maxcheck: 1000, interval: 10 }); };
+        await api.ping(opt);
+        const { method, url, headers, signal, abortclr } = await init(MTD_GET, apicd, data, opt);
+        const run = function() { return fetch(url, { method, headers, signal, keepalive }); };
+        return await apivars.mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
+      });
+    },
+    /** PUT 메소드 처리 */
+    async put(apicd, data, opt) {
+      return new Promise<any>(async function(resolve, reject) {
+        // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
+        await api.ping(opt);
+        const { method, url, body, headers, signal, abortclr } = await init(MTD_PUT, apicd, data, opt);
+        const run = function() { return fetch(url, { method, body, headers, signal, keepalive }); };
+        return await apivars.mkres(run, putAll(opt ? opt : {}, { apicd, method, resolve, reject, abortclr }));
+      });
+    },
+    /** DELETE 메소드 처리 */
+    async delete(apicd, data, opt) {
+      return new Promise<any>(async function(resolve, reject) {
+        // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
+        await api.ping(opt);
+        const { method, headers, signal, url, abortclr } = await init(MTD_DELETE, apicd, data, opt);
+        const run = function() { return fetch(url, { method, headers, signal, keepalive }); };
+        return await apivars.mkres(run, putAll(opt || {}, { apicd, method, resolve, reject, abortclr }))
+      });
+    },
+    /** URL 을 형태에 맞게 조립해 준다 */
+    mkuri(apicd) {
+      const mat = apicd ? /^([a-z]+)([0-9a-zA-Z]+)([/].*){0,1}$/g.exec(apicd) : undefined;
+      if (mat && mat[1]) {
+        // return `${(app.getConfig()?.api[0] || {})?.base || '/api'}/${mat[1]}/${mat[0]}`
+        return `${'/api'}/${mat[1]}/${mat[0]}`;
+      } else {
+        return apicd;
+      };
+    },
+  };
+
   class Hangul {
     /** 1글자의 초, 중, 종성을 분리한다. */
     extract(ch) {
@@ -1947,6 +2187,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   KEYCODE_TABLE,
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
+  api,
   cancelEvent,
   clone,
   copyExclude,

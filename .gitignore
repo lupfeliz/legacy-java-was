@@ -45,3 +45,4 @@ test.log
 /log
 **/*.cache
 .env
+/gradle/wrapper/gradle-8.2.1-bin.zip

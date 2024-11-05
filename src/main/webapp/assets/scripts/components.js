@@ -27,6 +27,7 @@ function registerComponent($SCRIPTPRM) {
   KEYCODE_TABLE,
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
+  api,
   cancelEvent,
   clone,
   copyExclude,
