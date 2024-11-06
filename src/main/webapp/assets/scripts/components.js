@@ -420,7 +420,7 @@ function registerComponent($SCRIPTPRM) {
           elem: ref(),
           xmark: ref(),
         };
-        const xmarkSet = debounce(function(visible) {
+        const xmarkSet = function(visible) {
           let value = vars.elem.value.value;
           const active = function() {
             $(vars.xmark.value)
@@ -431,6 +431,8 @@ function registerComponent($SCRIPTPRM) {
             // log.debug("ACTIVE:", vars.xmark.value);
           };
           const inactive = function() {
+            setTimeout(function() {
+            }, 100);
             $(vars.xmark.value)
               .removeClass("active");
             //   .attr("tabindex", -1)
@@ -439,7 +441,7 @@ function registerComponent($SCRIPTPRM) {
           };
           if (vars.xmark.value) {
             if (visible === undefined) {
-              if (String(value ? value : "").length > 0) {
+              if (vars.elem.value == document.activeElement && String(value ? value : "").length > 0) {
                 active();
               } else {
                 inactive();
@@ -450,7 +452,7 @@ function registerComponent($SCRIPTPRM) {
               inactive();
             }
           }
-        }, 10);
+        };
 
         const emitChange = debounce(function() {
           emit(ONCHANGE, vars.elem.value.value);
@@ -476,6 +478,7 @@ function registerComponent($SCRIPTPRM) {
           emit(ONFOCUS, e)
         };
         async function onBlur(e) {
+log.debug("BLUR!!!");
           xmarkSet(false);
           const el = (o = $(vars.elem.value)[0]) ? o : {};
           if (props.formatter) { el.value = props.formatter(el.value); };
@@ -503,7 +506,6 @@ function registerComponent($SCRIPTPRM) {
               case KEYCODE_TABLE.PC.Delete:
               case KEYCODE_TABLE.PC.Backspace:
               case KEYCODE_TABLE.PC.Insert:
-              case KEYCODE_TABLE.PC.Tab:
               case KEYCODE_TABLE.PC.Backslash:
               case KEYCODE_TABLE.PC.ArrowLeft:
               case KEYCODE_TABLE.PC.ArrowRight:
@@ -515,6 +517,11 @@ function registerComponent($SCRIPTPRM) {
               case KEYCODE_TABLE.PC.MetaRight: {
                 vars.avail = true;
                 // return;
+              } break;
+              case KEYCODE_TABLE.PC.Tab: {
+                log.debug("TAB!");
+                vars.avail = true;
+                xmarkSet(false);
               } break;
               case undefined: { /** NO-OP */ } break;
               case KEYCODE_TABLE.PC.ArrowUp: {
@@ -942,12 +949,14 @@ function registerComponent($SCRIPTPRM) {
           } break ;
           default: };
           const item = vars.options[vars.index];
-          item.selected = true;
-          vars.text = item.name;
-          /** FIXME: 임시코드 */
-          $(vars.elem.value).text(item.name);
-          emit(UPDATE_MV, item.value);
-          emitChange();
+          if (item) {
+            item.selected = true;
+            vars.text = item.name;
+            /** FIXME: 임시코드 */
+            $(vars.elem.value).text(item.name);
+            emit(UPDATE_MV, item.value);
+            emitChange();
+          };
         };
         function getClass(ocls, type, inx) {
           let ret = ocls;
