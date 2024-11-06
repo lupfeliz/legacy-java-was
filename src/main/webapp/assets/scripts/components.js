@@ -8,6 +8,7 @@
 
 function registerComponent($SCRIPTPRM) {
   const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance } = Vue;
+  const cinst = getCurrentInstance;
   const UPDATE_MV = "update:model-value";
   const ONCLICK = "onclick";
   const ONKEYDOWN = "onkeydown";
@@ -17,6 +18,7 @@ function registerComponent($SCRIPTPRM) {
   const ONENTER = "onenter";
   const ONCHANGE = "onchange";
   const DATA_VALID_INX = "data-valid-inx";
+  const body = document.body;
   const {
   BIND_VALUES,
   KEYCODE_REV_TABLE,
@@ -93,6 +95,7 @@ function registerComponent($SCRIPTPRM) {
   validateForm,
   } = $SCRIPTPRM;
   const app = $SCRIPTPRM.app;
+  const appbody = $SCRIPTPRM.appbody;
   const { debounce, throttle } = lodash;
   {
     const name = "c-form";
@@ -335,7 +338,7 @@ function registerComponent($SCRIPTPRM) {
         return v;
       },
       async mounted() {
-        const self = getCurrentInstance();
+        const self = cinst();
         const { vars } = self.setupState;
         vars.elem.value.validateForm = vars.validateForm;
         log.debug("FORM-MOUNTED!!!", this, vars.elem.value, vars.formId);
@@ -386,6 +389,7 @@ function registerComponent($SCRIPTPRM) {
       \   :ref="vars.elem"
       \   :name="props.name"
       \   :type="props.type"
+      \   :data-element-uid="vars.uid"
       \   @keydown="onKeydown"
       \   @keyup="onKeyup"
       \   @focus="onFocus"
@@ -408,12 +412,50 @@ function registerComponent($SCRIPTPRM) {
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
+        const uid = genId();
         const vars = {
+          uid,
           itype: props.type,
           avail: true,
           elem: ref(),
+          xmark: ref(),
         };
-        const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
+        const xmarkSet = debounce(function(visible) {
+          let value = vars.elem.value.value;
+          const active = function() {
+            $(vars.xmark.value)
+              .addClass("active");
+            /** 멀리 떨어진 객체이므로 tabindex 가 무효함 */
+            //   .attr("tabindex", 0)
+            //   .removeAttr("aria-hidden");
+            // log.debug("ACTIVE:", vars.xmark.value);
+          };
+          const inactive = function() {
+            $(vars.xmark.value)
+              .removeClass("active");
+            //   .attr("tabindex", -1)
+            //   .attr("aria-hidden", true);
+            // log.debug("INACTIVE:", vars.xmark.value);
+          };
+          if (vars.xmark.value) {
+            if (visible === undefined) {
+              if (String(value ? value : "").length > 0) {
+                active();
+              } else {
+                inactive();
+              }
+            } else if (visible === true) {
+              active();
+            } else if (visible === false) {
+              inactive();
+            }
+          }
+        }, 10);
+
+        const emitChange = debounce(function() {
+          emit(ONCHANGE, vars.elem.value.value);
+          xmarkSet();
+        }, 100);
         /** 입력컴포넌트 키입력 이벤트 처리 */
         const onKeydown = async function(e) {
           if (vars.avail) {
@@ -430,9 +472,11 @@ function registerComponent($SCRIPTPRM) {
           };
         };
         async function onFocus(e) {
+          xmarkSet();
           emit(ONFOCUS, e)
         };
         async function onBlur(e) {
+          xmarkSet(false);
           const el = (o = $(vars.elem.value)[0]) ? o : {};
           if (props.formatter) { el.value = props.formatter(el.value); };
           emit(ONBLUR, e);
@@ -641,9 +685,26 @@ function registerComponent($SCRIPTPRM) {
         return v;
       },
       async mounted() {
-        const self = getCurrentInstance();
+        const self = cinst();
         const { vars } = self.setupState;
-        registFormElement(self, vars.elem.value);
+        const { uid, elem } = vars;
+        registFormElement(self, elem.value);
+        const xmark =$(`
+          \ <span class="xmark" data-xmark-for="${uid}">
+          \   <span>
+          \     <i class="bi bi-backspace"></i>
+          \   </span>
+          \ </span>`)[0];
+        appbody.appendChild(xmark);
+        vars.xmark.value = xmark;
+        xmark.onclickHandler = function() {
+          vars.elem.value.value = "";
+          $(xmark).removeClass("active");
+          self.emit(UPDATE_MV, "");
+          setTimeout(function() { vars.elem.value.focus(); }, 10);
+        };
+        xmark.addEventListener("click", xmark.onclickHandler);
+        Popper.createPopper(elem.value, xmark, { placement: "right"});
       },
       async updated() {
         log.trace("UPDATE-INPUT");
@@ -683,7 +744,7 @@ function registerComponent($SCRIPTPRM) {
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
-          type: props.type === 'radio' ? props.type : 'checkbox',
+          type: props.type === "radio" ? props.type : "checkbox",
           name: props.name,
           index: undefined,
           avail: true,
@@ -769,7 +830,7 @@ function registerComponent($SCRIPTPRM) {
         return v;
       },
       async mounted() {
-        const self = getCurrentInstance();
+        const self = cinst();
         const { vars } = self.setupState;
         registFormElement(self, vars.elem.value);
       }
@@ -837,11 +898,11 @@ function registerComponent($SCRIPTPRM) {
         };
         function setOptions(options) {
           const ret = [];
-          if (!options) { return ret; }
+          if (!options) { return ret; };
           for (let inx = 0; inx < options.length; inx++) {
             const item = options[inx];
             if (!item) { continue; };
-            let value = typeof item === 'string' ? item : item.value ? item.value : '';
+            let value = typeof item === "string" ? item : item.value ? item.value : "";
             let name = item.name ? item.name : value;
             let selected = false;
             if (value === props.modelValue) {
@@ -891,12 +952,12 @@ function registerComponent($SCRIPTPRM) {
         function getClass(ocls, type, inx) {
           let ret = ocls;
           switch (type) {
-          case 'button': {
+          case "button": {
             if (props.variant) {
               ret = `${ret} btn-${props.variant}`;
             };
           } break;
-          case 'item': {
+          case "item": {
             if (inx === vars.index) {
               ret = `${ret} active`;
             };
@@ -919,12 +980,12 @@ function registerComponent($SCRIPTPRM) {
         return v;
       },
       async mounted() {
-        const self = getCurrentInstance();
+        const self = cinst();
         const { vars } = self.setupState;
         registFormElement(self, vars.elem.value);
       },
       async updated() {
-        const { vars } = getCurrentInstance().setupState;
+        const { vars } = cinst().setupState;
         log.trace("UPDATE-SELECT");
       },
     });
@@ -953,12 +1014,7 @@ function registerComponent($SCRIPTPRM) {
             },
           },
           dateFormat(date) {
-            return "" +
-              date.getFullYear()
-              + "-" +
-              $.datePicker.defaults.pad(date.getMonth() + 1, 2)
-              + "-" +
-              $.datePicker.defaults.pad(date.getDate(), 2);
+            return "" + date.getFullYear() + "-" + $.datePicker.defaults.pad(date.getMonth() + 1, 2) + "-" + $.datePicker.defaults.pad(date.getDate(), 2);
           },
           dateParse(string) {
             var date = new Date();

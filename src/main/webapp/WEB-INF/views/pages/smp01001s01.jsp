@@ -11,6 +11,8 @@
     >
     <div>
       <i class="fa-solid fa-ghost"></i>
+      <i class="bi bi-backspace"></i>
+      <i class="bi bi-eye"></i>
     </div>
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
@@ -90,6 +92,7 @@
     <div>
       <div class="input-group">
         <c-input></c-input>
+        <span class="input-group-text">@</span>
         <c-select
           v-model="vars.select"
           form="form"
@@ -105,7 +108,7 @@
             { name: '직접입력', value: '_' }
           ]"
           vrules="auto"
-          variant="secondary"
+          variant="primary"
           >
         </c-select>
       </div>
@@ -116,6 +119,7 @@
       </c-datepicker>
     </div>
   </c-form>
+  <%-- <div class="x-mark" data-element-id="test">테스트</div> --%>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
   <div>[{{ vars.check }}]</div>
   <div>[{{ vars.select }}]</div>

@@ -8,9 +8,21 @@
  **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!--
+<meta httpEquiv="cache-control" content="max-age=0" />
+<meta httpEquiv="cache-control" content="no-cache" />
+<meta httpEquiv="expires" content="0" />
+<meta httpEquiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta httpEquiv="pragma" content="no-cache" />
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="preload" href="${cbase}/assets/fonts/pretendard-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="${cbase}/assets/fonts/pretendard-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 <link rel="stylesheet" href="${cbase}/assets/libs/bootstrap-5.3.3.min.css" />
+<link rel="stylesheet" href="${cbase}/assets/libs/bootstrap-icons-1.11.3.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/libs/jquery-ui-1.14.0.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/libs/jquery.datepicker2-1.0.min.css" />
+<link rel="stylesheet" href="${cbase}/assets/libs/jquery.toast-1.3.2.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/libs/font-awesome-all-6.6.0.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/libs/vanilla-calendar-2.9.10.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/fonts/fonts.css" />
@@ -31,6 +43,7 @@
 <script src="${cbase}/assets/libs/jquery-3.7.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-ui-1.14.0.min.js"></script>
 <script src="${cbase}/assets/libs/jquery.datepicker2-1.0.min.js"></script>
+<script src="${cbase}/assets/libs/jquery.toast-1.3.2.min.js"></script>
 <script src="${cbase}/assets/libs/bootstrap-5.3.3.min.js"></script>
 <script src="${cbase}/assets/libs/font-awesome-all-6.6.0.min.js"></script>
 <script src="${cbase}/assets/libs/vanilla-calendar-2.9.10.min.js"></script>

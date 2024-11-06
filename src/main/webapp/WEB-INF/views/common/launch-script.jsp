@@ -14,19 +14,19 @@
 setTimeout(function() {
   /** [ 리소스 구동적재 대기 스크립트 */
   /** 글꼴과 전역 스타일까지 로드된 시점에서 화면을 보여준다 (깜빡거림 이슈) */
-  var body = document.body;
+  const body = document.body;
   function fnunload() {
     window.removeEventListener("beforeunload", fnunload);
     body.classList.add("hide-onload");
   };
   /** [ CSS 적재 완료 판단 */
   function findcss() {
-    var s = false;
-    var o = false;
-    for (var i = document.styleSheets.length; i >= 0; i--) {
+    let s = false;
+    let o = false;
+    for (let i = document.styleSheets.length; i >= 0; i--) {
       if (!(s = document.styleSheets[i])) { continue; };
       if (!(s = s.rules)) { continue; };
-      for (var j = 0; j < s.length; j++) {
+      for (let j = 0; j < s.length; j++) {
         if (!(o = s[j])) { continue; };
         if (String(o.selectorText).startsWith("html#project")) { return true; };
       };
@@ -132,7 +132,8 @@ initEntryScript(async function($SCRIPTPRM) {
   val,
   validateForm,
   } = $SCRIPTPRM;
-  const vueapp = createApp({
+  const appbody = document.body;
+  const app = createApp({
   setup(props, context) {
     const self = getCurrentInstance();
     const refs = function(name) {
@@ -148,7 +149,7 @@ initEntryScript(async function($SCRIPTPRM) {
       </c:if>
     </c:forEach>
     return putAll(BIND_VALUES({ props, context }), {
-      app: vueapp, instance: getCurrentInstance(),
+      app, appbody, instance: getCurrentInstance(),
     });
   },
   async mounted() { for (const proc of MOUNT_HOOK_PROCS) { proc(this); }; },
@@ -156,9 +157,10 @@ initEntryScript(async function($SCRIPTPRM) {
   async updated() {
   }
   });
-  putAll($SCRIPTPRM, { app: vueapp });
+
+  putAll($SCRIPTPRM, { app, appbody });
   registerComponent($SCRIPTPRM);
-  vueapp.mount(document.body);
+  app.mount(appbody);
 }, { vars, log, cbase: "${cbase}" });
 /** ] 페이지 스크립트 실행 */
 }, 0);

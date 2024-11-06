@@ -19,6 +19,33 @@ html#project {
       opacity: 0;
     }
 
+    div.dropdown {
+      button.btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        &::after {
+        }
+      }
+    }
+
+    span.xmark {
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.5s ease-in-out;
+      > span {
+        position: relative;
+        left: -1.5rem;
+        cursor:auto;
+      }
+      &.active {
+        opacity: 1;
+        > span {
+          cursor: pointer;
+        }
+      }
+    }
+
     /** bootstrap input group 확장 */
     .input-group {
       > span:nth-child(n + 1),
@@ -26,17 +53,28 @@ html#project {
         > button,
         > input {
           border-left: 0;
-          border-right: 0;
+          // border-right: 0;
           border-radius: 0;
         }
       }
+      > span:first-child,
+      > div:first-child {
+        > button,
+        > input {
+          border-left-width: var(--bs-border-width);
+          border-left-style: var(--bs-border-style);
+          border-left-color: var(--bs-border-color);
+          border-top-left-radius: var(--bs-border-radius);
+          border-bottom-left-radius: var(--bs-border-radius);
+        }
+      }
+
       > span:last-child,
       > div:last-child {
         > button,
         > input {
           border-right-width: var(--bs-border-width);
           border-right-style: var(--bs-border-style);
-          border-right-color: var(--bs-border-color);
           border-top-right-radius: var(--bs-border-radius);
           border-bottom-right-radius: var(--bs-border-radius);
         }

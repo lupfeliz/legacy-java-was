@@ -1501,10 +1501,9 @@ function initEntryScript(callback, { vars, log, cbase }) {
     },
     /** URL 을 형태에 맞게 조립해 준다 */
     mkuri(apicd) {
-      const mat = apicd ? /^([a-z]+)([0-9a-zA-Z]+)([/].*){0,1}$/g.exec(apicd) : undefined;
+      const mat = apicd ? /^([a-z]{3})([0-9]{5}[a-zA-Z][0-9]{2})([/].*){0,1}$/g.exec(apicd) : undefined;
       if (mat && mat[1]) {
-        // return `${(app.getConfig()?.api[0] || {})?.base || '/api'}/${mat[1]}/${mat[0]}`
-        return `${'/api'}/${mat[1]}/${mat[0]}`;
+        return `${cbase ? "/" + cbase : ""}${"/api"}/${mat[1]}/${mat[0]}`;
       } else {
         return apicd;
       };
