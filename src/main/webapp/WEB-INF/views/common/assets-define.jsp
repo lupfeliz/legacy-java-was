@@ -10,7 +10,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <link rel="stylesheet" href="${cbase}/assets/libs/bootstrap-5.3.3.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/libs/jquery-ui-1.14.0.min.css" />
+<link rel="stylesheet" href="${cbase}/assets/libs/jquery.datepicker2-1.0.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/libs/font-awesome-all-6.6.0.min.css" />
+<link rel="stylesheet" href="${cbase}/assets/libs/vanilla-calendar-2.9.10.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/fonts/fonts.css" />
 <link rel="stylesheet" href="${cbase}/assets/styles/globals.scss" />
 <link rel="stylesheet" href="${cbase}/assets/styles/util.scss" />
@@ -28,8 +30,10 @@
 <script src="${cbase}/assets/libs/moment-2.30.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-3.7.1.min.js"></script>
 <script src="${cbase}/assets/libs/jquery-ui-1.14.0.min.js"></script>
+<script src="${cbase}/assets/libs/jquery.datepicker2-1.0.min.js"></script>
 <script src="${cbase}/assets/libs/bootstrap-5.3.3.min.js"></script>
 <script src="${cbase}/assets/libs/font-awesome-all-6.6.0.min.js"></script>
+<script src="${cbase}/assets/libs/vanilla-calendar-2.9.10.min.js"></script>
 <script src="${cbase}/assets/libs/vue-3.5.12.min.js"></script>
 <script src="${cbase}/assets/ckeditor/ckeditor.js"></script>
 <script src="${cbase}/assets/scripts/components.js"></script>
