@@ -45,12 +45,13 @@ public class CommonFilter implements Filter {
 
   @Autowired private Settings settings;
 
-  private static final Pattern PTN_RESOURCE = Pattern.compile(
+  private static final Pattern PTN_RSRC_WORK = Pattern.compile(
     cat("(" ,
     "^(.*[.]scss)([?].+){0,1}$|",
     "^.*(/assets/scripts/[^.]+[.]js)([?].+){0,1}$",
     ")")
     );
+  private static final Pattern PTN_RESOURCE = Pattern.compile("[.](js|css|scss|woff|svg)$");
   private static final long CACHE_INTERVAL = 1000 * 60 * 60;
 
   private File cachepath = null;
@@ -66,7 +67,7 @@ public class CommonFilter implements Filter {
     // log.debug("URI:{} / {}", uri, cbase);
     req.setAttribute("cbase", cbase);
     req.setAttribute("uri", uri);
-    Matcher mat = PTN_RESOURCE.matcher(uri);
+    Matcher mat = PTN_RSRC_WORK.matcher(uri);
     if (mat.find()) {
       long curtime = System.currentTimeMillis();
       InputStream istream = null;
@@ -112,6 +113,8 @@ public class CommonFilter implements Filter {
           } else if (rfile.getName().endsWith(".scss")) {
             ctype = "text/css";
           }
+          /** 리소스 캐시 갱신주기 : 30초 TODO: 프로파일별로 다르게 설정할것 */
+          res.setHeader("Cache-Control", "max-age=30");
           res.setContentLength(content.getBytes().length);
           res.setCharacterEncoding(UTF8);
           res.setContentType(ctype);
@@ -125,6 +128,10 @@ public class CommonFilter implements Filter {
         safeclose(istream);
         safeclose(fw);
       }
+    }
+    if (PTN_RESOURCE.matcher(uri).find()) {
+      /** 리소스 캐시 갱신주기 : 30초 TODO: 프로파일별로 다르게 설정할것 */
+      res.setHeader("Cache-Control", "max-age=30");
     }
     if (!processed) {
       chain.doFilter(sreq, sres);

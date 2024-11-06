@@ -37,7 +37,7 @@ public class RequestAspect {
   @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
   public void reqMapPointcut() { }
 
-  Pattern ptn = Pattern.compile("^[/][a-z]{3}[/](?<cate>[a-z]{3})(?<wkno>[0-9]{2}[0-9]{3})(?<rqty>[a-z])(?<stno>[0-9]{2})$");
+  private static final Pattern PTN_WORK = Pattern.compile("^[/][a-z]{3}[/](?<cate>[a-z]{3})(?<wkno>[0-9]{2}[0-9]{3})(?<rqty>[a-z])(?<stno>[0-9]{2})$");
 
   @Around("(execution(* *.*(..))) && (getMapPointcut() || postMapPointcut() || putMapPointcut() || delMapPointcut() || reqMapPointcut())")
   public Object aroundAdvice(ProceedingJoinPoint joint) throws Throwable {
@@ -47,7 +47,7 @@ public class RequestAspect {
       String uri = cast(req.getAttribute("uri"), uri = "");
       Matcher mat = null;
       String cate = "", wkno = "", rqty = "", stno = "";
-      if ((mat = ptn.matcher(uri)) != null && mat.find()) {
+      if ((mat = PTN_WORK.matcher(uri)) != null && mat.find()) {
         req.setAttribute("category", cate = mat.group("cate"));
         req.setAttribute("work-number", wkno = mat.group("wkno"));
         req.setAttribute("req-type", rqty = mat.group("rqty"));
