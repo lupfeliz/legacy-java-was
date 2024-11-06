@@ -19,6 +19,30 @@ html#project {
       opacity: 0;
     }
 
+    /** bootstrap input group 확장 */
+    .input-group {
+      > span:nth-child(n + 1),
+      > div:nth-child(n + 1) {
+        > button,
+        > input {
+          border-left: 0;
+          border-right: 0;
+          border-radius: 0;
+        }
+      }
+      > span:last-child,
+      > div:last-child {
+        > button,
+        > input {
+          border-right-width: var(--bs-border-width);
+          border-right-style: var(--bs-border-style);
+          border-right-color: var(--bs-border-color);
+          border-top-right-radius: var(--bs-border-radius);
+          border-bottom-right-radius: var(--bs-border-radius);
+        }
+      }
+    }
+
     /** 체크박스 */
     input.form-check-input {
       &[type='checkbox'],

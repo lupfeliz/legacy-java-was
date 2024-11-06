@@ -34,6 +34,7 @@
 <script src="${cbase}/assets/libs/bootstrap-5.3.3.min.js"></script>
 <script src="${cbase}/assets/libs/font-awesome-all-6.6.0.min.js"></script>
 <script src="${cbase}/assets/libs/vanilla-calendar-2.9.10.min.js"></script>
+<script src="${cbase}/assets/libs/popper-2.11.8.min.js"></script>
 <script src="${cbase}/assets/libs/vue-3.5.12.min.js"></script>
 <script src="${cbase}/assets/ckeditor/ckeditor.js"></script>
 <script src="${cbase}/assets/scripts/components.js"></script>

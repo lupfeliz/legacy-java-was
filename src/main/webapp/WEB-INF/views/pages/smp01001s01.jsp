@@ -34,7 +34,7 @@
         :formatter="vars.numeric"
         :rtformatter="vars.numeric"
         vrules="auto|check2"
-        />
+        ></c-input>
     </div>
     <div>
       <c-check
@@ -46,7 +46,8 @@
         value="Y"
         required
         vrules="auto"
-        />
+        >
+      </c-check>
     </div>
     <div>
       <c-check
@@ -55,7 +56,8 @@
         name="check"
         label="체크박스"
         value="N"
-        />
+        >
+      </c-check>
     </div>
     <div>
       <c-check
@@ -69,30 +71,49 @@
         nvalue="N"
         required
         vrules="auto|atleast:2|atmost:3"
-        />
+        >
+      </c-check>
     </div>
     <div>
-      <c-select
-        v-model="vars.select"
-        form="form"
-        name="select"
-        label="선택박스"
-        required
-        :options="[
-          { name: '선택해주세요', value: '' },
-          'gmail.com',
-          'hotmail.com',
-          'honmail.com',
-          'naver.com',
-          { name: '직접입력', value: '_' }
-        ]"
-        vrules="auto"
-        variant="secondary"
-        />
+      <div class="input-group">
+        <input class="form-control"/>
+        <c-input></c-input>
+        <c-input></c-input>
+        <c-input></c-input>
+      </div>
+    </div>
+    <div>
+      <c-select></c-select>
+      <c-select></c-select>
+      <c-select></c-select>
+    </div>
+    <div>
+      <div class="input-group">
+        <c-input></c-input>
+        <c-select
+          v-model="vars.select"
+          form="form"
+          name="select"
+          label="선택박스"
+          required
+          :options="[
+            { name: '선택해주세요', value: '' },
+            'gmail.com',
+            'hotmail.com',
+            'honmail.com',
+            'naver.com',
+            { name: '직접입력', value: '_' }
+          ]"
+          vrules="auto"
+          variant="secondary"
+          >
+        </c-select>
+      </div>
     </div>
     <div>
       <c-datepicker
-        />
+        >
+      </c-datepicker>
     </div>
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>

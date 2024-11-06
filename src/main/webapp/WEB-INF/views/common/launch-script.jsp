@@ -133,7 +133,7 @@ initEntryScript(async function($SCRIPTPRM) {
   validateForm,
   } = $SCRIPTPRM;
   const vueapp = createApp({
-  setup: function(props, context) {
+  setup(props, context) {
     const self = getCurrentInstance();
     const refs = function(name) {
       let ret = self.refs[name];
@@ -151,8 +151,10 @@ initEntryScript(async function($SCRIPTPRM) {
       app: vueapp, instance: getCurrentInstance(),
     });
   },
-  mounted: async function() { for (const proc of MOUNT_HOOK_PROCS) { proc(this); }; },
-  beforeUnmount: async function() { for (const proc of UNMOUNT_HOOK_PROCS) { proc(this); }; }
+  async mounted() { for (const proc of MOUNT_HOOK_PROCS) { proc(this); }; },
+  async beforeUnmount() { for (const proc of UNMOUNT_HOOK_PROCS) { proc(this); }; },
+  async updated() {
+  }
   });
   putAll($SCRIPTPRM, { app: vueapp });
   registerComponent($SCRIPTPRM);

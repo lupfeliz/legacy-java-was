@@ -7,11 +7,7 @@
  **/
 
 function registerComponent($SCRIPTPRM) {
-  const ref = Vue.ref;
-  const useAttrs = Vue.useAttrs;
-  const defineProps = Vue.defineProps;
-  const defineComponent = Vue.defineComponent;
-  const getCurrentInstance = Vue.getCurrentInstance;
+  const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance } = Vue;
   const UPDATE_MV = "update:model-value";
   const ONCLICK = "onclick";
   const ONKEYDOWN = "onkeydown";
@@ -102,14 +98,14 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-form";
     const CForm = defineComponent({
       name,
-      template: `
+      template: (`
       \ <form
       \   v-bind="attrs"
       \   :ref="vars.elem"
       \   :data-form-ref="vars.formId"
       \   >
       \   <slot />
-      \ </form>`,
+      \ </form>`),
       props: {
         validctx: {},
       },
@@ -354,14 +350,14 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-button";
     const CButton = defineComponent({
       name,
-      template: `
+      template: (`
       \ <button
       \   v-bind="attrs"
       \   class="btn"
       \   @click="onClick"
       \   >
       \   <slot />
-      \ </button>`,
+      \ </button>`),
       props: {
       },
       setup(props, ctx) {
@@ -383,7 +379,7 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-input";
     const CInput = defineComponent({
       name,
-      template: `
+      template: (`
       \ <input
       \   v-bind="attrs"
       \   class="form-control"
@@ -394,7 +390,7 @@ function registerComponent($SCRIPTPRM) {
       \   @keyup="onKeyup"
       \   @focus="onFocus"
       \   @blur="onBlur"
-      \   />`,
+      \   />`),
       props: {
         formatter: function() { },
         rtformatter: function() { },
@@ -659,7 +655,7 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-check";
     const CCheck = defineComponent({
       name,
-      template: `
+      template: (`
       \ <input
       \   v-bind="attrs"
       \   class="form-check-input"
@@ -672,7 +668,7 @@ function registerComponent($SCRIPTPRM) {
       \   :data-group="vars.group"
       \   :data-index="vars.index"
       \   @click="onClick"
-      \   />`,
+      \   />`),
       props: {
         form: undefined,
         modelValue: "",
@@ -784,7 +780,7 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-select";
     const CSelect = defineComponent({
       name,
-      template: `
+      template: (`
       \ <div
       \   class="dropdown"
       \   @keyup="onKeypress"
@@ -817,7 +813,7 @@ function registerComponent($SCRIPTPRM) {
       \       </a>
       \     </li>
       \   </ul>
-      \ </div>`,
+      \ </div>`),
       props: {
         form: undefined,
         modelValue: "",
@@ -841,6 +837,7 @@ function registerComponent($SCRIPTPRM) {
         };
         function setOptions(options) {
           const ret = [];
+          if (!options) { return ret; }
           for (let inx = 0; inx < options.length; inx++) {
             const item = options[inx];
             if (!item) { continue; };
@@ -937,13 +934,13 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-datepicker";
     const CDatepicker = defineComponent({
       name,
-      template: `
+      template: (`
       \ <input
       \   type="text"
       \   class="form-control"
       \   name="date"
       \   data-select="datepicker"
-      \   />`,
+      \   />`),
       setup: function(props, ctx) {
         $.extend(true, $.datePicker.defaults, {
           strings: {
