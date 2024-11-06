@@ -9,6 +9,9 @@
     action="${cbase}/smp/smp01001s02"
     :validctx="vars.validctx"
     >
+    <div>
+      <i class="fa-solid fa-ghost"></i>
+    </div>
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
     <div>
