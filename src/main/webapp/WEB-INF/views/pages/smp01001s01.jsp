@@ -13,6 +13,7 @@
       <i class="fa-solid fa-ghost"></i>
       <i class="bi bi-backspace"></i>
       <i class="bi bi-eye"></i>
+      <i class="bi bi-eye-slash"></i>
     </div>
     <input type="hidden" name="value1" value="AAA" />
     <input type="hidden" name="value2" value="BBB" />
@@ -36,7 +37,8 @@
         :formatter="vars.numeric"
         :rtformatter="vars.numeric"
         vrules="auto|check2"
-        ></c-input>
+        >
+      </c-input>
     </div>
     <div>
       <c-check
@@ -78,7 +80,10 @@
     </div>
     <div>
       <div class="input-group">
-        <input class="form-control"/>
+        <c-input
+          type="password"
+          >
+        </c-input>
         <c-input></c-input>
         <c-input></c-input>
         <c-input></c-input>

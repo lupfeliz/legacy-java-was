@@ -35,13 +35,22 @@ html#project {
       transition: all 0.5s ease-in-out;
       > span {
         position: relative;
-        left: -1.5rem;
-        cursor:auto;
+        width: 2.5rem;
+        left: -3rem;
+        text-align: right;
+        display: block;
+        > span {
+          cursor:auto;
+          /** FIXME: 개발용 임시 */
+          &.eye { display: none; }
+        }
       }
       &.active {
         opacity: 1;
         > span {
-          cursor: pointer;
+          > span {
+            cursor: unset;
+          }
         }
       }
     }

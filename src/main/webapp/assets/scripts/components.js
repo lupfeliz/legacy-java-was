@@ -425,19 +425,12 @@ function registerComponent($SCRIPTPRM) {
           const active = function() {
             $(vars.xmark.value)
               .addClass("active");
-            /** 멀리 떨어진 객체이므로 tabindex 가 무효함 */
-            //   .attr("tabindex", 0)
-            //   .removeAttr("aria-hidden");
-            // log.debug("ACTIVE:", vars.xmark.value);
           };
           const inactive = function() {
             setTimeout(function() {
             }, 100);
             $(vars.xmark.value)
               .removeClass("active");
-            //   .attr("tabindex", -1)
-            //   .attr("aria-hidden", true);
-            // log.debug("INACTIVE:", vars.xmark.value);
           };
           if (vars.xmark.value) {
             if (visible === undefined) {
@@ -478,7 +471,6 @@ function registerComponent($SCRIPTPRM) {
           emit(ONFOCUS, e)
         };
         async function onBlur(e) {
-log.debug("BLUR!!!");
           xmarkSet(false);
           const el = (o = $(vars.elem.value)[0]) ? o : {};
           if (props.formatter) { el.value = props.formatter(el.value); };
@@ -514,14 +506,9 @@ log.debug("BLUR!!!");
               case KEYCODE_TABLE.PC.PageUp:
               case KEYCODE_TABLE.PC.PageDown:
               case KEYCODE_TABLE.PC.MetaLeft: 
-              case KEYCODE_TABLE.PC.MetaRight: {
-                vars.avail = true;
-                // return;
-              } break;
+              case KEYCODE_TABLE.PC.MetaRight:
               case KEYCODE_TABLE.PC.Tab: {
-                log.debug("TAB!");
                 vars.avail = true;
-                xmarkSet(false);
               } break;
               case undefined: { /** NO-OP */ } break;
               case KEYCODE_TABLE.PC.ArrowUp: {
@@ -588,7 +575,7 @@ log.debug("BLUR!!!");
                     cdnm === "Digit0")) {
                   /** NO-OP */
                 } else if ((
-                  /** Ctrl+C, Ctrl+V, Ctrl-A, Ctrl+R 허용 */
+                  /** Ctrl+C, Ctrl+V, Ctrl-A, Ctrl+R, Ctrl+W 허용 */
                   ([KEYCODE_TABLE.PC.KeyA, KEYCODE_TABLE.PC.KeyC, KEYCODE_TABLE.PC.KeyV, KEYCODE_TABLE.PC.KeyR, KEYCODE_TABLE.PC.KeyW].indexOf(kcode) !== -1) &&
                   e.ctrlKey)) {
                   /** NO-OP */
@@ -699,18 +686,33 @@ log.debug("BLUR!!!");
         const xmark =$(`
           \ <span class="xmark" data-xmark-for="${uid}">
           \   <span>
+          \   <span class="erase">
           \     <i class="bi bi-backspace"></i>
+          \   </span>
+          \   <span class="eye">
+          \     <i class="bi bi-eye"></i>
+          \   </span>
           \   </span>
           \ </span>`)[0];
         appbody.appendChild(xmark);
         vars.xmark.value = xmark;
-        xmark.onclickHandler = function() {
+        xmark.handleErase = function() {
+          // log.debug("CHECK ACTIVE:", $(xmark).hasClass("active"));
           vars.elem.value.value = "";
           $(xmark).removeClass("active");
           self.emit(UPDATE_MV, "");
           setTimeout(function() { vars.elem.value.focus(); }, 10);
         };
-        xmark.addEventListener("click", xmark.onclickHandler);
+        xmark.handleEye = function() {
+          $(elem.value).attr("type", "text");
+          // log.debug("CHECK ACTIVE:", $(xmark).hasClass("active"));
+          // vars.elem.value.value = "";
+          // $(xmark).removeClass("active");
+          // self.emit(UPDATE_MV, "");
+          // setTimeout(function() { vars.elem.value.focus(); }, 10);
+        };
+        $(xmark).find("span.erase")[0].addEventListener("click", xmark.handleErase);
+        $(xmark).find("span.eye")[0].addEventListener("click", xmark.handleEye);
         Popper.createPopper(elem.value, xmark, { placement: "right"});
       },
       async updated() {
