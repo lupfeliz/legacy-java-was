@@ -945,30 +945,37 @@ function registerComponent($SCRIPTPRM) {
       \   data-select="datepicker"
       \   />`,
       setup: function(props, ctx) {
-        $.extend(true, $.datePicker.defaults.strings, {
-          months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-          days: ["월", "화", "수", "목", "금", "토", "일"]
+        $.extend(true, $.datePicker.defaults, {
+          strings: {
+            months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+            days: ["일", "월", "화", "수", "목", "금", "토"]
+          },
+          view: {
+            month: {
+              firstDayOfWeek: 0,
+            },
+          },
+          dateFormat(date) {
+            return "" +
+              date.getFullYear()
+              + "-" +
+              $.datePicker.defaults.pad(date.getMonth() + 1, 2)
+              + "-" +
+              $.datePicker.defaults.pad(date.getDate(), 2);
+          },
+          dateParse(string) {
+            var date = new Date();
+            if (string instanceof Date) {
+              date = new Date(string);
+            } else {
+              var parts = string.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+              if ( parts && parts.length == 4 ) {
+                date = new Date( parts[1], parts[2] - 1, parts[3] );
+              }
+            };
+            return date;
+          }
         });
-        $.datePicker.defaults.dateFormat = function(date) {
-          return "" +
-            date.getFullYear()
-            + "-" +
-            $.datePicker.defaults.pad(date.getMonth() + 1, 2)
-            + "-" +
-            $.datePicker.defaults.pad(date.getDate(), 2);
-        };
-        $.datePicker.defaults.dateParse = function(string) {
-          var date = new Date();
-          if (string instanceof Date) {
-            date = new Date(string);
-          } else {
-            var parts = string.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-            if ( parts && parts.length == 4 ) {
-              date = new Date( parts[1], parts[2] - 1, parts[3] );
-            }
-          };
-          return date;
-        };
       },
       async mounted() {
       },
