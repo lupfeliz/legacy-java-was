@@ -113,7 +113,7 @@ function registerComponent($SCRIPTPRM) {
       props: {
         validctx: {},
       },
-      setup: function(props, ctx) {
+      setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const formId = genId();
         const vars = {
@@ -364,7 +364,7 @@ function registerComponent($SCRIPTPRM) {
       \ </button>`,
       props: {
       },
-      setup: function(props, ctx) {
+      setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
         };
@@ -410,7 +410,7 @@ function registerComponent($SCRIPTPRM) {
         required: false,
         vrules: "",
       },
-      setup: function(props, ctx) {
+      setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
           itype: props.type,
@@ -684,7 +684,7 @@ function registerComponent($SCRIPTPRM) {
         required: false,
         vrules: "",
       },
-      setup: function(props, ctx) {
+      setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
           type: props.type === 'radio' ? props.type : 'checkbox',
@@ -829,7 +829,7 @@ function registerComponent($SCRIPTPRM) {
         vrules: "",
         variant: "",
       },
-      setup: function(props, ctx) {
+      setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
           avail: true,
@@ -929,8 +929,52 @@ function registerComponent($SCRIPTPRM) {
       async updated() {
         const { vars } = getCurrentInstance().setupState;
         log.trace("UPDATE-SELECT");
-      }
+      },
     });
     app.component(name, CSelect);
+  };
+  {
+    const name = "c-datepicker";
+    const CDatepicker = defineComponent({
+      name,
+      template: `
+      \ <input
+      \   type="text"
+      \   class="form-control"
+      \   name="date"
+      \   data-select="datepicker"
+      \   />`,
+      setup: function(props, ctx) {
+        $.extend(true, $.datePicker.defaults.strings, {
+          months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          days: ["월", "화", "수", "목", "금", "토", "일"]
+        });
+        $.datePicker.defaults.dateFormat = function(date) {
+          return "" +
+            date.getFullYear()
+            + "-" +
+            $.datePicker.defaults.pad(date.getMonth() + 1, 2)
+            + "-" +
+            $.datePicker.defaults.pad(date.getDate(), 2);
+        };
+        $.datePicker.defaults.dateParse = function(string) {
+          var date = new Date();
+          if (string instanceof Date) {
+            date = new Date(string);
+          } else {
+            var parts = string.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if ( parts && parts.length == 4 ) {
+              date = new Date( parts[1], parts[2] - 1, parts[3] );
+            }
+          };
+          return date;
+        };
+      },
+      async mounted() {
+      },
+      async updated() {
+      },
+    });
+    app.component(name, CDatepicker);
   };
 };

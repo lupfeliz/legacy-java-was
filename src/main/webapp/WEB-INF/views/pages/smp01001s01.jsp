@@ -90,6 +90,10 @@
         variant="secondary"
         />
     </div>
+    <div>
+      <c-datepicker
+        />
+    </div>
   </c-form>
   <div>{{ vars.numToHangul(vars.price) }}원</div>
   <div>[{{ vars.check }}]</div>
