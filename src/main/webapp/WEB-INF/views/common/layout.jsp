@@ -16,17 +16,19 @@
     <tiles:insertAttribute name="defines" />
     <tiles:insertAttribute name="assets" />
   </head>
-  <body class="hide-onload">
-    <c:if test="${req-type} == 's'">
+  <body cass="hide-onload">
+    <div>
+    <c:if test="${reqtype == 's'}">
       <tiles:insertAttribute name="header"/>
     </c:if>
     <main class="container">
       <tiles:insertAttribute name="body"/>
     </main>
-    <c:if test="${req-type} == 's'">
+    <c:if test="${reqtype == 's'}">
       <tiles:insertAttribute name="footer"/>
     </c:if>
     <tiles:insertAttribute name="dcontainer" />
     <tiles:insertAttribute name="launch" />
+    </div>
   </body>
 </html>

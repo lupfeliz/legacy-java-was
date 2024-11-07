@@ -132,7 +132,7 @@ initEntryScript(async function($SCRIPTPRM) {
   val,
   validateForm,
   } = $SCRIPTPRM;
-  const appbody = document.body;
+  const appbody = $(document.body).find("> div:nth-child(1)")[0];
   const app = createApp({
   setup(props, context) {
     const self = getCurrentInstance();

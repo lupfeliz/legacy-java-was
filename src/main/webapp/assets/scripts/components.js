@@ -100,7 +100,6 @@ function registerComponent($SCRIPTPRM) {
   {
     const name = "c-form";
     const CForm = defineComponent({
-      name,
       template: (`
       \ <form
       \   v-bind="attrs"
@@ -352,7 +351,6 @@ function registerComponent($SCRIPTPRM) {
   {
     const name = "c-button";
     const CButton = defineComponent({
-      name,
       template: (`
       \ <button
       \   v-bind="attrs"
@@ -381,7 +379,6 @@ function registerComponent($SCRIPTPRM) {
   {
     const name = "c-input";
     const CInput = defineComponent({
-      name,
       template: (`
       \ <input
       \   v-bind="attrs"
@@ -724,7 +721,6 @@ function registerComponent($SCRIPTPRM) {
   {
     const name = "c-check";
     const CCheck = defineComponent({
-      name,
       template: (`
       \ <input
       \   v-bind="attrs"
@@ -849,7 +845,6 @@ function registerComponent($SCRIPTPRM) {
   {
     const name = "c-select";
     const CSelect = defineComponent({
-      name,
       template: (`
       \ <div
       \   class="dropdown"
@@ -1005,7 +1000,6 @@ function registerComponent($SCRIPTPRM) {
   {
     const name = "c-datepicker";
     const CDatepicker = defineComponent({
-      name,
       template: (`
       \ <input
       \   type="text"

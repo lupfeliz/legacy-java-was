@@ -49,9 +49,9 @@ public class RequestAspect {
       String cate = "", wkno = "", rqty = "", stno = "";
       if ((mat = PTN_WORK.matcher(uri)) != null && mat.find()) {
         req.setAttribute("category", cate = mat.group("cate"));
-        req.setAttribute("work-number", wkno = mat.group("wkno"));
-        req.setAttribute("req-type", rqty = mat.group("rqty"));
-        req.setAttribute("step-number", stno = mat.group("stno"));
+        req.setAttribute("worknumber", wkno = mat.group("wkno"));
+        req.setAttribute("reqtype", rqty = mat.group("rqty"));
+        req.setAttribute("stepnumber", stno = mat.group("stno"));
         if (ret == null || "".equals(ret)) { ret = cat("/", cate, wkno, rqty, stno); }
       }
       log.debug("BEFORE:{} / {}", uri, joint.toShortString());
