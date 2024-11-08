@@ -143,8 +143,7 @@ dependencies {
   implementation 'org.json:json:20230618'
 
   implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
-  implementation 'com.ntiple:ntiple-utils-jdk8:0.0.2-10'
-  // implementation 'com.sun.jini:sun-util:2.1'
+  implementation 'com.ntiple:ntiple-utils:0.0.2-11'
   implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
   implementation 'org.bouncycastle:bcpkix-jdk18on:1.79'
 
