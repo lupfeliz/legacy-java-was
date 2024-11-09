@@ -710,7 +710,7 @@ function registerComponent($SCRIPTPRM) {
         };
         $(xmark).find("span.erase")[0].addEventListener("click", xmark.handleErase);
         $(xmark).find("span.eye")[0].addEventListener("click", xmark.handleEye);
-        Popper.createPopper(elem.value, xmark, { placement: "right"});
+        Popper.createPopper(elem.value, xmark, { placement: "right" });
       },
       async updated() {
         log.trace("UPDATE-INPUT");
