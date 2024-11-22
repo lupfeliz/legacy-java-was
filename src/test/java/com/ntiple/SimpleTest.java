@@ -10,8 +10,9 @@
 package com.ntiple;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.CryptoUtil.RSA.encrypt;
 import static com.ntiple.commons.CryptoUtil.RSA.decrypt;
+import static com.ntiple.commons.CryptoUtil.RSA.encrypt;
+import static com.ntiple.commons.HttpUtil.httpWorker;
 import static com.ntiple.commons.IOUtils.file;
 import static com.ntiple.commons.IOUtils.istream;
 import static com.ntiple.commons.IOUtils.readAsString;
@@ -19,6 +20,7 @@ import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
 import static com.ntiple.commons.IOUtils.writer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,8 +37,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleScriptContext;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -45,7 +45,6 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.junit.jupiter.api.Test;
 
 import com.ntiple.TestUtil.TestLevel;
-import com.ntiple.commons.HttpUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -194,12 +193,17 @@ public class SimpleTest {
   @Test
   public void testHttpClient() throws Exception {
     if (!TestUtil.isEnabled("testHttpClient", TestLevel.MANUAL)) { return; }
-    HttpResponse resp = HttpUtil.execute(
-      HttpUtil.httpClient(), null,
-      new HttpGet("https://gitlab.ntiple.com"),
-      null,
-      HttpResponse.class);
-    String html = HttpUtil.respContentStr(resp);
-    log.debug("CHECK:{}", html);
+    StringBuilder sb = new StringBuilder();
+    httpWorker()
+      .url("https://gitlab.ntiple.com")
+      .method(p -> p.GET())
+      .agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0")
+      .work((stat, stream, hdr, ctx) -> {
+        try {
+          sb.append(readAsString(stream));
+        } catch (Exception ignore) { }
+        return null;
+      });
+      log.debug("RESULT:{}", sb);
   }
 }
