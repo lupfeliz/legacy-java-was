@@ -7,7 +7,7 @@
  **/
 package com.ntiple.work.cmn;
 
-import static com.ntiple.commons.ConvertUtil.camelCase;
+import static com.ntiple.commons.StringUtil.camelCase;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

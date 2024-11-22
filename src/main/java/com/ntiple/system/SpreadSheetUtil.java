@@ -15,11 +15,11 @@
  **/
 package com.ntiple.system;
 
-import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.ConvertUtil.convert;
 import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.ConvertUtil.parseStr;
 import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.system.Constants.TYPE_XLS;
 import static com.ntiple.system.Constants.TYPE_XLSX;
 

@@ -9,20 +9,13 @@ package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.CONTENT_TYPE;
 import static com.ntiple.commons.Constants.CTYPE_HTML;
-import static com.ntiple.commons.ConvertUtil.cast;
-// import static com.ntiple.commons.ConvertUtil.cat;
 import static com.ntiple.commons.ConvertUtil.convert;
+import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.system.Constants.CRNL;
-import static com.ntiple.system.Constants.STATIC_ACCESS;
-// import static com.ntiple.system.WebUtil.curRequest;
-// import static com.ntiple.system.WebUtil.curResponse;
-// import static com.ntiple.system.WebUtil.remoteAddr;
 
-// import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
-// import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +29,7 @@ import com.ntiple.work.cmn.CommonService;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @Component @SuppressWarnings(STATIC_ACCESS)
+@Slf4j @Component
 public class RestResponse {
   public static RestResponse instance;
   @Autowired Settings settings;

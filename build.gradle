@@ -26,7 +26,12 @@ plugins {
 
 group = 'com.ntiple'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '8'
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+  // sourceCompatibility = '8'
+  // targetCompatibility = '8'
+}
 
 configurations {
   compileOnly {
@@ -54,6 +59,7 @@ if (ENVFILE != null && ENVFILE.exists()) {
   // if (nexusSpring != null && !''.equals(nexusSpring)) { NEXUS_SPRING_IO = nexusSpring }
   // println('NEXUS_SPRING_IO:' + NEXUS_SPRING_IO)
 }
+NEXUS_REPO = 'http://192.168.0.2:8081/repository/maven-public/'
 
 if (System.properties['spring.profiles.active'] != null) {
   String profile = System.properties['spring.profiles.active']
@@ -71,10 +77,12 @@ println('NEXUS_REPO:' + NEXUS_REPO)
 repositories {
   if (NEXUS_REPO == null || ''.equals(NEXUS_REPO)) {
     println('USE MAVEN CENTRAL REPOSITORY')
+    // flatDir { dirs "$rootProject.projectDir/libs" }
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
   } else {
     println('USE NEXUS REPOSITORY : ' + NEXUS_REPO)
+    // flatDir { dirs "$rootProject.projectDir/libs" }
     // maven {
     //   url NEXUS_SPRING_IO
     //   allowInsecureProtocol = true
@@ -143,7 +151,8 @@ dependencies {
   implementation 'org.json:json:20230618'
 
   implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
-  implementation 'com.ntiple:ntiple-utils:0.0.2-11'
+  // implementation 'com.ntiple:ntiple-utils:0.0.2-11'
+  implementation 'com.ntiple:ntiple-utils:0.0.3-1'
   implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
   implementation 'org.bouncycastle:bcpkix-jdk18on:1.79'
 
@@ -151,6 +160,7 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testAnnotationProcessor 'org.projectlombok:lombok'
 
+  // implementation files('libs/ntiple-utils-0.0.3-1.jar')
   implementation fileTree(dir: 'libs', include: ['*.jar'])
 
   testImplementation 'org.mockito:mockito-core:5.5.0'

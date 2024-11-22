@@ -12,10 +12,10 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.ConvertUtil.cat;
 import static com.ntiple.commons.IOUtils.openResourceStream;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.StringUtil.cat;
 
 import java.io.Reader;
 import java.util.List;

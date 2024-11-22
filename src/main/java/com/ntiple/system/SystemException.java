@@ -7,7 +7,7 @@
  **/
 package com.ntiple.system;
 
-import static com.ntiple.commons.ConvertUtil.cat;
+import static com.ntiple.commons.StringUtil.cat;
 
 import org.springframework.http.HttpStatus;
 

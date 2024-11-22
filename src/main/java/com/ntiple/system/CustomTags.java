@@ -7,8 +7,8 @@
  **/
 package com.ntiple.system;
 
-import static com.ntiple.commons.ConvertUtil.cast;
-import static com.ntiple.system.WebUtil.curRequest;
+import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.WebUtil.curRequest;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.JspFragment;
@@ -33,8 +34,9 @@ public class CustomTags  {
 
   private static final Map<String, String> getStore() {
     Map<String, String> store = null;
-    store = cast(curRequest().getAttribute(ATTR_KEY_SCRIPT_STORE), store);
-    if (store == null) { curRequest().setAttribute(ATTR_KEY_SCRIPT_STORE, store = new LinkedHashMap<>()); }
+    HttpServletRequest req = curRequest(HttpServletRequest.class);
+    store = cast(req.getAttribute(ATTR_KEY_SCRIPT_STORE), store);
+    if (store == null) { req.setAttribute(ATTR_KEY_SCRIPT_STORE, store = new LinkedHashMap<>()); }
     return store;
   }
 

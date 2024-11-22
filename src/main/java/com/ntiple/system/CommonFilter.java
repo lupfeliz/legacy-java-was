@@ -8,15 +8,19 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.ConvertUtil.cast;
-import static com.ntiple.commons.ConvertUtil.cat;
 import static com.ntiple.commons.IOUtils.file;
 import static com.ntiple.commons.IOUtils.istream;
 import static com.ntiple.commons.IOUtils.mkdirs;
 import static com.ntiple.commons.IOUtils.ostream;
+import static com.ntiple.commons.IOUtils.passthrough;
 import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.StringUtil.cat;
+import static com.ntiple.commons.WebUtil.cleanXSS;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,10 +33,13 @@ import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ReadListener;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,4 +146,76 @@ public class CommonFilter implements Filter {
   }
   @Override public void destroy() { }
   @Override public void init(FilterConfig arg0) throws ServletException { }
+
+  public static class XSSInputStream extends ServletInputStream {
+    private InputStream delegator;
+    private boolean finished = false;
+    public XSSInputStream(InputStream delegator) { this.delegator = delegator; }
+    public XSSInputStream(String str, String enc) {
+      try {
+        delegator = new ByteArrayInputStream(str.getBytes(enc));
+      } catch (Exception e) {
+        log.debug("ERROR:{}", e);
+      }
+    }
+    @Override public int read() throws IOException {
+      int ret = this.delegator.read();
+      if (!finished && ret == -1) { this.finished = true; }
+      return ret;
+    }
+    @Override public int read(byte[] b) throws IOException {
+      int ret = delegator.read(b);
+      if (!finished && ret == -1) { this.finished = true; }
+      return ret;
+    }
+    @Override public int read(byte[] b, int off, int len) throws IOException {
+      int ret = delegator.read(b, off, len);
+      if (!finished && ret == -1) { this.finished = true; }
+      return ret;
+    }
+    @Override public int hashCode() { return delegator.hashCode(); }
+    @Override public boolean equals(Object obj) { return delegator.equals(obj); }
+    @Override public long skip(long n) throws IOException { return delegator.skip(n); }
+    @Override public String toString() { return delegator.toString(); }
+    @Override public int available() throws IOException { return delegator.available(); }
+    @Override public void close() throws IOException { delegator.close(); }
+    @Override public void mark(int readlimit) { delegator.mark(readlimit); }
+    @Override public void reset() throws IOException { delegator.reset(); }
+    @Override public boolean markSupported() { return delegator.markSupported(); }
+    @Override public boolean isFinished() { return finished; }
+    @Override public boolean isReady() { return true; }
+    @Override public void setReadListener(ReadListener listener) {
+      log.debug("================================================================================");
+      log.debug("UNSUPPORTED OPERATION setReadListener");
+      log.debug("================================================================================");
+    }
+  }
+  
+  public static class XSSFilteredRequest extends HttpServletRequestWrapper {
+    public XSSFilteredRequest(HttpServletRequest delegate) { super(delegate); }
+    @Override public ServletInputStream getInputStream() throws IOException {
+      InputStream istream = null;
+      ByteArrayOutputStream bstream = null;
+      XSSInputStream xstream = null;
+      String str = "";
+      try {
+        istream = super.getInputStream();
+        bstream = new ByteArrayOutputStream();
+        passthrough(istream, bstream);
+        str = new String(bstream.toByteArray());
+        str = cleanXSS(str);
+        log.debug("XSS-FILTERED:{}", str);
+        xstream = new XSSInputStream(str, UTF8);
+      } catch (Exception e) {
+        log.debug("ERROR:{}", e);
+      } finally {
+        safeclose(istream);
+        safeclose(bstream);
+      }
+      return xstream;
+    }
+    public void test() throws Exception {
+      this.getReader();
+    }
+  }
 }

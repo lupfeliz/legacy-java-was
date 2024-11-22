@@ -7,7 +7,7 @@
  **/
 package com.ntiple;
 
-import static com.ntiple.commons.ConvertUtil.cat;
+import static com.ntiple.commons.StringUtil.cat;
 
 import java.io.File;
 import java.net.URL;

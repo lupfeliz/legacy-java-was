@@ -7,9 +7,9 @@
  **/
 package com.ntiple.work.smp;
 
-import static com.ntiple.commons.ConvertUtil.cast;
 import static com.ntiple.commons.ConvertUtil.newMap;
-import static com.ntiple.system.WebUtil.params;
+import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.WebUtil.params;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import com.ntiple.commons.CryptoUtil;
-import com.ntiple.system.WebUtil.RequestParameter;
+import com.ntiple.commons.WebUtil.RequestParameter;
 import com.ntiple.work.cmn.CommonEntity.Login;
 import com.ntiple.work.cmn.CommonEntity.Result;
 
@@ -46,7 +46,7 @@ public class SampleService {
   }
 
   public String smp01001p01() {
-    log.debug("CHECK-PARAM:{}", params().toString());
+    log.debug("CHECK-PARAM:{}", params());
     return "/smp01001p01";
   }
 

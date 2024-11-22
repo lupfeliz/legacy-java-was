@@ -7,9 +7,9 @@
  **/
 package com.ntiple.system;
 
-import static com.ntiple.commons.ConvertUtil.cat;
-import static com.ntiple.commons.ConvertUtil.cast;
-import static com.ntiple.system.WebUtil.curRequest;
+import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.StringUtil.cat;
+import static com.ntiple.commons.WebUtil.curRequest;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +43,7 @@ public class RequestAspect {
   public Object aroundAdvice(ProceedingJoinPoint joint) throws Throwable {
     Object ret = null;
     try {
-      HttpServletRequest req = curRequest();
+      HttpServletRequest req = curRequest(HttpServletRequest.class);
       String uri = cast(req.getAttribute("uri"), uri = "");
       Matcher mat = null;
       String cate = "", wkno = "", rqty = "", stno = "";

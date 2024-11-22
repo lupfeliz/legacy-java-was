@@ -7,30 +7,30 @@
  **/
 package com.ntiple.work.cmn;
 
+import static com.ntiple.commons.Constants.CTYPE_FILE;
+import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.IOUtils.file;
 import static com.ntiple.commons.IOUtils.istream;
 import static com.ntiple.commons.IOUtils.mkdirs;
 import static com.ntiple.commons.IOUtils.ostream;
 import static com.ntiple.commons.IOUtils.passthrough;
+import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
-import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.Constants.CTYPE_FILE;
+import static com.ntiple.commons.ValuesUtil.codeSplit;
+import static com.ntiple.commons.WebUtil.curResponse;
+import static com.ntiple.commons.WebUtil.getUri;
+import static com.ntiple.commons.WebUtil.referer;
+import static com.ntiple.commons.WebUtil.remoteAddr;
 import static com.ntiple.config.PersistentConfig.SQLTRANSCT;
 import static com.ntiple.system.Constants.PROF_DEV;
 import static com.ntiple.system.Constants.PROF_LOCAL;
 import static com.ntiple.system.Constants.STATIC_ACCESS;
-import static com.ntiple.system.WebUtil.codeSplit;
-import static com.ntiple.system.WebUtil.curRequest;
-import static com.ntiple.system.WebUtil.curResponse;
-import static com.ntiple.system.WebUtil.getUri;
-import static com.ntiple.system.WebUtil.readObject;
-import static com.ntiple.system.WebUtil.referer;
-import static com.ntiple.system.WebUtil.remoteAddr;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -60,6 +60,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ntiple.system.SystemException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ntiple.commons.WebUtil;
 import com.ntiple.system.Settings;
 import com.ntiple.work.cmn.CommonEntity.CmmnFile;
 import com.ntiple.work.cmn.CommonEntity.Code;
@@ -80,8 +82,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j @Service @SuppressWarnings(STATIC_ACCESS)
 public class CommonService {
 
-  // private static com.ntiple.commons.Constants C;
   private static com.ntiple.commons.ConvertUtil CU;
+  private static com.ntiple.commons.StringUtil SU;
+  private static com.ntiple.commons.ReflectionUtil RU;
   private static com.ntiple.system.Constants S;
 
   @Autowired Settings settings;
@@ -466,7 +469,7 @@ public class CommonService {
           .relateTable(tbName)
           .relateTablePk(pk)
           .build(), cfile);
-        uploadFile(CU.arr(S.CMMN, CU.parseStr(cfile.fileSn)), mfile, cfile);
+        uploadFile(CU.array(S.CMMN, CU.parseStr(cfile.fileSn)), mfile, cfile);
         repository.updateCmmnFile(autoFill(cfile));
       } else {
         /** SAVE FILE */
@@ -479,7 +482,7 @@ public class CommonService {
           .relateTable(tbName)
           .relateTablePk(pk)
           .build();
-        uploadFile(CU.arr(S.CMMN, CU.parseStr(fileSn)), mfile, cfile);
+        uploadFile(CU.array(S.CMMN, CU.parseStr(fileSn)), mfile, cfile);
         repository.saveCmmnFile(autoFill(cfile));
       }
     } finally {
@@ -522,7 +525,7 @@ public class CommonService {
     OutputStream ostream = null;
     boolean ret = false;
     File parent = file.getParentFile();
-    File mfile = file(parent, CU.cat(file.getName(), ".meta"));
+    File mfile = file(parent, SU.cat(file.getName(), ".meta"));
     String oname = "";
     String ext = "";
     int size = 0;
@@ -576,7 +579,7 @@ public class CommonService {
     InputStream istream = null;
     boolean ret = false;
     File parent = file.getParentFile();
-    File mfile = file(parent, CU.cat(file.getName(), ".meta"));
+    File mfile = file(parent, SU.cat(file.getName(), ".meta"));
     try {
       /** 메타파일 */
       if (info != null && mfile.exists()) {
@@ -626,13 +629,13 @@ public class CommonService {
     OutputStream ostream = null;
     try {
       if (istream != null) {
-        if ((res = curResponse(req)) != null) {
+        if ((res = curResponse(req, HttpServletResponse.class)) != null) {
           res.setContentType(CTYPE_FILE);
           res.setCharacterEncoding(UTF8);
           if (info != null) {
             if (info.getSize() > 0) { res.setContentLength(info.getSize()); }
             if (info.getOrginlFileNm() != null && !"".equals(info.getOrginlFileNm())) {
-              res.setHeader(S.CONTENT_DISPOSITION, CU.cat("attachment; filename=",
+              res.setHeader(S.CONTENT_DISPOSITION, SU.cat("attachment; filename=",
                 URLEncoder.encode(info.getOrginlFileNm(), UTF8)));
             }
           }
@@ -657,17 +660,18 @@ public class CommonService {
     return file(settings.getStoragePath(), path);
   }
 
+  public static HttpServletRequest curRequest() { return WebUtil.curRequest(HttpServletRequest.class); }
   public Authentication getCurrentAuth() { return getCurrentAuth(curRequest()); }
   public Authentication getCurrentAuth(HttpServletRequest req) {
     Authentication ret = null;
     Object o = req.getAttribute(S.ATTR_KEY_AUTH);
     if (o == S.TMPOBJ) { return ret; }
     if (o != null) {
-      ret = CU.cast(o, ret);
+      ret = RU.cast(o, ret);
     } else {
       ret = SecurityContextHolder.getContext().getAuthentication();
       if (ret != null) {
-        List<SimpleGrantedAuthority> alst = CU.cast(ret.getAuthorities(), alst = null);
+        List<SimpleGrantedAuthority> alst = RU.cast(ret.getAuthorities(), alst = null);
         log.debug("AUTHLST:{} / {}", alst);
         req.setAttribute(S.ATTR_KEY_AUTH, ret);
         req.setAttribute(S.ATTR_KEY_USER_ID, ret.getName());
@@ -698,7 +702,7 @@ public class CommonService {
     Object o = req.getAttribute(S.ATTR_KEY_GRANT);
     if (o == S.TMPOBJ) { return ret; }
     if (o != null) {
-      ret = CU.cast(o, ret);
+      ret = RU.cast(o, ret);
     } else {
       Authentication auth = getCurrentAuth(req);
       if (auth != null) {
@@ -732,7 +736,7 @@ public class CommonService {
     Object o = req.getAttribute(S.ATTR_KEY_USER_ID);
     if (o == S.TMPOBJ) { return ret; }
     if (o != null) {
-      ret = CU.cast(o, ret);
+      ret = RU.cast(o, ret);
     } else {
       Authentication auth = getCurrentAuth(req);
       if (auth != null) {
@@ -749,12 +753,12 @@ public class CommonService {
     Object o = req.getAttribute(S.ATTR_KEY_IS_ADMIN);
     if (o == S.TMPOBJ) { return ret; }
     if (o != null) {
-      ret = CU.cast(o, ret);
+      ret = RU.cast(o, ret);
     } else {
       List<SimpleGrantedAuthority> grants = getCurrentGrants(req);
       if (grants != null) {
         for (SimpleGrantedAuthority grant : grants) {
-          if (grant.getAuthority().equals(CU.cat(S.PRFX_ROLE, S.ADMIN))) {
+          if (grant.getAuthority().equals(SU.cat(S.PRFX_ROLE, S.ADMIN))) {
             ret = true;
             req.setAttribute(S.ATTR_KEY_IS_ADMIN, ret);
           }
@@ -770,12 +774,12 @@ public class CommonService {
     Object o = req.getAttribute(S.ATTR_KEY_IS_USER);
     if (o == S.TMPOBJ) { return ret; }
     if (o != null) {
-      ret = CU.cast(o, ret);
+      ret = RU.cast(o, ret);
     } else {
       List<SimpleGrantedAuthority> grants = getCurrentGrants(req);
       if (grants != null) {
         for (SimpleGrantedAuthority grant : grants) {
-          if (grant.getAuthority().equals(CU.cat(S.PRFX_ROLE, S.USER))) {
+          if (grant.getAuthority().equals(SU.cat(S.PRFX_ROLE, S.USER))) {
             ret = true;
             req.setAttribute(S.ATTR_KEY_IS_USER, ret);
           }
@@ -791,7 +795,7 @@ public class CommonService {
     Object o = req.getAttribute(S.ATTR_KEY_IS_GUEST);
     if (o == S.TMPOBJ) { return ret; }
     if (o != null) {
-      ret = CU.cast(o, ret);
+      ret = RU.cast(o, ret);
     } else {
       if (!isAdmin(req) && isUser(req)) {
         ret = true;
@@ -881,7 +885,7 @@ public class CommonService {
     }
     log.debug("AUTO-FILL-USER-ID:{}{}", prfxUserId, userId, isAdmin, isUser);
     if (ret instanceof DateUpdatable) {
-      DateUpdatable v = CU.cast(prm, v = null);
+      DateUpdatable v = RU.cast(prm, v = null);
       v.setRgsde(curdate);
       v.setLastUpdde(curdate);
     }
@@ -899,9 +903,9 @@ public class CommonService {
     //   v.setLoginDt(curdate);
     // }
     if (ret instanceof UpdusrId && userId != null) {
-      UpdusrId v = CU.cast(prm, v = null);
-      v.setRegisterId(CU.cat(prfxUserId, userId));
-      v.setLastUpdusrId(CU.cat(prfxUserId, userId));
+      UpdusrId v = RU.cast(prm, v = null);
+      v.setRegisterId(SU.cat(prfxUserId, userId));
+      v.setLastUpdusrId(SU.cat(prfxUserId, userId));
     }
     if (ret instanceof Login) {
       // Login v = CU.cast(prm, v = null);
@@ -943,8 +947,8 @@ public class CommonService {
             Method mtd = null;
             try {
               // log.debug("FIND-METHOD:{}.{}", cls.getSimpleName(), cat("get", capitalize(field.getName())));
-              mtd = cls.getMethod(CU.cat("get", CU.capitalize(field.getName())), CU.EMPTY_CLS);
-              if (mtd != null) { val = mtd.invoke(prm, CU.EMPTY_OBJ); }
+              mtd = cls.getMethod(SU.cat("get", SU.capitalize(field.getName())), RU.EMPTY_CLS);
+              if (mtd != null) { val = mtd.invoke(prm, RU.EMPTY_OBJ); }
             } catch (Exception e) {
               log.debug("E:{}", e.getMessage());
             }
@@ -952,12 +956,12 @@ public class CommonService {
           // log.debug("CHECK3:{}.{} : {}", cls.getSimpleName(), field.getName(), val);
           if (val != null) {
             if (val instanceof List) {
-              List<?> list = CU.cast(val, list = null);
+              List<?> list = RU.cast(val, list = null);
               for (Object itm : list) {
                 secureOut(itm);
               }
             } else if (val instanceof Map) {
-              Map<String, Object> map = CU.cast(val, map = null);
+              Map<String, Object> map = RU.cast(val, map = null);
               for (String key : map.keySet()) {
                 secureOut(map.get(key));
               }
@@ -994,7 +998,7 @@ public class CommonService {
         Annotation[] anons = field.getDeclaredAnnotations();
         for (Annotation anon : anons) {
           if (anon instanceof Schema) {
-            Schema schm = CU.cast(anon, schm = null);
+            Schema schm = RU.cast(anon, schm = null);
             String title = schm.title();
             title = ptnRemove.matcher(title).replaceAll("");
             ret.put(name, title);
@@ -1110,4 +1114,31 @@ public class CommonService {
   //   }
   //   return ret;
   // }
+
+  public static <T> T readObject(Object src, Class<T> type) {
+    T ret = null;
+    Reader reader = null;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      if (src instanceof Reader) {
+        ret = mapper.readValue((Reader) src, type);
+      } else if (src instanceof InputStream) {
+        reader = reader((InputStream) src, UTF8);
+        ret = mapper.readValue(reader, type);
+      } else if (src instanceof File) {
+        File file = (File) src;
+        if (file.exists()) {
+          reader = reader(file, UTF8);
+          ret = mapper.readValue(reader, type);
+        }
+      } else if (src instanceof byte[]) {
+        ret = mapper.readValue((byte[]) src, type);
+      }
+    } catch (Exception e) {
+      log.error("", e);
+    } finally {
+      safeclose(reader);
+    }
+    return ret;
+  }
 }

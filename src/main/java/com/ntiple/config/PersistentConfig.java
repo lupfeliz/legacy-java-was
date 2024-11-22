@@ -7,7 +7,7 @@
  **/
 package com.ntiple.config;
 
-import static com.ntiple.commons.ConvertUtil.cat;
+import static com.ntiple.commons.StringUtil.cat;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
