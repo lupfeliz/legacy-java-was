@@ -19,3 +19,5 @@ if (NEXUS_PLUGIN_REPO != null && !''.equals(NEXUS_PLUGIN_REPO)) {
     }
   }
 }
+
+rootProject.name = 'legacy-java-was'

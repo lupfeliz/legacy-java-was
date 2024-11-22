@@ -29,8 +29,6 @@ version = '0.0.1-SNAPSHOT'
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
-  // sourceCompatibility = '8'
-  // targetCompatibility = '8'
 }
 
 configurations {
@@ -46,20 +44,14 @@ String CURRENT_DIR = System.properties['user.dir']
 Object DOTENV = new Properties()
 
 File ENVFILE = new File(CURRENT_DIR + '/.env')
-if (ENVFILE != null && ENVFILE.exists()) {
+if (ENVFILE.exists()) {
   InputStream is = new ByteArrayInputStream(ENVFILE.getText('UTF-8').getBytes())
   DOTENV.load(is)
   String profile = DOTENV.'PROFILE'
   String nexusRepo = DOTENV.'NEXUS_REPO'
-  // String nexusSpring = DOTENV.'NEXUS_SPRING_IO'
-  // println('NEXUS_SPRING_IO:' + nexusSpring)
-
   if (profile != null && !''.equals(profile)) { PROFILE = profile }
   if (nexusRepo != null && !''.equals(nexusRepo)) { NEXUS_REPO = nexusRepo }
-  // if (nexusSpring != null && !''.equals(nexusSpring)) { NEXUS_SPRING_IO = nexusSpring }
-  // println('NEXUS_SPRING_IO:' + NEXUS_SPRING_IO)
 }
-NEXUS_REPO = 'http://192.168.0.2:8081/repository/maven-public/'
 
 if (System.properties['spring.profiles.active'] != null) {
   String profile = System.properties['spring.profiles.active']
@@ -67,8 +59,8 @@ if (System.properties['spring.profiles.active'] != null) {
 }
 if (PROFILE == null || ''.equals(PROFILE)) { PROFILE = 'local' }
 
-println('PROFILE:' + PROFILE)
-println('NEXUS_REPO:' + NEXUS_REPO)
+// println('PROFILE:' + PROFILE)
+// println('NEXUS_REPO:' + NEXUS_REPO)
 
 /**
  * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
@@ -77,16 +69,10 @@ println('NEXUS_REPO:' + NEXUS_REPO)
 repositories {
   if (NEXUS_REPO == null || ''.equals(NEXUS_REPO)) {
     println('USE MAVEN CENTRAL REPOSITORY')
-    // flatDir { dirs "$rootProject.projectDir/libs" }
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
   } else {
     println('USE NEXUS REPOSITORY : ' + NEXUS_REPO)
-    // flatDir { dirs "$rootProject.projectDir/libs" }
-    // maven {
-    //   url NEXUS_SPRING_IO
-    //   allowInsecureProtocol = true
-    // }
     maven {
       url NEXUS_REPO
       allowInsecureProtocol = true
