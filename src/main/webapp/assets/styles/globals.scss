@@ -29,64 +29,61 @@ html#project {
       }
     }
 
-    span.xmark {
-      z-index: 9999;
-      opacity: 0;
-      transition: all 0.5s ease-in-out;
-      width: 0;
-      > span {
-        position: relative;
-        width: 2.5rem;
-        left: -3rem;
-        text-align: right;
-        display: block;
-        > span {
-          cursor:auto;
-          /** FIXME: 개발용 임시 */
-          &.eye { display: none; }
+    span.form-control {
+      display: flex;
+      &.focused {
+        color: var(--bs-body-color);
+        background-color: var(--bs-body-bg);
+        border-color: var(--bs-primary-border-subtle);
+        outline: 0;
+        box-shadow: var(--bs-box-shadow-inset), 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+      }
+      & > input {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        width: 100%;
+        box-shadow: none;
+        outline: 0;
+        &:focus {
+          box-shadow: none;
         }
       }
-      &.active {
-        opacity: 1;
-        > span {
-          > span {
-            cursor: unset;
+      & > input + span {
+        opacity: 0;
+        display: flex;
+        margin-right: -0.2rem;
+        > a {
+          margin-left: 0.4rem;
+          cursor: pointer;
+          padding: 0 0.1rem 0 0.1rem;
+          &:first-child {
+            margin-left: 0;
           }
         }
+      }
+      &.focused > input + span {
+        opacity: 1;
       }
     }
 
     /** bootstrap input group 확장 */
     .input-group {
-      > span:nth-child(n + 1),
-      > div:nth-child(n + 1) {
-        > button,
-        > input {
-          border-left: 0;
-          // border-right: 0;
+      .dropdown {
+        > .dropdown-toggle {
           border-radius: 0;
         }
-      }
-      > span:first-child,
-      > div:first-child {
-        > button,
-        > input {
-          border-left-width: var(--bs-border-width);
-          border-left-style: var(--bs-border-style);
-          border-left-color: var(--bs-border-color);
-          border-top-left-radius: var(--bs-border-radius);
-          border-bottom-left-radius: var(--bs-border-radius);
+        &:nth-child(1) {
+          > .dropdown-toggle {
+            border-top-left-radius: var(--bs-border-radius);
+            border-bottom-left-radius: var(--bs-border-radius);
+          }
         }
-      }
-
-      > span:last-child,
-      > div:last-child {
-        > button,
-        > input {
-          border-right-width: var(--bs-border-width);
-          border-right-style: var(--bs-border-style);
-          border-top-right-radius: var(--bs-border-radius);
-          border-bottom-right-radius: var(--bs-border-radius);
+        &:last-child {
+          > .dropdown-toggle {
+            border-top-right-radius: var(--bs-border-radius);
+            border-bottom-right-radius: var(--bs-border-radius);
+          }
         }
       }
     }

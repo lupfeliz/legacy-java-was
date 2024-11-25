@@ -380,18 +380,48 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-input";
     const CInput = defineComponent({
       template: (`
-      \ <input
-      \   v-bind="attrs"
-      \   class="form-control"
-      \   :ref="vars.elem"
-      \   :name="props.name"
-      \   :type="props.type"
-      \   :data-element-uid="vars.uid"
-      \   @keydown="onKeydown"
-      \   @keyup="onKeyup"
-      \   @focus="onFocus"
-      \   @blur="onBlur"
-      \   />`),
+      \ <span name=""
+      \   :class="className()"
+      \   >
+      \   <input
+      \     v-bind="attrs"
+      \     class=""
+      \     :ref="vars.elem"
+      \     :name="props.name"
+      \     :type="props.type"
+      \     :data-element-uid="vars.uid"
+      \     @keydown="onKeydown"
+      \     @keyup="onKeyup"
+      \     @focus="onFocus"
+      \     @blur="onBlur"
+      \     />
+      \   <span>
+      \     <a class="xmark"
+      \       role="button"
+      \       tabindex="0"
+      \       @blur="onBlur"
+      \       @focus="onFocus"
+      \       @click="onClickButton"
+      \       @keydown="onClickButton"
+      \       :ref="vars.buttons[0]"
+      \       >
+      \       <i class="bi bi-backspace"></i>
+      \     </a>
+      \     <template v-if="props.type === 'password'">
+      \     <a class="vmark"
+      \       role="button"
+      \       tabindex="0"
+      \       @blur="onBlur"
+      \       @focus="onFocus"
+      \       @click="onClickButton"
+      \       @keydown="onClickButton"
+      \       :ref="vars.buttons[1]"
+      \       >
+      \       <i class="bi bi-eye"></i>
+      \     </a>
+      \     </template>
+      \   </span>
+      \ </span>`),
       props: {
         formatter: function() { },
         rtformatter: function() { },
@@ -415,39 +445,13 @@ function registerComponent($SCRIPTPRM) {
           itype: props.type,
           avail: true,
           elem: ref(),
-          xmark: ref(),
-        };
-        const xmarkSet = function(visible) {
-          let value = vars.elem.value.value;
-          const active = function() {
-            $(vars.xmark.value)
-              .addClass("active");
-          };
-          const inactive = function() {
-            setTimeout(function() {
-            }, 100);
-            $(vars.xmark.value)
-              .removeClass("active");
-          };
-          if (vars.xmark.value) {
-            if (visible === undefined) {
-              if (vars.elem.value == document.activeElement && String(value ? value : "").length > 0) {
-                active();
-              } else {
-                inactive();
-              }
-            } else if (visible === true) {
-              active();
-            } else if (visible === false) {
-              inactive();
-            }
-          }
+          buttons: [ref(), ref()]
         };
 
         const emitChange = debounce(function() {
           emit(ONCHANGE, vars.elem.value.value);
-          xmarkSet();
         }, 100);
+
         /** 입력컴포넌트 키입력 이벤트 처리 */
         const onKeydown = async function(e) {
           if (vars.avail) {
@@ -464,11 +468,17 @@ function registerComponent($SCRIPTPRM) {
           };
         };
         async function onFocus(e) {
-          xmarkSet();
-          emit(ONFOCUS, e)
+          const parent = $(vars.elem.value).parent();
+          if (parent.prop("tagName") === "SPAN" && parent.hasClass("form-control")) {
+            parent.addClass("focused");
+          };
+          emit(ONFOCUS, e);
         };
         async function onBlur(e) {
-          xmarkSet(false);
+          const parent = $(vars.elem.value).parent();
+          if (parent.prop("tagName") === "SPAN" && parent.hasClass("form-control")) {
+            parent.removeClass("focused");
+          };
           const el = (o = $(vars.elem.value)[0]) ? o : {};
           if (props.formatter) { el.value = props.formatter(el.value); };
           emit(ONBLUR, e);
@@ -484,6 +494,7 @@ function registerComponent($SCRIPTPRM) {
             let o;
             /** 1. 선처리, 직접적인 하드웨어 키보드 (scan-code) 입력에 대한 이벤트처리 */
             const el = (o = $(vars.elem.value)[0]) ? o : {};
+            let stv = String(el.value ? el.value : "");
             let st = Number(el.selectionStart ? el.selectionStart : 0);
             let ed = Number(el.selectionEnd ? el.selectionEnd : 0);
             /** 허용키 : ctrl+c ctrl+v 방향키 bs delete tab enter space */
@@ -495,6 +506,7 @@ function registerComponent($SCRIPTPRM) {
               case KEYCODE_TABLE.PC.Delete:
               case KEYCODE_TABLE.PC.Backspace:
               case KEYCODE_TABLE.PC.Insert:
+              case KEYCODE_TABLE.PC.Tab:
               case KEYCODE_TABLE.PC.Backslash:
               case KEYCODE_TABLE.PC.ArrowLeft:
               case KEYCODE_TABLE.PC.ArrowRight:
@@ -503,60 +515,65 @@ function registerComponent($SCRIPTPRM) {
               case KEYCODE_TABLE.PC.PageUp:
               case KEYCODE_TABLE.PC.PageDown:
               case KEYCODE_TABLE.PC.MetaLeft: 
-              case KEYCODE_TABLE.PC.MetaRight:
-              case KEYCODE_TABLE.PC.Tab: {
+              case KEYCODE_TABLE.PC.MetaRight: {
                 vars.avail = true;
               } break;
               case undefined: { /** NO-OP */ } break;
               case KEYCODE_TABLE.PC.ArrowUp: {
-                let d = String(el.value).substring((st - 1) ? (st - 1) : 0, st);
-                if (/[0-9]/.test(d)) {
-                  d = String(Number(d) - 1);
-                  log.trace("CHECK:", d);
-                };
-                const minv = props.minvalue ? Number(props.minvalue) : undefined;
-                const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
-                v = Number(numberOnly(el.value ? el.value : 0)) - 1;
-                if (minv !== undefined && v < minv) { v = minv; };
-                if (maxv !== undefined && v > maxv) { v = maxv; };
-                if (props.rtformatter) {
-                  el.value = props.rtformatter(v);
-                } else {
-                  el.value = v;
-                };
-                el.selectionStart = st;
-                el.selectionEnd = ed;
-                cancelEvent(e);
-                vars.avail = true;
-                emit(UPDATE_MV, el.value);
-                emit(ONKEYDOWN, e);
-                emitChange();
-                return;
+                if (!st) { st = 0; };
+                LOOP: for (; st <= stv.length; st++) {
+                  let dgt = String(stv).substring((st - 1) ? (st - 1) : 0, st);
+                  if (!/[0-9]/.test(dgt)) { continue LOOP; }
+                  let add = Number("1" + String(stv.substring(st)).replace(/[0-9]/g, "0").replace(/[^0-9]/g, ""));
+                  const minv = props.minvalue ? Number(props.minvalue) : undefined;
+                  const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
+                  v = Number(numberOnly(stv ? stv : 0)) - add;
+                  if (minv !== undefined && v < minv) { v = minv; };
+                  if (maxv !== undefined && v > maxv) { v = maxv; };
+                  if (props.rtformatter) {
+                    el.value = props.rtformatter(v);
+                  } else {
+                    el.value = v;
+                  };
+                  if (String(stv).replace(/[^0-9]+/g, "").length > String(v).length) {
+                    st -= 1;
+                    ed -= 1;
+                  };
+                  el.selectionStart = st;
+                  el.selectionEnd = ed;
+                  cancelEvent(e);
+                  vars.avail = true;
+                  emit(UPDATE_MV, el.value);
+                  emit(ONKEYDOWN, e);
+                  emitChange();
+                  return;
+                }
               } break;
               case KEYCODE_TABLE.PC.ArrowDown: {
-                let d = String(el.value).substring((st - 1) ? (st - 1) : 0, st);
-                if (/[0-9]/.test(d)) {
-                  d = String(Number(d) + 1);
-                  log.trace("CHECK:", d);
-                };
-                const minv = props.minvalue ? Number(props.minvalue) : undefined;
-                const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
-                v = Number(numberOnly(el.value ? el.value : 0)) + 1;
-                if (minv !== undefined && v < minv) { v = minv; };
-                if (maxv !== undefined && v > maxv) { v = maxv; };
-                if (props.rtformatter) {
-                  el.value = props.rtformatter(v);
-                } else {
-                  el.value = v;
-                };
-                el.selectionStart = st;
-                el.selectionEnd = ed;
-                cancelEvent(e);
-                vars.avail = true;
-                emit(UPDATE_MV, el.value);
-                emit(ONKEYDOWN, e);
-                emitChange();
-                return;
+                if (!st) { st = 0; };
+                LOOP: for (; st <= stv.length; st++) {
+                  let dgt = String(stv).substring((st - 1) ? (st - 1) : 0, st);
+                  if (!/[0-9]/.test(dgt)) { continue LOOP; }
+                  let add = Number("1" + String(stv.substring(st)).replace(/[0-9]/g, "0").replace(/[^0-9]/g, ""));
+                  const minv = props.minvalue ? Number(props.minvalue) : undefined;
+                  const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
+                  v = Number(numberOnly(stv ? stv : 0)) + add;
+                  if (minv !== undefined && v < minv) { v = minv; };
+                  if (maxv !== undefined && v > maxv) { v = maxv; };
+                  if (props.rtformatter) {
+                    el.value = props.rtformatter(v);
+                  } else {
+                    el.value = v;
+                  };
+                  el.selectionStart = st;
+                  el.selectionEnd = ed;
+                  cancelEvent(e);
+                  vars.avail = true;
+                  emit(UPDATE_MV, el.value);
+                  emit(ONKEYDOWN, e);
+                  emitChange();
+                  return;
+                }
               } break;
               default: {
                 if (
@@ -574,16 +591,26 @@ function registerComponent($SCRIPTPRM) {
                 } else if ((
                   /** Ctrl+C, Ctrl+V, Ctrl-A, Ctrl+R, Ctrl+W 허용 */
                   ([KEYCODE_TABLE.PC.KeyA, KEYCODE_TABLE.PC.KeyC, KEYCODE_TABLE.PC.KeyV, KEYCODE_TABLE.PC.KeyR, KEYCODE_TABLE.PC.KeyW].indexOf(kcode) !== -1) &&
-                  e.ctrlKey)) {
+                  (e.ctrlKey || e.metaKey)) || (
+                  ([KEYCODE_TABLE.PC.KeyD].indexOf(kcode) !== -1) &&
+                  e.altKey)) {
                   /** NO-OP */
                 } else {
-                  cancelEvent(e)
+                  cancelEvent(e);
                 }
               } };
             };
             /** 2. 후처리, 키입력이 이루어진 후 DOM 에 반영된 결과물을 2차 가공하는 과정 */
             setTimeout(async function() {
+              let v = (el && el.value) ? el.value : "";
+              let append = false;
               let value = "";
+              /** MACOS - SAFARI 계열 브라우저에서 키입력이 반영되지 않는 현상 FIX */
+              if (String(stv).length === String(v).length && /^[a-zA-Z0-9]$/.test(String(e.key).trim())) {
+                v = String(v) + String(e.key);
+                v = (props && props.rtformatter) ? props.rtformatter(v) : v;
+                append = true;
+              };
               if ([KEYCODE_TABLE.PC.Backspace, KEYCODE_TABLE.PC.Delete].indexOf(kcode) !== -1) {
                 /** 삭제키인(backspace, delete) 경우 별도처리 */
                 let v1, v2, l1, l2;
@@ -619,6 +646,10 @@ function registerComponent($SCRIPTPRM) {
                   if (st < 0) { st = 0; };
                   if (ed < 0) { ed = 0; };
                   // // log.debug("CHECK:", l1, l2, st, ed, v2)
+                  if (append) {
+                    st++;
+                    ed++;
+                  };
                   el.value = v2;
                   await sleep(1);
                   el.selectionStart = st;
@@ -650,9 +681,13 @@ function registerComponent($SCRIPTPRM) {
                     st ++;
                     ed ++;
                   };
+                  if (append) {
+                    st++;
+                    ed++;
+                  };
                   el.selectionStart = st;
                   el.selectionEnd = ed;
-                  await sleep(5)
+                  await sleep(5);
                 };
                 el.value = value = v;
               };
@@ -664,13 +699,63 @@ function registerComponent($SCRIPTPRM) {
             }, 50);
           };
         };
+        async function onClickButton(e) {
+          log.trace("E:", e);
+          if (!e) { return; };
+          switch (e.type) {
+          case "click": {
+          } break;
+          case "keydown": {
+            if (!(e.keyCode === 13)) {
+              return;
+            };
+          } break;
+          };
+          for (let binx = 0; binx < vars.buttons.length; binx++) {
+            if (
+              (e && (e.target == vars.buttons[binx].value)) ||
+              (e && e.target && (e.target.parentElement == vars.buttons[binx].value))
+              ) {
+              switch(binx) {
+              case 0: {
+                /** 삭제버튼 */
+                // modelValue(self()).setValue(inputVal(""), () => update(C.UPDATE_FULL));
+                $(vars.elem.value).val('');
+                emit(UPDATE_MV, ``);
+                emitChange();
+                setTimeout(function() { $(vars.elem.value).trigger("focus"); }, 1);
+              } break;
+              case 1: {
+                /** 비밀번호 보기버튼 */
+                if (vars.elem && vars.elem.value) {
+                  const $el = $(vars.elem.value);
+                  const $mk = $(vars.buttons[1].value).find("i");
+                  log.debug("CHECK-TYPE:", $el.attr("type"), $mk);
+                  if ($el.attr("type") === "password") {
+                    $el.attr("type", "text");
+                    $mk.removeClass("bi-eye").addClass("bi-eye-slash");
+                  } else {
+                    $el.attr("type", "password");
+                    $mk.removeClass("bi-eye-slash").addClass("bi-eye");
+                  };
+                };
+              } break;
+              };
+            };
+          };
+        };
+        function className() {
+          return strm(`form-control ${props && props.class ? props.class : ""}`);
+        };
         const v = {
           props,
           attrs,
+          className,
           onBlur,
           onFocus,
           onKeydown,
           onKeyup,
+          onClickButton,
           vars,
         };
         return v;
@@ -680,37 +765,6 @@ function registerComponent($SCRIPTPRM) {
         const { vars } = self.setupState;
         const { uid, elem } = vars;
         registFormElement(self, elem.value);
-        const xmark =$(`
-          \ <span class="xmark" data-xmark-for="${uid}">
-          \   <span>
-          \   <span class="erase">
-          \     <i class="bi bi-backspace"></i>
-          \   </span>
-          \   <span class="eye">
-          \     <i class="bi bi-eye"></i>
-          \   </span>
-          \   </span>
-          \ </span>`)[0];
-        appbody.appendChild(xmark);
-        vars.xmark.value = xmark;
-        xmark.handleErase = function() {
-          // log.debug("CHECK ACTIVE:", $(xmark).hasClass("active"));
-          vars.elem.value.value = "";
-          $(xmark).removeClass("active");
-          self.emit(UPDATE_MV, "");
-          setTimeout(function() { vars.elem.value.focus(); }, 10);
-        };
-        xmark.handleEye = function() {
-          $(elem.value).attr("type", "text");
-          // log.debug("CHECK ACTIVE:", $(xmark).hasClass("active"));
-          // vars.elem.value.value = "";
-          // $(xmark).removeClass("active");
-          // self.emit(UPDATE_MV, "");
-          // setTimeout(function() { vars.elem.value.focus(); }, 10);
-        };
-        $(xmark).find("span.erase")[0].addEventListener("click", xmark.handleErase);
-        $(xmark).find("span.eye")[0].addEventListener("click", xmark.handleEye);
-        Popper.createPopper(elem.value, xmark, { placement: "right" });
       },
       async updated() {
         log.trace("UPDATE-INPUT");
