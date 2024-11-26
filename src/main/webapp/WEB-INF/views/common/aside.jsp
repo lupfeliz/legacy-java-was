@@ -8,4 +8,10 @@
  **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<aside>ASIDE</aside>
+<%@ taglib prefix="script" uri="/WEB-INF/libs/tag-script.tld" %>
+<c-aside
+  position="right"
+  :visible="pagevars.aside"
+  >
+  ASIDE
+</c-aside>

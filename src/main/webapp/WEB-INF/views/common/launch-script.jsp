@@ -47,10 +47,12 @@ setTimeout(function() {
   /** ] 리소스 구동적재 대기 스크립트 */
 }, 0);
 setTimeout(function() {
-const createApp = Vue.createApp;
-const getCurrentInstance = Vue.getCurrentInstance;
-const ref = Vue.ref;
+const { createApp, getCurrentInstance, ref, watch } = Vue;
 const vars = ref({ });
+const pagevars = ref({
+  aside: false,
+});
+
 /** 로그 */
 const log = { };
 /** [ 페이지 스크립트 실행 */
@@ -58,12 +60,14 @@ const log = { };
 initEntryScript(async function($SCRIPTPRM) {
   const {
   vars,
+  pagevars,
   BIND_VALUES,
   KEYCODE_REV_TABLE,
   KEYCODE_TABLE,
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
   api,
+  asideVisible,
   cancelEvent,
   clone,
   copyExclude,
@@ -149,19 +153,19 @@ initEntryScript(async function($SCRIPTPRM) {
       </c:if>
     </c:forEach>
     return putAll(BIND_VALUES({ props, context }), {
-      app, appbody, instance: getCurrentInstance(),
+      app, appbody, pagevars, instance: getCurrentInstance(),
+      asideVisible
     });
   },
   async mounted() { for (const proc of MOUNT_HOOK_PROCS) { proc(this); }; },
   async beforeUnmount() { for (const proc of UNMOUNT_HOOK_PROCS) { proc(this); }; },
-  async updated() {
-  }
+  async updated() { }
   });
 
   putAll($SCRIPTPRM, { app, appbody });
   registerComponent($SCRIPTPRM);
   app.mount(appbody);
-}, { vars, log, cbase: "${cbase}" });
+}, { vars, pagevars, log, cbase: "${cbase}" });
 /** ] 페이지 스크립트 실행 */
 }, 0);
 </script:ex>

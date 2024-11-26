@@ -6,7 +6,7 @@
  * @Site        : https://devlog.ntiple.com
  **/
 
-function initEntryScript(callback, { vars, log, cbase }) {
+function initEntryScript(callback, { vars, pagevars, log, cbase }) {
   const lodash = _;
   const U = undefined;
   const N = null;
@@ -854,7 +854,7 @@ function initEntryScript(callback, { vars, log, cbase }) {
   function sort(arr, ...keys) {
     if (!arr) { return arr; };
     if (!keys) { return arr; };
-    arr.sort((a, b) => {
+    arr.sort(function(a, b) {
       for (const itm of keys) {
         if (typeof itm === "string") {
           const key = itm;
@@ -2177,6 +2177,10 @@ function initEntryScript(callback, { vars, log, cbase }) {
     if (o == 0 && n > 0) { doProgress(); };
   });
 
+  async function asideVisible(visible) {
+    pagevars.value.aside = visible;
+  };
+
   const MOUNT_HOOK_PROCS = [];
   const UNMOUNT_HOOK_PROCS = [];
 
@@ -2208,12 +2212,14 @@ function initEntryScript(callback, { vars, log, cbase }) {
   /** 공통 사용을 위해 entry.js 와 launch-script.jsp 의 항목을 맞춰 주어야 한다. */
   if (callback) { callback({
   vars: vars.value,
+  pagevars: pagevars.value,
   BIND_VALUES,
   KEYCODE_REV_TABLE,
   KEYCODE_TABLE,
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
   api,
+  asideVisible,
   cancelEvent,
   clone,
   copyExclude,

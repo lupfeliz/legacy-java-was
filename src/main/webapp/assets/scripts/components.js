@@ -7,7 +7,7 @@
  **/
 
 function registerComponent($SCRIPTPRM) {
-  const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance } = Vue;
+  const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance, watch, onMounted, onBeforeUnmount, onUpdated } = Vue;
   const cinst = getCurrentInstance;
   const UPDATE_MV = "update:model-value";
   /** 이벤트가 두번 호출되는것을 방지하기 위해 접두사 'on' 붙임 */
@@ -28,6 +28,7 @@ function registerComponent($SCRIPTPRM) {
   MOUNT_HOOK_PROCS,
   UNMOUNT_HOOK_PROCS,
   api,
+  asideVisible,
   cancelEvent,
   clone,
   copyExclude,
@@ -332,19 +333,15 @@ function registerComponent($SCRIPTPRM) {
         };
         putAll(vars, { validateForm });
         expose({ registFormElement, validateForm });
-        const v = {
+        onMounted(async function() {
+          vars.elem.value.validateForm = vars.validateForm;
+          log.debug("FORM-MOUNTED!!!", this, vars.elem.value, vars.formId);
+        });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
+        return {
           attrs,
           vars,
-        };
-        return v;
-      },
-      async mounted() {
-        const self = cinst();
-        const { vars } = self.setupState;
-        vars.elem.value.validateForm = vars.validateForm;
-        log.debug("FORM-MOUNTED!!!", this, vars.elem.value, vars.formId);
-        vars.elem.value.TEST = function() {
-          dialog.alert("OK");
         };
       },
     });
@@ -525,7 +522,7 @@ function registerComponent($SCRIPTPRM) {
                 if (!st) { st = 0; };
                 LOOP: for (; st <= stv.length; st++) {
                   let dgt = String(stv).substring((st - 1) ? (st - 1) : 0, st);
-                  if (!/[0-9]/.test(dgt)) { continue LOOP; }
+                  if (!/[0-9]/.test(dgt)) { continue LOOP; };
                   let add = Number("1" + String(stv.substring(st)).replace(/[0-9]/g, "0").replace(/[^0-9]/g, ""));
                   const minv = props.minvalue ? Number(props.minvalue) : undefined;
                   const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
@@ -555,7 +552,7 @@ function registerComponent($SCRIPTPRM) {
                 if (!st) { st = 0; };
                 LOOP: for (; st <= stv.length; st++) {
                   let dgt = String(stv).substring((st - 1) ? (st - 1) : 0, st);
-                  if (!/[0-9]/.test(dgt)) { continue LOOP; }
+                  if (!/[0-9]/.test(dgt)) { continue LOOP; };
                   let add = Number("1" + String(stv.substring(st)).replace(/[0-9]/g, "0").replace(/[^0-9]/g, ""));
                   const minv = props.minvalue ? Number(props.minvalue) : undefined;
                   const maxv = props.maxvalue ? Number(props.maxvalue) : undefined;
@@ -721,7 +718,6 @@ function registerComponent($SCRIPTPRM) {
               switch(binx) {
               case 0: {
                 /** 삭제버튼 */
-                // modelValue(self()).setValue(inputVal(""), () => update(C.UPDATE_FULL));
                 $(vars.elem.value).val("");
                 emit(UPDATE_MV, ``);
                 emitChange();
@@ -749,7 +745,11 @@ function registerComponent($SCRIPTPRM) {
         function className() {
           return strm(`form-control ${props && props.class ? props.class : ""}`);
         };
-        const v = {
+        const self = cinst();
+        onMounted(async function() { registFormElement(self, vars.elem.value); });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
+        return {
           props,
           attrs,
           className,
@@ -760,16 +760,6 @@ function registerComponent($SCRIPTPRM) {
           onClickButton,
           vars,
         };
-        return v;
-      },
-      async mounted() {
-        const self = cinst();
-        const { vars } = self.setupState;
-        const { uid, elem } = vars;
-        registFormElement(self, elem.value);
-      },
-      async updated() {
-        log.trace("UPDATE-INPUT");
       }
     });
     app.component(name, CInput);
@@ -882,19 +872,17 @@ function registerComponent($SCRIPTPRM) {
           emit(UPDATE_MV, value);
           emitChange();
         };
-        const v = {
+        const self = cinst();
+        onMounted(async function() { registFormElement(self, vars.elem.value); });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
+        return {
           props,
           attrs,
           vars,
           onClick,
         };
-        return v;
       },
-      async mounted() {
-        const self = cinst();
-        const { vars } = self.setupState;
-        registFormElement(self, vars.elem.value);
-      }
     });
     app.component(name, CCheck);
   };
@@ -1025,12 +1013,12 @@ function registerComponent($SCRIPTPRM) {
           switch (type) {
           case "button": {
             if (props.variant) {
-              ret = `${ret} btn-${props.variant}`;
+              ret = `${ret}\ btn-${props.variant}`;
             };
           } break;
           case "item": {
             if (inx === vars.index) {
-              ret = `${ret} active`;
+              ret = `${ret}\ active`;
             };
           } break;
           };
@@ -1038,6 +1026,11 @@ function registerComponent($SCRIPTPRM) {
         };
         const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
         setOptions(props.options);
+
+        const self = cinst();
+        onMounted(async function() { registFormElement(self, vars.elem.value); });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
         const v = {
           props,
           attrs,
@@ -1049,15 +1042,6 @@ function registerComponent($SCRIPTPRM) {
           getClass,
         };
         return v;
-      },
-      async mounted() {
-        const self = cinst();
-        const { vars } = self.setupState;
-        registFormElement(self, vars.elem.value);
-      },
-      async updated() {
-        const { vars } = cinst().setupState;
-        log.trace("UPDATE-SELECT");
       },
     });
     app.component(name, CSelect);
@@ -1114,16 +1098,22 @@ function registerComponent($SCRIPTPRM) {
         async function onClick(e) {
           emit(ONCLICK, e);
         };
-        const onFocus = debounce(async (e) => {
-          vars.widget.value = $.datePicker.api.show({ element: vars.elem.value })
+        const onFocus = debounce(async function(e) {
+          vars.widget.value = $.datePicker.api.show({ element: vars.elem.value });
           emit(ONFOCUS, e);
         }, 100);
         async function onBlur(e) {
-          if (vars.widget.value) {
-            $.datePicker.api.hide(vars.widget.value)
-          }
+          if (vars.widget.value) { $.datePicker.api.hide(vars.widget.value); };
           emit(ONBLUR, e);
         };
+        const self = cinst();
+        onMounted(async function() {
+          vars.elem = vars.elem.value._.setupState.vars.elem;
+          $(vars.elem.value).attr("data-select", "datepicker");
+          log.debug("ELEM:", vars.elem.value);
+        });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
         return {
           attrs,
           vars,
@@ -1132,15 +1122,6 @@ function registerComponent($SCRIPTPRM) {
           onFocus,
           onBlur
         };
-      },
-      async mounted() {
-        const self = cinst();
-        const { vars } = self.setupState;
-        vars.elem = vars.elem.value._.setupState.vars.elem;
-        $(vars.elem.value).attr("data-select", "datepicker");
-        log.debug("ELEM:", vars.elem.value);
-      },
-      async updated() {
       },
     });
     app.component(name, CDatepicker);
@@ -1161,7 +1142,7 @@ function registerComponent($SCRIPTPRM) {
       \         \:data-bs-target="'#' + vars.uid + '_' + slotid"
       \         \:aria-controls="'#' + vars.uid + '_' + slotid"
       \         v-html="vars.titles[slotid]"
-      \         @click="(e) => onClick(e, slotid)"
+      \         @click="function(e) { onClick(e, slotid) }"
       \         >
       \       </button>
       \     </h3>
@@ -1212,6 +1193,12 @@ function registerComponent($SCRIPTPRM) {
           };
           emit(ONCLICK, e);
         };
+        const self = cinst();
+        onMounted(async function() {
+          self.update();
+        });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
         return {
           props,
           attrs,
@@ -1221,14 +1208,88 @@ function registerComponent($SCRIPTPRM) {
           onClick,
         };
       },
-      async mounted() {
-        const self = cinst();
-        const { vars, slots } = self.setupState;
-        self.update();
-      },
-      async updated() {
-      },
     });
     app.component(name, CAccordion);
+  };
+  {
+    const name = "c-pagination";
+    const CPagination = defineComponent({
+      template: (`
+      \ <div>
+      \ </div>`),
+      props: {
+        modelValue: undefined,
+      },
+      setup(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const uid = genId();
+        const vars = {
+        };
+        return {
+          props,
+          attrs,
+          vars,
+          slots,
+        };
+      },
+    });
+    app.component(name, CPagination);
+  };
+  {
+    const name = "c-aside";
+    const CAside = defineComponent({
+      template: (`
+      \ <aside
+      \   \:class="className()"
+      \   tabindex="-1"
+      \   >
+      \   <slot />
+      \ </aside>`),
+      props: {
+        modelValue: undefined,
+        position: "",
+        visible: false,
+      },
+      setup(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const uid = genId();
+        const vars = {
+          clsAside: "",
+        };
+        function className() {
+          let position = "";
+          switch(props.position) {
+          case "right": {
+            position = "offcanvas-end";
+          } break;
+          default:
+          case "left": {
+            position = "offcanvas-start";
+          } };
+          return strm(`offcanvas ${position}\ offcanvas-light ${vars.clsAside}`);
+        };
+        watch(function() { return props.visible; }, function(nv, ov) {
+          if (nv !== ov) {
+            if (nv) {
+              vars.clsAside = "show";
+            } else {
+              vars.clsAside = "show hiding";
+            };
+          };
+        });
+        const self = cinst();
+        onMounted(async function() { });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
+        return {
+          props,
+          attrs,
+          vars,
+          slots,
+          className,
+        };
+      },
+    });
+    app.component(name, CAside);
   };
 };

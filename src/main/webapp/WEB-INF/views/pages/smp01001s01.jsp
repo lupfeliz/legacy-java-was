@@ -152,6 +152,9 @@
   <c-button class="btn-primary mx-1" @onclick="vars.testEncrypt">
     CRYPTO
   </c-button>
+  <c-button class="btn-primary mx-1" @onclick="asideVisible(!pagevars.aside)">
+    ASIDE
+  </c-button>
   <div>
   </div>
 </page:ex>
