@@ -50,6 +50,8 @@ html#project {
         }
       }
       & > input + span {
+        width: 0;
+        overflow: hidden;
         opacity: 0;
         display: flex;
         margin-right: -0.2rem;
@@ -62,7 +64,10 @@ html#project {
           }
         }
       }
+      &:hover > input + span,
       &.focused > input + span {
+        display: contents;
+        width: auto;
         opacity: 1;
       }
     }

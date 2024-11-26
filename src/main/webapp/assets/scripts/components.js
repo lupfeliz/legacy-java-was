@@ -10,6 +10,7 @@ function registerComponent($SCRIPTPRM) {
   const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance } = Vue;
   const cinst = getCurrentInstance;
   const UPDATE_MV = "update:model-value";
+  const ONMOUSEDOWN = "onmousedown";
   const ONCLICK = "onclick";
   const ONKEYDOWN = "onkeydown";
   const ONKEYUP = "onkeyup";
@@ -1060,6 +1061,7 @@ function registerComponent($SCRIPTPRM) {
       \   class="form-control"
       \   type="text"
       \   :ref="vars.elem"
+      \   @mousedown="onMouseDown"
       \   @click="onClick"
       \   @focus="onFocus"
       \   @blur="onBlur"
@@ -1096,6 +1098,9 @@ function registerComponent($SCRIPTPRM) {
             return date;
           }
         });
+        async function onMouseDown(e) {
+          emit(ONMOUSEDOWN, e);
+        };
         async function onClick(e) {
           emit(ONCLICK, e);
         };
@@ -1112,6 +1117,7 @@ function registerComponent($SCRIPTPRM) {
         return {
           attrs,
           vars,
+          onMouseDown,
           onClick,
           onFocus,
           onBlur
