@@ -91,6 +91,9 @@ html#project {
           }
         }
       }
+      .form-control.focused {
+        z-index: 1;
+      }
     }
 
     /** 체크박스 */

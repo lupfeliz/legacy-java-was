@@ -10,14 +10,15 @@ function registerComponent($SCRIPTPRM) {
   const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance } = Vue;
   const cinst = getCurrentInstance;
   const UPDATE_MV = "update:model-value";
-  const ONMOUSEDOWN = "mousedown";
-  const ONCLICK = "click";
-  const ONKEYDOWN = "keydown";
-  const ONKEYUP = "keyup";
-  const ONFOCUS = "focus";
-  const ONBLUR = "blur";
-  const ONENTER = "enter";
-  const ONCHANGE = "change";
+  /** 이벤트가 두번 호출되는것을 방지하기 위해 접두사 'on' 붙임 */
+  const ONMOUSEDOWN = "onmousedown";
+  const ONCLICK = "onclick";
+  const ONKEYDOWN = "onkeydown";
+  const ONKEYUP = "onkeyup";
+  const ONFOCUS = "onfocus";
+  const ONBLUR = "onblur";
+  const ONENTER = "onenter";
+  const ONCHANGE = "onchange";
   const DATA_VALID_INX = "data-valid-inx";
   const body = document.body;
   const {
@@ -1166,7 +1167,7 @@ function registerComponent($SCRIPTPRM) {
       \     </h3>
       \     <div
       \       \:id="vars.uid + '_' + slotid"
-      \       \:class="['accordion-collapse', 'collapse', vars.ivalue === slotid ? 'show': '']"
+      \       \:class="['accordion-collapse', 'collapse', vars.ivalue === slotid ? 'show' : '']"
       \       \:data-bs-parent="'#' + vars.uid"
       \       >
       \       <div class="accordion-body">

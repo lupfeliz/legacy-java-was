@@ -5,7 +5,7 @@
   <div>
     <c-accordion
       v-model="vars.accordionId"
-      @change="vars.accordionChange"
+      @onchange="vars.accordionChange"
       >
       <template v-for="(itm, inx) in vars.accordions" #[inx]="{ title }">
         {{ title(itm.title) }}
