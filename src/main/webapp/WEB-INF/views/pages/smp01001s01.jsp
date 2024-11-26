@@ -108,7 +108,7 @@
             { name: '선택해주세요', value: '' },
             'gmail.com',
             'hotmail.com',
-            'honmail.com',
+            'hanmail.com',
             'naver.com',
             { name: '직접입력', value: '_' }
           ]"

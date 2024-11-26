@@ -992,14 +992,23 @@ function registerComponent($SCRIPTPRM) {
           case KEYCODE_TABLE.PC.ArrowUp: {
             if (vars.index > 0) { vars.index -= 1; };
             if (isEvent(e)) { cancelEvent(e); };
-            // update(C.UPDATE_SELF)
           } break;
           case KEYCODE_TABLE.PC.ArrowDown: {
             if (vars.index < vars.options.length - 1) { vars.index += 1; };
             if (isEvent(e)) { cancelEvent(e); };
-            // update(C.UPDATE_SELF)
           } break ;
-          default: };
+          default: {
+            log.debug("CHECK-KEY:", e.key, vars.index, vars.options.length);
+            let linx = vars.index > 0 ? vars.index : 0;
+            LOOP: for (let inx = 0; inx < vars.options.length; inx++) {
+              linx = ((linx + 1) % vars.options.length);
+              const item = vars.options[linx];
+              if (String(item.name).toLowerCase().startsWith(String(e.key).toLowerCase())) {
+                vars.index = linx;
+                break LOOP;
+              };
+            };
+          } };
           const item = vars.options[vars.index];
           if (item) {
             item.selected = true;
@@ -1104,10 +1113,10 @@ function registerComponent($SCRIPTPRM) {
         async function onClick(e) {
           emit(ONCLICK, e);
         };
-        async function onFocus(e) {
+        const onFocus = debounce(async (e) => {
           vars.widget.value = $.datePicker.api.show({ element: vars.elem.value })
           emit(ONFOCUS, e);
-        };
+        }, 100);
         async function onBlur(e) {
           if (vars.widget.value) {
             $.datePicker.api.hide(vars.widget.value)
