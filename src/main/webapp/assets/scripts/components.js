@@ -10,14 +10,14 @@ function registerComponent($SCRIPTPRM) {
   const { ref, useAttrs, defineComponent, defineProps, getCurrentInstance } = Vue;
   const cinst = getCurrentInstance;
   const UPDATE_MV = "update:model-value";
-  const ONMOUSEDOWN = "onmousedown";
-  const ONCLICK = "onclick";
-  const ONKEYDOWN = "onkeydown";
-  const ONKEYUP = "onkeyup";
-  const ONFOCUS = "onfocus";
-  const ONBLUR = "onblur";
-  const ONENTER = "onenter";
-  const ONCHANGE = "onchange";
+  const ONMOUSEDOWN = "mousedown";
+  const ONCLICK = "click";
+  const ONKEYDOWN = "keydown";
+  const ONKEYUP = "keyup";
+  const ONFOCUS = "focus";
+  const ONBLUR = "blur";
+  const ONENTER = "enter";
+  const ONCHANGE = "change";
   const DATA_VALID_INX = "data-valid-inx";
   const body = document.body;
   const {
@@ -104,8 +104,8 @@ function registerComponent($SCRIPTPRM) {
       template: (`
       \ <form
       \   v-bind="attrs"
-      \   :ref="vars.elem"
-      \   :data-form-ref="vars.formId"
+      \   \:ref="vars.elem"
+      \   \:data-form-ref="vars.formId"
       \   >
       \   <slot />
       \ </form>`),
@@ -387,10 +387,10 @@ function registerComponent($SCRIPTPRM) {
       \   <input
       \     v-bind="attrs"
       \     class=""
-      \     :ref="vars.elem"
-      \     :name="props.name"
-      \     :type="props.type"
-      \     :data-element-uid="vars.uid"
+      \     \:ref="vars.elem"
+      \     \:name="props.name"
+      \     \:type="props.type"
+      \     \:data-element-uid="vars.uid"
       \     @keydown="onKeydown"
       \     @keyup="onKeyup"
       \     @focus="onFocus"
@@ -404,7 +404,7 @@ function registerComponent($SCRIPTPRM) {
       \       @focus="onFocus"
       \       @click="onClickButton"
       \       @keydown="onClickButton"
-      \       :ref="vars.buttons[0]"
+      \       \:ref="vars.buttons[0]"
       \       >
       \       <i class="bi bi-backspace"></i>
       \     </a>
@@ -416,7 +416,7 @@ function registerComponent($SCRIPTPRM) {
       \       @focus="onFocus"
       \       @click="onClickButton"
       \       @keydown="onClickButton"
-      \       :ref="vars.buttons[1]"
+      \       \:ref="vars.buttons[1]"
       \       >
       \       <i class="bi bi-eye"></i>
       \     </a>
@@ -780,14 +780,14 @@ function registerComponent($SCRIPTPRM) {
       \ <input
       \   v-bind="attrs"
       \   class="form-check-input"
-      \   :type="vars.type"
-      \   :ref="vars.elem"
-      \   :name="vars.name"
-      \   :value="vars.value"
-      \   :checked="vars.checked"
-      \   :data-nvalue="props.nvalue"
-      \   :data-group="vars.group"
-      \   :data-index="vars.index"
+      \   \:type="vars.type"
+      \   \:ref="vars.elem"
+      \   \:name="vars.name"
+      \   \:value="vars.value"
+      \   \:checked="vars.checked"
+      \   \:data-nvalue="props.nvalue"
+      \   \:data-group="vars.group"
+      \   \:data-index="vars.index"
       \   @click="onClick"
       \   />`),
       props: {
@@ -907,8 +907,8 @@ function registerComponent($SCRIPTPRM) {
       \   >
       \   <button
       \     type="button"
-      \     :ref="vars.elem"
-      \     :class="getClass('btn dropdown-toggle ', 'button')"
+      \     \:ref="vars.elem"
+      \     \:class="getClass('btn dropdown-toggle ', 'button')"
       \     data-bs-toggle="dropdown"
       \     aria-expanded="false"
       \     role="combobox"
@@ -916,17 +916,17 @@ function registerComponent($SCRIPTPRM) {
       \     {{ vars.text }}
       \   </button>
       \   <input type="hidden"
-      \     :name="props.name"
-      \     :value="props.modelValue"
+      \     \:name="props.name"
+      \     \:value="props.modelValue"
       \     />
       \   <ul class="dropdown-menu">
       \     <li
       \       v-for="(itm, inx) in vars.options"
-      \       :key="inx"
+      \       \:key="inx"
       \       >
       \       <a
       \         data=""
-      \         :class="getClass('dropdown-item cursor-pointer ', 'item', inx)"
+      \         \:class="getClass('dropdown-item cursor-pointer ', 'item', inx)"
       \         @click="onSelect(inx)"
       \         >
       \         {{ itm.name }}
@@ -1069,7 +1069,7 @@ function registerComponent($SCRIPTPRM) {
       \   v-bind="attrs"
       \   class="form-control"
       \   type="text"
-      \   :ref="vars.elem"
+      \   \:ref="vars.elem"
       \   @mousedown="onMouseDown"
       \   @click="onClick"
       \   @focus="onFocus"
@@ -1148,67 +1148,81 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-accordion";
     const CAccordion = defineComponent({
       template: (`
-      \ <div class="accordion" :id="vars.uid">
-      \   <template v-for="(itm, slkey) in slots">
+      \ <div class="accordion" \:id="vars.uid">
+      \   <template v-for="(itm, slotid) in slots">
       \   <div class="accordion-item">
       \     <h3 class="accordion-header">
       \       <button
-      \         class="accordion-button"
       \         type="button"
       \         data-bs-toggle="collapse"
-      \         aria-expanded="false"
-      \         :data-bs-target="'#' + vars.uid + '_' + slkey"
-      \         :aria-controls="'#' + vars.uid + '_' + slkey"
-      \         v-html="vars.titles[slkey]"
+      \         \:class="['accordion-button', vars.ivalue === slotid ? '' : 'collapsed']"
+      \         \:aria-expanded="vars.ivalue === slotid ? true : false"
+      \         \:data-bs-target="'#' + vars.uid + '_' + slotid"
+      \         \:aria-controls="'#' + vars.uid + '_' + slotid"
+      \         v-html="vars.titles[slotid]"
+      \         @click="(e) => onClick(e, slotid)"
       \         >
       \       </button>
       \     </h3>
       \     <div
-      \       \:id="vars.uid + '_' + slkey"
-      \       class="accordion-collapse collapse"
-      \       :data-bs-parent="'#' + vars.uid"
+      \       \:id="vars.uid + '_' + slotid"
+      \       \:class="['accordion-collapse', 'collapse', vars.ivalue === slotid ? 'show': '']"
+      \       \:data-bs-parent="'#' + vars.uid"
       \       >
       \       <div class="accordion-body">
       \         <slot
-      \           \:name="slkey"
-      \           v-bind="slotItem(slkey)"
+      \           \:name="slotid"
+      \           v-bind="slotItem(slotid)"
       \           />
       \       </div>
       \     </div>
       \   </div>
       \   </template>
       \ </div>`),
+      props: {
+        modelValue: undefined,
+      },
       setup(props, ctx) {
+        // log.debug("CHECK:", props.modelValue);
         const { attrs, emit, expose, slots } = ctx;
         const uid = genId();
         const vars = {
           uid,
           titles: {
-          }
+          },
+          /** 최초값만 지정 */
+          ivalue: props.modelValue
         };
         slotItem = function(key) {
           return {
             title: function(title) {
               vars.titles[key] = title;
-              log.debug("CHECK:", key, title);
               return "";
             }
           };
         };
+        async function onClick(e, slotid) {
+          LOOP: for (const k in slots) {
+            if (k === slotid) {
+              emit(UPDATE_MV, k);
+              emit(ONCHANGE, k);
+              break LOOP;
+            };
+          };
+          emit(ONCLICK, e);
+        };
         return {
+          props,
           attrs,
           vars,
           slots,
           slotItem,
+          onClick,
         };
       },
       async mounted() {
         const self = cinst();
         const { vars, slots } = self.setupState;
-        log.debug("SLOT:", self);
-        for (let k in slots) {
-          log.debug("CHECK:", k, slots[k]);
-        }
         self.update();
       },
       async updated() {
