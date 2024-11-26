@@ -380,7 +380,7 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-input";
     const CInput = defineComponent({
       template: (`
-      \ <span name=""
+      \ <span i=""
       \   :class="className()"
       \   >
       \   <input
@@ -720,7 +720,7 @@ function registerComponent($SCRIPTPRM) {
               case 0: {
                 /** 삭제버튼 */
                 // modelValue(self()).setValue(inputVal(""), () => update(C.UPDATE_FULL));
-                $(vars.elem.value).val('');
+                $(vars.elem.value).val("");
                 emit(UPDATE_MV, ``);
                 emitChange();
                 setTimeout(function() { $(vars.elem.value).trigger("focus"); }, 1);
@@ -1055,13 +1055,21 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-datepicker";
     const CDatepicker = defineComponent({
       template: (`
-      \ <input
-      \   type="text"
+      \ <c-input
+      \   v-bind="attrs"
       \   class="form-control"
-      \   name="date"
-      \   data-select="datepicker"
+      \   type="text"
+      \   :ref="vars.elem"
+      \   @click="onClick"
+      \   @focus="onFocus"
+      \   @blur="onBlur"
       \   />`),
-      setup: function(props, ctx) {
+      setup(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const vars = {
+          elem: ref(),
+          widget: ref(),
+        };
         $.extend(true, $.datePicker.defaults, {
           strings: {
             months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
@@ -1088,8 +1096,33 @@ function registerComponent($SCRIPTPRM) {
             return date;
           }
         });
+        async function onClick(e) {
+          emit(ONCLICK, e);
+        };
+        async function onFocus(e) {
+          vars.widget.value = $.datePicker.api.show({ element: vars.elem.value })
+          emit(ONFOCUS, e);
+        };
+        async function onBlur(e) {
+          if (vars.widget.value) {
+            $.datePicker.api.hide(vars.widget.value)
+          }
+          emit(ONBLUR, e);
+        };
+        return {
+          attrs,
+          vars,
+          onClick,
+          onFocus,
+          onBlur
+        };
       },
       async mounted() {
+        const self = cinst();
+        const { vars } = self.setupState;
+        vars.elem = vars.elem.value._.setupState.vars.elem;
+        $(vars.elem.value).attr("data-select", "datepicker");
+        log.debug("ELEM:", vars.elem.value);
       },
       async updated() {
       },
