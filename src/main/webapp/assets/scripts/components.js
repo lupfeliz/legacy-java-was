@@ -1215,8 +1215,84 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-pagination";
     const CPagination = defineComponent({
       template: (`
-      \ <div>
-      \ </div>`),
+      \ <nav  aria-label="Page navigation">
+      \   <ul
+      \     class="pagination"
+      \     >
+      \     <template
+      \       v-if="false"
+      \       >
+      \       <li
+      \         class="page-item"
+      \         >
+      \         <a
+      \           class="page-link"
+      \           href="#"
+      \           >
+      \           <i class="bi bi-chevron-double-left"></i>
+      \         </a>
+      \       </li>
+      \     </template>
+      \     <template
+      \       v-if="false"
+      \       >
+      \       <li
+      \         class="page-item"
+      \         >
+      \         <a
+      \           class="page-link"
+      \           href="#"
+      \           >
+      \           <i class="bi bi-chevron-left"></i>
+      \         </a>
+      \       </li>
+      \     </template>
+      \
+      \     <template
+      \       v-for="(itm, inx) in vars.pages"
+      \       >
+      \       <li
+      \         class="page-item"
+      \         >
+      \         <a
+      \           class="page-link"
+      \           href="#"
+      \           >
+      \           {{ itm }}
+      \         </a>
+      \       </li>
+      \     </template>
+      \
+      \     <template
+      \       v-if="false"
+      \       >
+      \       <li
+      \         class="page-item"
+      \         >
+      \         <a
+      \           class="page-link"
+      \           href="#"
+      \           >
+      \           <i class="bi bi-chevron-right"></i>
+      \         </a>
+      \       </li>
+      \     </template>
+      \     <template
+      \       v-if="false"
+      \       >
+      \       <li
+      \         class="page-item"
+      \         >
+      \         <a
+      \           class="page-link"
+      \           href="#"
+      \           >
+      \           <i class="bi bi-chevron-double-right"></i>
+      \         </a>
+      \       </li>
+      \     </template>
+      \   </ul>
+      \ </nav>`),
       props: {
         modelValue: undefined,
       },
@@ -1224,6 +1300,13 @@ function registerComponent($SCRIPTPRM) {
         const { attrs, emit, expose, slots } = ctx;
         const uid = genId();
         const vars = {
+          pages: [
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+          ]
         };
         return {
           props,

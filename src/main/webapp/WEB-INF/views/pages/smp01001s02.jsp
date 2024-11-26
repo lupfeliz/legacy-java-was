@@ -1,23 +1,25 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <page:ex>
-  샘플페이지 02
-  <div>
-    <c-input
-      v-model="vars.popdata.message"
-      :value="vars.popdata.message"
-      @onkeydown="vars.onKeydown"
-      />
-  </div>
-  <form name="form" action="/smp/smp01001s01">
-    <input type="hidden" name="value1" value="123" />
-    <input type="hidden" name="value2" value="456" />
-  </form>
-  <c-button class="btn-primary" @onclick="vars.clicked()">
-    OK
-  </c-button>
-  <div>
-  </div>
+  <h1>샘플페이지 02</h1>
+  <section>
+    <article>
+      <c-input
+        v-model="vars.popdata.message"
+        :value="vars.popdata.message"
+        @onkeydown="vars.onKeydown"
+        />
+    </article>
+    <article>
+      <form name="form" action="/smp/smp01001s01">
+        <input type="hidden" name="value1" value="123" />
+        <input type="hidden" name="value2" value="456" />
+      </form>
+      <c-button class="btn-primary" @onclick="vars.clicked()">
+        OK
+      </c-button>
+    </article>
+  </section>
 </page:ex>
 <script:ex name="smp01001s02">
 log.debug("MAIN-PAGE-LOADED!");

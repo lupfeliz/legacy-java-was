@@ -1,22 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <page:ex>
-  샘플팝업 01
-  <div>
-    <c-input
-      :value="vars.popdata.price"
-      :formatter="vars.numeric"
-      @onkeydown="vars.onKeydown"
-      />
-  </div>
-  <c-button class="btn-primary mx-1" @onclick="vars.onClick(1)">
-    OK
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="vars.onClick(2)">
-    닫기
-  </c-button>
-  <div>
-  </div>
+  <h1>샘플팝업 01</h1>
+  <section>
+    <article>
+      <c-input
+        :value="vars.popdata.price"
+        :formatter="vars.numeric"
+        @onkeydown="vars.onKeydown"
+        />
+    </article>
+    <article>
+      <c-button class="btn-primary mx-1" @onclick="vars.onClick(1)">
+        OK
+      </c-button>
+      <c-button class="btn-primary mx-1" @onclick="vars.onClick(2)">
+        닫기
+      </c-button>
+    </article>
+  </section>
 </page:ex>
 <script:ex name="smp01001p01">
 log.debug("MAIN-PAGE-LOADED!");

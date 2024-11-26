@@ -1,162 +1,158 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/views/common/init.jsp" %>
 <page:ex>
-  <h4>샘플페이지 01</h4>
-  <template v-if="vars.test"> ABCD </template>
+  <h1>샘플페이지 01</h1>
   <c-form
     ref="form"
     name="form"
     action="${cbase}/smp/smp01001s02"
     :validctx="vars.validctx"
     >
-    <div>
-      <i class="fa-solid fa-ghost"></i>
-      <i class="bi bi-backspace"></i>
-      <i class="bi bi-eye"></i>
-      <i class="bi bi-eye-slash"></i>
-    </div>
-    <input type="hidden" name="value1" value="AAA" />
-    <input type="hidden" name="value2" value="BBB" />
-    <div>
-      <c-input
-        v-model="vars.price"
-        :value="vars.price"
-        @onkeydown="vars.onKeydown"
-        @onenter="vars.onEnter"
-        @onblur="vars.onBlur"
-        name="price"
-        label="금액"
-        placeholder="금액을 입력해 주세요"
-        type="numeric"
-        required
-        maxlength="20"
-        minlength="2"
-        minvalue="1000"
-        maxvalue="999999999999"
-        form="form"
-        :formatter="vars.numeric"
-        :rtformatter="vars.numeric"
-        vrules="auto|check2"
-        >
-      </c-input>
-    </div>
-    <div>
-      <c-check
-        v-model="vars.check"
-        :checked="vars.check == 'Y'"
-        form="form"
-        name="check"
-        label="체크박스"
-        value="Y"
-        required
-        vrules="auto"
-        >
-      </c-check>
-    </div>
-    <div>
-      <c-check
-        v-model="vars.check"
-        :checked="vars.check != 'Y'"
-        name="check"
-        label="체크박스"
-        value="N"
-        >
-      </c-check>
-    </div>
-    <div>
-      <c-check
-        v-for="(itm, inx) in vars.checklist"
-        v-model="vars.checklist"
-        form="form"
-        :name="'checklist.' + inx"
-        :checked="vars.checklist[inx] == 'Y'"
-        label="체크리스트"
-        value="Y"
-        nvalue="N"
-        required
-        vrules="auto|atleast:2|atmost:3"
-        >
-      </c-check>
-    </div>
-    <div>
-      <div class="input-group">
+    <section>
+      <template v-if="vars.test"> ABCD </template>
+      <article>
+        <i class="fa-solid fa-ghost"></i>
+        <i class="bi bi-backspace"></i>
+        <i class="bi bi-eye"></i>
+        <i class="bi bi-eye-slash"></i>
+        <input type="hidden" name="value1" value="AAA" />
+        <input type="hidden" name="value2" value="BBB" />
+      </article>
+      <article>
         <c-input
-          type="password"
+          v-model="vars.price"
+          :value="vars.price"
+          @onkeydown="vars.onKeydown"
+          @onenter="vars.onEnter"
+          @onblur="vars.onBlur"
+          name="price"
+          label="금액"
+          placeholder="금액을 입력해 주세요"
+          type="numeric"
+          required
+          maxlength="20"
+          minlength="2"
+          minvalue="1000"
+          maxvalue="999999999999"
+          form="form"
+          :formatter="vars.numeric"
+          :rtformatter="vars.numeric"
+          vrules="auto|check2"
           >
         </c-input>
-        <c-input></c-input>
-        <c-input></c-input>
-        <c-input></c-input>
-      </div>
-    </div>
-    <div>
-      <c-select></c-select>
-      <c-select></c-select>
-      <c-select></c-select>
-    </div>
-    <div>
-      <div class="input-group">
-        <c-input></c-input>
-        <span class="input-group-text">@</span>
-        <c-select
-          v-model="vars.select"
+        <div>{{ vars.numToHangul(vars.price) }}원</div>
+      </article>
+      <article>
+        <c-check
+          v-model="vars.check"
+          :checked="vars.check == 'Y'"
           form="form"
-          name="select"
-          label="선택박스"
+          name="check"
+          label="체크박스"
+          value="Y"
           required
-          :options="[
-            { name: '선택해주세요', value: '' },
-            'gmail.com',
-            'hotmail.com',
-            'hanmail.com',
-            'naver.com',
-            { name: '직접입력', value: '_' }
-          ]"
           vrules="auto"
-          variant="primary"
           >
-        </c-select>
-      </div>
-    </div>
-    <div>
-      <c-datepicker
-        >
-      </c-datepicker>
-    </div>
+        </c-check>
+      </article>
+      <article>
+        <c-check
+          v-model="vars.check"
+          :checked="vars.check != 'Y'"
+          name="check"
+          label="체크박스"
+          value="N"
+          >
+        </c-check>
+      </article>
+      <article>
+        <c-check
+          v-for="(itm, inx) in vars.checklist"
+          v-model="vars.checklist"
+          form="form"
+          :name="'checklist.' + inx"
+          :checked="vars.checklist[inx] == 'Y'"
+          label="체크리스트"
+          value="Y"
+          nvalue="N"
+          required
+          vrules="auto|atleast:2|atmost:3"
+          >
+        </c-check>
+      </article>
+      <article class="my-1">
+        <span class="input-group">
+          <c-input
+            type="password"
+            >
+          </c-input>
+          <c-input></c-input>
+          <c-input></c-input>
+          <c-input></c-input>
+        </span>
+      </article>
+      <article class="my-1">
+        <span class="input-group">
+          <c-input></c-input>
+          <span class="input-group-text">@</span>
+          <c-select
+            v-model="vars.select"
+            form="form"
+            name="select"
+            label="선택박스"
+            required
+            :options="[
+              { name: '선택해주세요', value: '' },
+              'gmail.com',
+              'hotmail.com',
+              'hanmail.com',
+              'naver.com',
+              { name: '직접입력', value: '_' }
+            ]"
+            vrules="auto"
+            variant="primary"
+            >
+          </c-select>
+        </span>
+      </article>
+      <article>
+        <c-datepicker
+          >
+        </c-datepicker>
+      </artic>
+      <article>
+        <div>[{{ vars.check }}]</div>
+        <div>[{{ vars.select }}]</div>
+        <div>[{{ vars.checklist }}]</div>
+        <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
+          대기
+        </c-button>
+        <c-button class="btn-primary mx-1" @onclick="vars.doAlert">
+          경고팝업
+        </c-button>
+        <c-button class="btn-primary mx-1" @onclick="vars.doConfirm">
+          확인팝업
+        </c-button>
+        <c-button class="btn-primary mx-1" @onclick="vars.doWinpopup">
+          물리팝업
+        </c-button>
+        <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
+        <div>{{ vars.teststr }}</div>
+        <c-button class="btn-primary mx-1" @onclick="vars.doSubmit">
+          SUBMIT
+        </c-button>
+        <c-button class="btn-primary mx-1" @onclick="vars.doGetJson">
+          JSON
+        </c-button>
+        <c-button class="btn-primary mx-1" @onclick="vars.testEncrypt">
+          CRYPTO
+        </c-button>
+        <c-button class="btn-primary mx-1" @onclick="asideVisible(!pagevars.aside)">
+          ASIDE
+        </c-button>
+      </article>
+    </section>
   </c-form>
-  <%-- <div class="x-mark" data-element-id="test">테스트</div> --%>
-  <div>{{ vars.numToHangul(vars.price) }}원</div>
-  <div>[{{ vars.check }}]</div>
-  <div>[{{ vars.select }}]</div>
-  <div>[{{ vars.checklist }}]</div>
-  <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
-    대기
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="vars.doAlert">
-    경고팝업
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="vars.doConfirm">
-    확인팝업
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="vars.doWinpopup">
-    물리팝업
-  </c-button>
-  <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
-  <div>{{ vars.teststr }}</div>
-  <c-button class="btn-primary mx-1" @onclick="vars.doSubmit">
-    SUBMIT
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="vars.doGetJson">
-    JSON
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="vars.testEncrypt">
-    CRYPTO
-  </c-button>
-  <c-button class="btn-primary mx-1" @onclick="asideVisible(!pagevars.aside)">
-    ASIDE
-  </c-button>
-  <div>
-  </div>
 </page:ex>
 <script:ex name="smp01001s01">
 log.debug("MAIN-PAGE-LOADED!");
