@@ -253,6 +253,57 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     return result;
   };
 
+  function empty(obj) {
+    const o = obj;
+    log.trace("EFILL:", obj);
+    try {
+      if (o instanceof Array) {
+        o.splice(0, o.length)
+      } else {
+        for (let k in o) {
+          const v = o[k];
+          log.trace(`EFILL[${k}]: `, v, typeof v, v instanceof Array);
+          switch(typeof v) {
+          case 'string': o[k] = ""; break;
+          case 'number': o[k] = 0; break;
+          case 'object':
+            if (v instanceof Array) {
+              v.splice(0, v.length);
+              o[k] = [];
+            } else {
+              log.trace("SUB-FILL:", v);
+              o[k] = values.empty(v);
+            };
+            break;
+          default: o[k] = undefined; break;
+          };
+        };
+      };
+    } catch (e) {
+      log.debug("ERROR!:", e);
+    }
+    return obj;
+  };
+
+  /** target 객체 내부의 모든 요소 삭제 */
+  function clear(target) {
+    if (target instanceof Array) {
+      target.splice(0, target.length)
+    } else if (target) {
+      for (const k in target) {
+        const v = target[k];
+        if (v instanceof Array) {
+          clear(v);
+        } else if (typeof v === C.OBJECT) {
+          clear(v);
+        } else {
+          delete target[k];
+        };
+      };
+    };
+    return target;
+  };
+
   /** 최소(min)~최대(max)값 사이의 난수 생성, 최소값을 입력하지 않을경우 자동으로 0 으로 지정됨 */
   function getRandom(max, min) {
     if (max === U) { max = 0; };
@@ -1700,6 +1751,8 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     });
   };
 
+  const ROWS_DEF = 10;
+  const PAGES_DEF = 5;
   class Paging {
     constructor(rowCount, pageCount, rowTotal) {
       rowCount = Number(rowCount);
@@ -2221,6 +2274,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
   api,
   asideVisible,
   cancelEvent,
+  clear,
   clone,
   copyExclude,
   copyExists,
@@ -2229,6 +2283,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
   dialog,
   dialogvars,
   doModal,
+  empty,
   equals,
   equalsIgnoreCase,
   find,

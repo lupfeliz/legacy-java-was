@@ -5,11 +5,26 @@
   <section>
     <article>
       <c-pagination
+        :rows="15"
+        :pages="10"
+        :current="${request.getParameter("page")}"
+        :total="999"
+        thref="/smp/smp01001s04?page=#page"
+        @onclick="vars.paginationClick"
         />
     </article>
   </section>
 </page:ex>
 <script:ex name="smp01001s04">
 putAll(vars, {
+  pagination: {
+    rows: 15,
+    pages: 10,
+    current: 16,
+    total: 999,
+  },
+  paginationClick(e, v) {
+    log.debug("PAGE:", e, v);
+  }
 });
 </script:ex>

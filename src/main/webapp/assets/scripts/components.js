@@ -30,6 +30,7 @@ function registerComponent($SCRIPTPRM) {
   api,
   asideVisible,
   cancelEvent,
+  clear,
   clone,
   copyExclude,
   copyExists,
@@ -38,6 +39,7 @@ function registerComponent($SCRIPTPRM) {
   dialog,
   dialogvars,
   doModal,
+  empty,
   equals,
   equalsIgnoreCase,
   find,
@@ -1220,28 +1222,30 @@ function registerComponent($SCRIPTPRM) {
       \     class="pagination"
       \     >
       \     <template
-      \       v-if="false"
+      \       v-if="vars.pnums[0] > 1"
       \       >
       \       <li
       \         class="page-item"
       \         >
       \         <a
       \           class="page-link"
-      \           href="#"
+      \           \:href="linkHref(1)"
+      \           @click="function(e) { onClick(e, 1) }"
       \           >
       \           <i class="bi bi-chevron-double-left"></i>
       \         </a>
       \       </li>
       \     </template>
       \     <template
-      \       v-if="false"
+      \       v-if="vars.current > 1"
       \       >
       \       <li
       \         class="page-item"
       \         >
       \         <a
       \           class="page-link"
-      \           href="#"
+      \           \:href="linkHref(vars.current - 1)"
+      \           @click="function(e) { onClick(e, vars.current - 1) }"
       \           >
       \           <i class="bi bi-chevron-left"></i>
       \         </a>
@@ -1249,43 +1253,59 @@ function registerComponent($SCRIPTPRM) {
       \     </template>
       \
       \     <template
-      \       v-for="(itm, inx) in vars.pages"
+      \       v-for="(itm, inx) in vars.list"
       \       >
+      \       <template v-if="itm.num === vars.current">
+      \       <li
+      \         class="page-item active"
+      \         >
+      \         <a
+      \           class="page-link"
+      \           >
+      \           {{ itm.num }}
+      \         </a>
+      \       </li>
+      \       </template>
+      \       <template v-else>
       \       <li
       \         class="page-item"
       \         >
       \         <a
       \           class="page-link"
-      \           href="#"
+      \           \:href="linkHref(itm.num)"
+      \           @click="function(e) { onClick(e, itm.num) }"
       \           >
-      \           {{ itm }}
+      \           {{ itm.num }}
       \         </a>
       \       </li>
+      \       </template>
       \     </template>
       \
       \     <template
-      \       v-if="false"
+      \       v-if="vars.current < vars.pnums[2]"
       \       >
       \       <li
       \         class="page-item"
       \         >
       \         <a
       \           class="page-link"
-      \           href="#"
+      \           \:href="linkHref(vars.current + 1)"
+      \           @click="function(e) { onClick(e, vars.current + 1) }"
       \           >
       \           <i class="bi bi-chevron-right"></i>
       \         </a>
       \       </li>
       \     </template>
       \     <template
-      \       v-if="false"
+      \       v-if="vars.pnums[0] + props.pages < vars.pnums[2]"
       \       >
       \       <li
       \         class="page-item"
       \         >
       \         <a
       \           class="page-link"
-      \           href="#"
+      \           \:href="linkHref(vars.pnums[2])"
+      \           @click="function(e) { onClick(e, vars.pnums[2]) }"
       \           >
       \           <i class="bi bi-chevron-double-right"></i>
       \         </a>
@@ -1294,25 +1314,56 @@ function registerComponent($SCRIPTPRM) {
       \   </ul>
       \ </nav>`),
       props: {
-        modelValue: undefined,
+        rows: 0,
+        pages: 0,
+        current: 0,
+        total: 0,
+        href: '',
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
         const uid = genId();
         const vars = {
-          pages: [
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-          ]
+          list: [],
+          current: props.current ? props.current : 1,
+          pnums: [0, 0, 0],
+          rnums: [0, 0],
+        };
+        const self = cinst();
+        update(props.rows, props.pages, props.total, props.current);
+        function linkHref(pagenum) {
+          let ret = undefined;
+          if (props.href) {
+            ret = props.href.replace(/[#]page/g, pagenum);
+          } else {
+            ret = "#";
+          };
+          return ret;
+        };
+        function update(rows, pages, total, current) {
+          let paging = new Paging(rows, pages, total);
+          putAll(vars.pnums, paging.pageNumbers(current));
+          putAll(vars.rnums, paging.rowNumbers(current));
+          empty(vars.list);
+          for (let num = vars.pnums[0]; num <= vars.pnums[1]; num++) { vars.list.push({ num }); };
+        };
+        watch(function() { return props.current; }, function(nv, ov) { vars.current = nv; });
+        async function onClick(e, pagenum) {
+          if (!props.href) {
+            vars.current = pagenum;
+            update(props.rows, props.pages, props.total, pagenum);
+            self.update();
+          };
+          emit("update:current", pagenum);
+          emit(ONCLICK, e, pagenum);
         };
         return {
           props,
           attrs,
           vars,
           slots,
+          linkHref,
+          onClick,
         };
       },
     });
