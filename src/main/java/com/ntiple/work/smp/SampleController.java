@@ -32,4 +32,9 @@ public class SampleController {
   public String smp01001s02() throws Exception {
     return service.smp01001s02();
   }
+
+  @RequestMapping({"/smp/smp01001s03"})
+  public String smp01001s03() throws Exception {
+    return service.smp01001s03();
+  }
 }

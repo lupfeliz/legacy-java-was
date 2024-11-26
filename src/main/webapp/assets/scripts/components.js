@@ -381,8 +381,8 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-input";
     const CInput = defineComponent({
       template: (`
-      \ <span i=""
-      \   :class="className()"
+      \ <span
+      \   \:class="className()"
       \   >
       \   <input
       \     v-bind="attrs"
@@ -1143,5 +1143,77 @@ function registerComponent($SCRIPTPRM) {
       },
     });
     app.component(name, CDatepicker);
+  };
+  {
+    const name = "c-accordion";
+    const CAccordion = defineComponent({
+      template: (`
+      \ <div class="accordion" :id="vars.uid">
+      \   <template v-for="(itm, slkey) in slots">
+      \   <div class="accordion-item">
+      \     <h3 class="accordion-header">
+      \       <button
+      \         class="accordion-button"
+      \         type="button"
+      \         data-bs-toggle="collapse"
+      \         aria-expanded="false"
+      \         :data-bs-target="'#' + vars.uid + '_' + slkey"
+      \         :aria-controls="'#' + vars.uid + '_' + slkey"
+      \         v-html="vars.titles[slkey]"
+      \         >
+      \       </button>
+      \     </h3>
+      \     <div
+      \       \:id="vars.uid + '_' + slkey"
+      \       class="accordion-collapse collapse"
+      \       :data-bs-parent="'#' + vars.uid"
+      \       >
+      \       <div class="accordion-body">
+      \         <slot
+      \           \:name="slkey"
+      \           v-bind="slotItem(slkey)"
+      \           />
+      \       </div>
+      \     </div>
+      \   </div>
+      \   </template>
+      \ </div>`),
+      setup(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const uid = genId();
+        const vars = {
+          uid,
+          titles: {
+          }
+        };
+        slotItem = function(key) {
+          return {
+            title: function(title) {
+              vars.titles[key] = title;
+              log.debug("CHECK:", key, title);
+              return "";
+            }
+          };
+        };
+        return {
+          attrs,
+          vars,
+          slots,
+          slotItem,
+        };
+      },
+      async mounted() {
+        const self = cinst();
+        const { vars, slots } = self.setupState;
+        log.debug("SLOT:", self);
+        for (let k in slots) {
+          log.debug("CHECK:", k, slots[k]);
+        }
+        self.update();
+      },
+      async updated() {
+      },
+    });
+    app.component(name, CAccordion);
   };
 };

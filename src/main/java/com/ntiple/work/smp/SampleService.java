@@ -45,6 +45,10 @@ public class SampleService {
     return "/smp01001s02";
   }
 
+  public String smp01001s03() throws Exception {
+    return "/smp01001s03";
+  }
+
   public String smp01001p01() {
     log.debug("CHECK-PARAM:{}", params());
     return "/smp01001p01";
