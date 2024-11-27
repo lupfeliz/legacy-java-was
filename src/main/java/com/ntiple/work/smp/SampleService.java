@@ -55,7 +55,15 @@ public class SampleService {
     return "/smp01001s04";
   }
 
-  public String smp01001p01(Model model) {
+  public String smp01001s05(Model model) throws Exception {
+    return "/smp01001s05";
+  }
+
+  public String smp01001s06(Model model) throws Exception {
+    return "/smp01001s06";
+  }
+
+  public String smp01001p01(Model model) throws Exception {
     log.debug("CHECK-PARAM:{}", params());
     return "/smp01001p01";
   }

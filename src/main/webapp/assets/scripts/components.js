@@ -454,7 +454,7 @@ function registerComponent($SCRIPTPRM) {
           elem: ref(),
           buttons: [ref(), ref()]
         };
-
+        const self = cinst();
         const emitChange = debounce(function() {
           emit(ONCHANGE, vars.elem.value.value);
         }, 100);
@@ -508,7 +508,7 @@ function registerComponent($SCRIPTPRM) {
               case KEYCODE_TABLE.PC.Enter: {
                 cancelEvent(e);
               } break;
-            }
+            };
             /** 허용키 : ctrl+c ctrl+v 방향키 bs delete tab enter space */
             if (vars.itype === "number" || vars.itype === "numeric") {
               let v = 0;
@@ -758,7 +758,6 @@ function registerComponent($SCRIPTPRM) {
         function className() {
           return strm(`form-control ${props && props.class ? props.class : ""}`);
         };
-        const self = cinst();
         onMounted(async function() { registFormElement(self, vars.elem.value); });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
@@ -817,6 +816,7 @@ function registerComponent($SCRIPTPRM) {
           value: "",
           group: undefined,
         };
+        const self = cinst();
         const PTN_GRP = /^([^.]+)[.]([0-9]+)$/g;
         const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
         let mat;
@@ -885,7 +885,6 @@ function registerComponent($SCRIPTPRM) {
           emit(UPDATE_MV, value);
           emitChange();
         };
-        const self = cinst();
         onMounted(async function() { registFormElement(self, vars.elem.value); });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
@@ -957,6 +956,7 @@ function registerComponent($SCRIPTPRM) {
           options: [],
           menuvisb: false,
         };
+        const self = cinst();
         function setOptions(options) {
           const ret = [];
           if (!options) { return ret; };
@@ -1039,12 +1039,10 @@ function registerComponent($SCRIPTPRM) {
         };
         const emitChange = debounce(function() { emit(ONCHANGE, props.modelValue); }, 300);
         setOptions(props.options);
-
-        const self = cinst();
         onMounted(async function() { registFormElement(self, vars.elem.value); });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
-        const v = {
+        return {
           props,
           attrs,
           vars,
@@ -1054,7 +1052,6 @@ function registerComponent($SCRIPTPRM) {
           onKeypress,
           getClass,
         };
-        return v;
       },
     });
     app.component(name, CSelect);
@@ -1079,6 +1076,7 @@ function registerComponent($SCRIPTPRM) {
           elem: ref(),
           widget: ref(),
         };
+        const self = cinst();
         $.extend(true, $.datePicker.defaults, {
           strings: {
             months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
@@ -1119,7 +1117,6 @@ function registerComponent($SCRIPTPRM) {
           if (vars.widget.value) { $.datePicker.api.hide(vars.widget.value); };
           emit(ONBLUR, e);
         };
-        const self = cinst();
         onMounted(async function() {
           vars.elem = vars.elem.value._.setupState.vars.elem;
           $(vars.elem.value).attr("data-select", "datepicker");
@@ -1188,6 +1185,7 @@ function registerComponent($SCRIPTPRM) {
           /** 최초값만 지정 */
           ivalue: props.modelValue
         };
+        const self = cinst();
         slotItem = function(key) {
           return {
             title: function(title) {
@@ -1206,7 +1204,6 @@ function registerComponent($SCRIPTPRM) {
           };
           emit(ONCLICK, e);
         };
-        const self = cinst();
         onMounted(async function() {
           self.update();
         });
@@ -1444,6 +1441,7 @@ function registerComponent($SCRIPTPRM) {
         const vars = {
           clsAside: "",
         };
+        const self = cinst();
         function className() {
           let position = "";
           switch(props.position) {
@@ -1465,7 +1463,6 @@ function registerComponent($SCRIPTPRM) {
             };
           };
         });
-        const self = cinst();
         onMounted(async function() { });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
@@ -1479,5 +1476,103 @@ function registerComponent($SCRIPTPRM) {
       },
     });
     app.component(name, CAside);
+  };
+  {
+    const name = "c-tab";
+    const CTab = defineComponent({
+      template: (`
+      \ <nav>
+      \   <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      \     <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Home</button>
+      \     <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</button>
+      \     <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</button>
+      \     <button class="nav-link" id="nav-disabled-tab" data-bs-toggle="tab" data-bs-target="#nav-disabled" type="button" role="tab" aria-controls="nav-disabled" aria-selected="false" disabled>Disabled</button>
+      \   </div>
+      \ </nav>
+      \ <div class="tab-content" id="nav-tabContent">
+      \   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">...</div>
+      \   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">...</div>
+      \   <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">...</div>
+      \   <div class="tab-pane fade" id="nav-disabled" role="tabpanel" aria-labelledby="nav-disabled-tab" tabindex="0">...</div>
+      \ </div>`),
+      props: {
+        modelValue: undefined,
+      },
+      setup(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const vars = {
+        };
+        const self = cinst();
+        onMounted(async function() { });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
+        return {
+          props,
+          attrs,
+          vars,
+        };
+      },
+    });
+    app.component(name, CTab);
+  };
+  {
+    const name = "c-nav";
+    const CNav = defineComponent({
+      template: (`
+      \ <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      \   <div class="container-fluid">
+      \     <a class="navbar-brand" href="#">Navbar</a>
+      \     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      \       <span class="navbar-toggler-icon"></span>
+      \     </button>
+      \     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      \       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      \         <li class="nav-item">
+      \           <a class="nav-link active" aria-current="page" href="#">Home</a>
+      \         </li>
+      \         <li class="nav-item">
+      \           <a class="nav-link" href="#">Link</a>
+      \         </li>
+      \         <li class="nav-item dropdown">
+      \           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      \             Dropdown
+      \           </a>
+      \           <ul class="dropdown-menu">
+      \             <li><a class="dropdown-item" href="#">Action</a></li>
+      \             <li><a class="dropdown-item" href="#">Another action</a></li>
+      \             <li><hr class="dropdown-divider"></li>
+      \             <li><a class="dropdown-item" href="#">Something else here</a></li>
+      \           </ul>
+      \         </li>
+      \         <li class="nav-item">
+      \           <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+      \         </li>
+      \       </ul>
+      \       <form class="d-flex" role="search">
+      \         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+      \         <button class="btn btn-outline-success" type="submit">Search</button>
+      \       </form>
+      \     </div>
+      \   </div>
+      \ </nav>`),
+      props: {
+        modelValue: undefined,
+      },
+      setup(props, ctx) {
+        const { attrs, emit, expose, slots } = ctx;
+        const vars = {
+        };
+        const self = cinst();
+        onMounted(async function() { });
+        onBeforeUnmount(async function() { });
+        onUpdated(async function() { });
+        return {
+          props,
+          attrs,
+          vars,
+        };
+      },
+    });
+    app.component(name, CNav);
   };
 };

@@ -281,7 +281,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       };
     } catch (e) {
       log.debug("ERROR!:", e);
-    }
+    };
     return obj;
   };
 

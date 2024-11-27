@@ -43,4 +43,14 @@ public class SampleController {
   public String smp01001s04(Model model) throws Exception {
     return service.smp01001s04(model);
   }
+
+  @RequestMapping({"/smp/smp01001s05"})
+  public String smp01001s05(Model model) throws Exception {
+    return service.smp01001s05(model);
+  }
+
+  @RequestMapping({"/smp/smp01001s06"})
+  public String smp01001s06(Model model) throws Exception {
+    return service.smp01001s06(model);
+  }
 }
