@@ -30,6 +30,8 @@ version = '0.0.1-SNAPSHOT'
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
+  compileJava.options.encoding = 'UTF-8'
+  compileTestJava.options.encoding = 'UTF-8'
 }
 
 configurations {
@@ -37,7 +39,7 @@ configurations {
     extendsFrom annotationProcessor
   }
 }
-
+System.setProperty('file.encoding', 'UTF-8')
 String PROFILE = System.env['PROFILE']
 String NEXUS_MAVEN_REPO = System.env['NEXUS_MAVEN_REPO']
 String CURRENT_DIR = System.properties['user.dir']
@@ -199,6 +201,7 @@ test {
 
 bootRun {
   systemProperty('spring.profiles.active', PROFILE)
+  systemProperty('java.file.encoding', 'UTF-8')
   println('================================================================================')
   println('LEGACY-JAVA-WEB APPLICATION SYSTEM')
   println('PROFILE:' + PROFILE + ' / ' + group + ' ' + rootProject.name + ' ' + version)

@@ -17,6 +17,7 @@ public class Application {
     if (profile == null || "".equals(profile)) {
       System.setProperty("spring.profiles.active", "local");
     }
+    System.setProperty("file.encoding", "UTF-8");
     SpringApplication.run(Application.class, args);
   }
 }

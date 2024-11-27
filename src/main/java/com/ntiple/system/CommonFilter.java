@@ -107,7 +107,7 @@ public class CommonFilter implements Filter {
             }
             if (!cache.getParentFile().exists()) { mkdirs(cache.getParentFile()); }
             ostream = ostream(cache);
-            ostream.write(content.getBytes());
+            ostream.write(content.getBytes(UTF8));
             fw = new FileWriter(rfile, true);
             fw.append("");
           } else {
@@ -122,7 +122,7 @@ public class CommonFilter implements Filter {
           }
           /** 리소스 캐시 갱신주기 : 30초 TODO: 프로파일별로 다르게 설정할것 */
           res.setHeader("Cache-Control", "max-age=30");
-          res.setContentLength(content.getBytes().length);
+          res.setContentLength(content.getBytes(UTF8).length);
           res.setCharacterEncoding(UTF8);
           res.setContentType(ctype);
           res.getWriter().write(content);
