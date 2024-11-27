@@ -47,6 +47,7 @@ public class RequestAspect {
       String uri = cast(req.getAttribute("uri"), uri = "");
       Matcher mat = null;
       String cate = "", wkno = "", rqty = "", stno = "";
+      if ("/".equals(uri)) { uri = "/smp/smp01001s01"; }
       if ((mat = PTN_WORK.matcher(uri)) != null && mat.find()) {
         req.setAttribute("category", cate = mat.group("cate"));
         req.setAttribute("worknumber", wkno = mat.group("wkno"));

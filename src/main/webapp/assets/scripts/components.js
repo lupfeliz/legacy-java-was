@@ -405,6 +405,8 @@ function registerComponent($SCRIPTPRM) {
       \     \:name="props.name"
       \     \:type="props.type"
       \     \:data-element-uid="vars.uid"
+      \     \:inputmode="vars.inputMode"
+      \     \:pattern="vars.pattern"
       \     @keydown="onKeydown"
       \     @keyup="onKeyup"
       \     @focus="onFocus"
@@ -470,7 +472,9 @@ function registerComponent($SCRIPTPRM) {
           itype: props.type,
           avail: true,
           elem: ref(),
-          buttons: [ref(), ref()]
+          pattern: "",
+          inputMode: "",
+          buttons: [ref(), ref()],
         };
         const self = cinst();
         const emitChange = debounce(function() {
@@ -776,9 +780,24 @@ function registerComponent($SCRIPTPRM) {
         function className() {
           return strm(`form-control\ ${props && props.class ? props.class : ""}`);
         };
-        onMounted(async function() { registFormElement(self, vars.elem.value); });
+        function typeCheck() {
+          if (props && (props.type === "number" || props?.type == "numeric")) {
+            vars.pattern = "[0-9]*";
+            vars.inputMode = "numeric";
+          } else {
+            vars.pattern = props.pattern;
+            vars.inputMode = props.inputMode;
+          };
+        };
+        onMounted(async function() {
+          registFormElement(self, vars.elem.value);
+          typeCheck();
+          self.update();
+        });
         onBeforeUnmount(async function() { });
-        onUpdated(async function() { });
+        onUpdated(async function() {
+          typeCheck();
+        });
         return {
           props,
           attrs,

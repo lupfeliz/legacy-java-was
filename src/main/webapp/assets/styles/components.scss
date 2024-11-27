@@ -9,6 +9,7 @@
 html#project {
   /** 정확한 포커스 이동 타이밍 등을 계산하기 위한 트랜지션 시간 선언 */
   --modal-fade-transition-time: 0.2s;
+  --component-transition-time: 0.2s;
   > body {
     div.dropdown {
       button.btn {
@@ -59,6 +60,15 @@ html#project {
         width: auto;
         opacity: 1;
       }
+    }
+
+    .accordion-button[data-bs-toggle]::after,
+    .accordion-collapse {
+      transition: all var(--component-transition-time);
+    }
+
+    .offcanvas {
+      transition: all var(--component-transition-time);
     }
 
     .nav.nav-tabs {

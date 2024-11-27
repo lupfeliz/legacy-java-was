@@ -2241,6 +2241,19 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
 
   async function asideVisible(visible) {
     pagevars.value.aside = visible;
+    if (visible) {
+      setTimeout(function() {
+        async function fnc() {
+          log.debug("OPENASIDE-CLICK..");
+          document.removeEventListener("mouseup", fnc);
+          asideVisible(false);
+          return true;
+        };
+        document.addEventListener("mouseup", fnc);
+      }, 1);
+    } else {
+      vars.clsAside = "show hiding";
+    };
   };
 
   const MOUNT_HOOK_PROCS = [];
