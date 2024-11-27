@@ -368,10 +368,14 @@ function registerComponent($SCRIPTPRM) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
         };
-        const onClick = throttle(function(e) {
+        const onClick = function(e) {
           cancelEvent(e);
+          _onClick(e);
+        }
+        const _onClick = throttle(function(e) {
           return emit(ONCLICK, e);
         }, 300);
+        
         function className() {
           return strm(`btn\ ${props.variant ? "btn-" + props.variant : ""}\ ${props.class ? props.class : ""}`);
         };

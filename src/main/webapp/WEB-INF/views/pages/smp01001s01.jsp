@@ -137,6 +137,9 @@
         <c-button class="mx-1" variant="danger" @onclick="vars.doWinpopup">
           물리팝업
         </c-button>
+        <c-button class="mx-1" variant="info" @onclick="vars.doToast">
+          토스트
+        </c-button>
         <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
         <div>{{ vars.teststr }}</div>
         <c-button class="mx-1" variant="primary" @onclick="vars.doSubmit">
@@ -192,6 +195,9 @@ putAll(vars, {
   },
   async doWinpopup() {
     dialog.winpopup("/smp/smp01001p01", vars);
+  },
+  async doToast() {
+    dialog.toast(`\${vars.numToHangul(vars.price)} 원`);
   },
   async doSubmit() {
     const result = {};

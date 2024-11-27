@@ -587,7 +587,16 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         window.addEventListener("beforeunload", winpopups.closeListener);
       };
       return hnd;
-    }
+    },
+    toast: function(msg) {
+      $.toast({
+        // heading: "Information",
+        text: msg,
+        // icon: "info",
+        loader: false,
+        // loaderBg: "#9EC600"
+      })
+    },
   };
 
   function doModal() {
