@@ -9,6 +9,7 @@
         :pages="10"
         :current="${request.getParameter("page")}"
         :total="999"
+        tinput="true"
         thref="/smp/smp01001s04?page=#page"
         @onclick="vars.paginationClick"
         />

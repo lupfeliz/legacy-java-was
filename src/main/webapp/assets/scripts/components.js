@@ -396,7 +396,9 @@ function registerComponent($SCRIPTPRM) {
       \     @focus="onFocus"
       \     @blur="onBlur"
       \     />
-      \   <span>
+      \   <span
+      \     v-if="props.buttons === 'true'"
+      \     >
       \     <a class="xmark"
       \       role="button"
       \       tabindex="0"
@@ -436,6 +438,7 @@ function registerComponent($SCRIPTPRM) {
         name: "",
         label: "",
         required: false,
+        buttons: { default: 'true' },
         vrules: "",
       },
       setup(props, ctx) {
@@ -1221,6 +1224,15 @@ function registerComponent($SCRIPTPRM) {
       \   <ul
       \     class="pagination"
       \     >
+      \     <c-input
+      \       v-if="props.input === 'true'"
+      \       placeholder="숫자입력"
+      \       type="numeric"
+      \       :maxlength="String(props.total).length"
+      \       buttons="false"
+      \       @onenter="onEnter"
+      \       :ref="vars.input"
+      \       />
       \     <template
       \       v-if="vars.pnums[0] > 1"
       \       >
@@ -1228,7 +1240,9 @@ function registerComponent($SCRIPTPRM) {
       \         class="page-item"
       \         >
       \         <a
-      \           class="page-link"
+      \           class="page-link cursor-pointer"
+      \           role="button"
+      \           \:aria-label="1 + ' 페이지로 이동'"
       \           \:href="linkHref(1)"
       \           @click="function(e) { onClick(e, 1) }"
       \           >
@@ -1243,7 +1257,9 @@ function registerComponent($SCRIPTPRM) {
       \         class="page-item"
       \         >
       \         <a
-      \           class="page-link"
+      \           class="page-link cursor-pointer"
+      \           role="button"
+      \           \:aria-label="(vars.current - 1) + ' 페이지로 이동'"
       \           \:href="linkHref(vars.current - 1)"
       \           @click="function(e) { onClick(e, vars.current - 1) }"
       \           >
@@ -1255,12 +1271,12 @@ function registerComponent($SCRIPTPRM) {
       \     <template
       \       v-for="(itm, inx) in vars.list"
       \       >
-      \       <template v-if="itm.num === vars.current">
+      \       <template v-if="itm.num == vars.current">
       \       <li
       \         class="page-item active"
       \         >
       \         <a
-      \           class="page-link"
+      \           class="page-link cursor-pointer"
       \           >
       \           {{ itm.num }}
       \         </a>
@@ -1271,7 +1287,9 @@ function registerComponent($SCRIPTPRM) {
       \         class="page-item"
       \         >
       \         <a
-      \           class="page-link"
+      \           class="page-link cursor-pointer"
+      \           role="button"
+      \           \:aria-label="itm.num + ' 페이지로 이동'"
       \           \:href="linkHref(itm.num)"
       \           @click="function(e) { onClick(e, itm.num) }"
       \           >
@@ -1288,7 +1306,9 @@ function registerComponent($SCRIPTPRM) {
       \         class="page-item"
       \         >
       \         <a
-      \           class="page-link"
+      \           class="page-link cursor-pointer"
+      \           role="button"
+      \           \:aria-label="(vars.current + 1) + ' 페이지로 이동'"
       \           \:href="linkHref(vars.current + 1)"
       \           @click="function(e) { onClick(e, vars.current + 1) }"
       \           >
@@ -1303,7 +1323,9 @@ function registerComponent($SCRIPTPRM) {
       \         class="page-item"
       \         >
       \         <a
-      \           class="page-link"
+      \           class="page-link cursor-pointer"
+      \           role="button"
+      \           \:aria-label="(vars.pnums[2]) + ' 페이지로 이동'"
       \           \:href="linkHref(vars.pnums[2])"
       \           @click="function(e) { onClick(e, vars.pnums[2]) }"
       \           >
@@ -1316,9 +1338,11 @@ function registerComponent($SCRIPTPRM) {
       props: {
         rows: 0,
         pages: 0,
-        current: 0,
+        current: { default: "1" },
         total: 0,
         href: '',
+        input: { default: false },
+        onEnter: undefined
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
@@ -1328,6 +1352,7 @@ function registerComponent($SCRIPTPRM) {
           current: props.current ? props.current : 1,
           pnums: [0, 0, 0],
           rnums: [0, 0],
+          input: ref(),
         };
         const self = cinst();
         update(props.rows, props.pages, props.total, props.current);
@@ -1336,14 +1361,21 @@ function registerComponent($SCRIPTPRM) {
           if (props.href) {
             ret = props.href.replace(/[#]page/g, pagenum);
           } else {
-            ret = "#";
+            // ret = "#";
           };
           return ret;
         };
         function update(rows, pages, total, current) {
           let paging = new Paging(rows, pages, total);
-          putAll(vars.pnums, paging.pageNumbers(current));
-          putAll(vars.rnums, paging.rowNumbers(current));
+          let pnums = paging.pageNumbers(current);
+          let rnums = paging.rowNumbers(current);
+          if (current < 1) { current = 1; };
+          if (current > pnums[2]) { current = pnums[2]; };
+          pnums = paging.pageNumbers(current);
+          rnums = paging.rowNumbers(current);
+          putAll(vars.pnums, pnums);
+          putAll(vars.rnums, rnums);
+          vars.current = current;
           empty(vars.list);
           for (let num = vars.pnums[0]; num <= vars.pnums[1]; num++) { vars.list.push({ num }); };
         };
@@ -1354,7 +1386,18 @@ function registerComponent($SCRIPTPRM) {
             update(props.rows, props.pages, props.total, pagenum);
             self.update();
           };
-          emit("update:current", pagenum);
+          emit(ONCLICK, e, pagenum);
+        };
+        async function onEnter(e) {
+          if (!e || !e.target) { return; };
+          let pagenum = e.target.value;
+          update(props.rows, props.pages, props.total, pagenum);
+          $(vars.input.value._.setupState.vars.elem.value).val(vars.current);
+          if (props.href) {
+            location.href = String(props.href).replace(/#page/g, vars.current);
+          } else {
+            self.update();
+          };
           emit(ONCLICK, e, pagenum);
         };
         return {
@@ -1364,6 +1407,7 @@ function registerComponent($SCRIPTPRM) {
           slots,
           linkHref,
           onClick,
+          onEnter,
         };
       },
     });

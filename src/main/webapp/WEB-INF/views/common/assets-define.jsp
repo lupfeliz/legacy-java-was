@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="${cbase}/assets/libs/vanilla-calendar-2.9.10.min.css" />
 <link rel="stylesheet" href="${cbase}/assets/fonts/fonts.css" />
 <link rel="stylesheet" href="${cbase}/assets/styles/globals.scss" />
+<link rel="stylesheet" href="${cbase}/assets/styles/components.scss" />
 <link rel="stylesheet" href="${cbase}/assets/styles/util.scss" />
 <script src="${cbase}/assets/libs/core-js-3.38.1.min.js"></script>
 <script src="${cbase}/assets/libs/crypto-js-4.2.0.min.js"></script>
