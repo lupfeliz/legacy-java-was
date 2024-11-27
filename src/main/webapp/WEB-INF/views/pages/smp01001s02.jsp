@@ -8,12 +8,13 @@
         v-model="vars.popdata.message"
         :value="vars.popdata.message"
         @onkeydown="vars.onKeydown"
-        />
+        >
+      </c-input>
     </article>
     <article>
       <form name="form" action="/smp/smp01001s01">
-        <input type="hidden" name="value1" value="123" />
-        <input type="hidden" name="value2" value="456" />
+        <c-input type="hidden" name="value1" value="123"></c-input>
+        <c-input type="hidden" name="value2" value="456"></c-input>
       </form>
       <c-button variant="primary" @onclick="vars.clicked()">
         OK

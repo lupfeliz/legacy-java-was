@@ -128,13 +128,13 @@
         <c-button class="mx-1" variant="primary" @onclick="vars.doProgress">
           대기
         </c-button>
-        <c-button class="mx-1" variant="primary" @onclick="vars.doAlert">
+        <c-button class="mx-1" variant="warning" @onclick="vars.doAlert">
           경고팝업
         </c-button>
-        <c-button class="mx-1" variant="primary" @onclick="vars.doConfirm">
+        <c-button class="mx-1" variant="secondary" @onclick="vars.doConfirm">
           확인팝업
         </c-button>
-        <c-button class="mx-1" variant="primary" @onclick="vars.doWinpopup">
+        <c-button class="mx-1" variant="danger" @onclick="vars.doWinpopup">
           물리팝업
         </c-button>
         <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>

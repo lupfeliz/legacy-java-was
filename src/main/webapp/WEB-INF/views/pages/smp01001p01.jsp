@@ -8,7 +8,8 @@
         :value="vars.popdata.price"
         :formatter="vars.numeric"
         @onkeydown="vars.onKeydown"
-        />
+        >
+      </c-input>
     </article>
     <article>
       <c-button class="mx-1" variant="primary" @onclick="vars.onClick(1)">

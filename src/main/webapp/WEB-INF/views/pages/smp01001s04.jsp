@@ -9,10 +9,30 @@
         :pages="10"
         :current="${request.getParameter("page")}"
         :total="999"
-        tinput="true"
-        thref="/smp/smp01001s04?page=#page"
-        @onChange="vars.paginationClick"
-        />
+        @onchange="vars.paginationClick"
+        >
+      </c-pagination>
+    </article>
+    <article>
+      <c-pagination
+        :rows="15"
+        :pages="10"
+        :current="${request.getParameter("page")}"
+        :total="999"
+        input="true"
+        @onchange="vars.paginationClick"
+        >
+      </c-pagination>
+    </article>
+    <article>
+      <c-pagination
+        :rows="15"
+        :pages="10"
+        :current="${request.getParameter("page")}"
+        :total="999"
+        href="/smp/smp01001s04?page=#page"
+        >
+      </c-pagination>
     </article>
   </section>
 </page:ex>

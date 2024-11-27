@@ -361,6 +361,7 @@ function registerComponent($SCRIPTPRM) {
       \   <slot />
       \ </button>`),
       props: {
+        class: undefined,
         variant: undefined
       },
       setup(props, ctx) {
@@ -372,7 +373,7 @@ function registerComponent($SCRIPTPRM) {
           return emit(ONCLICK, e);
         }, 300);
         function className() {
-          return strm(`btn ${props.variant ? "btn-" + props.variant : ""}`);
+          return strm(`btn\ ${props.variant ? "btn-" + props.variant : ""}\ ${props.class ? props.class : ""}`);
         };
         const v = {
           attrs,
@@ -389,6 +390,7 @@ function registerComponent($SCRIPTPRM) {
     const name = "c-input";
     const CInput = defineComponent({
       template: (`
+      \ <template v-if="props.type != 'hidden'">
       \ <span
       \   \:class="className()"
       \   >
@@ -432,7 +434,14 @@ function registerComponent($SCRIPTPRM) {
       \     </a>
       \     </template>
       \   </span>
-      \ </span>`),
+      \ </span>
+      \ </template>
+      \ <template v-else>
+      \   <input
+      \     v-bind="attrs"
+      \     type="hidden"
+      \     />
+      \ </template>`),
       props: {
         formatter: function() { },
         rtformatter: function() { },
@@ -446,7 +455,7 @@ function registerComponent($SCRIPTPRM) {
         name: "",
         label: "",
         required: false,
-        buttons: { default: 'true' },
+        buttons: { default: "true" },
         vrules: "",
       },
       setup(props, ctx) {
@@ -761,7 +770,7 @@ function registerComponent($SCRIPTPRM) {
           };
         };
         function className() {
-          return strm(`form-control ${props && props.class ? props.class : ""}`);
+          return strm(`form-control\ ${props && props.class ? props.class : ""}`);
         };
         onMounted(async function() { registFormElement(self, vars.elem.value); });
         onBeforeUnmount(async function() { });
@@ -1342,7 +1351,7 @@ function registerComponent($SCRIPTPRM) {
         pages: 0,
         current: { default: "1" },
         total: 0,
-        href: '',
+        href: "",
         input: { default: false },
         onEnter: undefined
       },
@@ -1449,7 +1458,7 @@ function registerComponent($SCRIPTPRM) {
           case "left": {
             position = "offcanvas-start";
           } };
-          return strm(`offcanvas ${position}\ offcanvas-light ${vars.clsAside}`);
+          return strm(`offcanvas\ ${position}\ offcanvas-light\ ${vars.clsAside}`);
         };
         watch(function() { return props.visible; }, function(nv, ov) {
           if (nv !== ov) {
@@ -1513,42 +1522,42 @@ function registerComponent($SCRIPTPRM) {
     app.component(name, CTab);
   };
   {
-    const name = "c-nav";
-    const CNav = defineComponent({
+    const name = "c-navbar";
+    const CNavbar = defineComponent({
       template: (`
       \ <nav class="navbar navbar-expand-lg bg-body-tertiary">
       \   <div class="container-fluid">
-      \     <a class="navbar-brand" href="#">Navbar</a>
-      \     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      \     <a class="navbar-brand"
+      \       \:href="vars.brand.href()"
+      \       >
+      \       <slot name="brand" v-bind="vars.brand"/>
+      \     </a>
+      \     <c-button
+      \       class="navbar-toggler"
+      \       type="button"
+      \       data-bs-toggle="collapse"
+      \       \:data-bs-target="'#' + vars.uid"
+      \       \:aria-controls="vars.uid"
+      \       aria-expanded="false"
+      \       aria-label="Toggle navigation"
+      \       >
       \       <span class="navbar-toggler-icon"></span>
-      \     </button>
-      \     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      \     </c-button>
+      \     <div class="collapse navbar-collapse" \:id="vars.uid">
       \       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-      \         <li class="nav-item">
-      \           <a class="nav-link active" aria-current="page" href="#">Home</a>
-      \         </li>
-      \         <li class="nav-item">
-      \           <a class="nav-link" href="#">Link</a>
-      \         </li>
-      \         <li class="nav-item dropdown">
-      \           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-      \             Dropdown
-      \           </a>
-      \           <ul class="dropdown-menu">
-      \             <li><a class="dropdown-item" href="#">Action</a></li>
-      \             <li><a class="dropdown-item" href="#">Another action</a></li>
-      \             <li><hr class="dropdown-divider"></li>
-      \             <li><a class="dropdown-item" href="#">Something else here</a></li>
-      \           </ul>
-      \         </li>
-      \         <li class="nav-item">
-      \           <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-      \         </li>
+      \         <template v-for="(itm, slotid) in slots">
+      \         <template v-if="/[0-9]+/.test(slotid)">
+      \           <li class="nav-item">
+      \           <slot \:name="slotid" />
+      \           </li>
+      \         </template>
+      \         </template>
       \       </ul>
-      \       <form class="d-flex" role="search">
-      \         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-      \         <button class="btn btn-outline-success" type="submit">Search</button>
-      \       </form>
+      \       <template v-if="slots['form']">
+      \         <c-form class="d-flex" role="search">
+      \           <slot name="form" />
+      \         </c-form>
+      \       </template>
       \     </div>
       \   </div>
       \ </nav>`),
@@ -1557,19 +1566,36 @@ function registerComponent($SCRIPTPRM) {
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
+        const uid = genId();
         const vars = {
+          uid,
+          brand: {
+            href(v) {
+              let ret = undefined;
+              if (v) {
+                store["brand-href"] = v;
+              } else {
+                ret = store["brand-href"];
+              };
+              return ret;
+            }
+          }
         };
+        const store = { };
         const self = cinst();
-        onMounted(async function() { });
+        onMounted(async function() {
+          self.update();
+        });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
         return {
           props,
           attrs,
+          slots,
           vars,
         };
       },
     });
-    app.component(name, CNav);
+    app.component(name, CNavbar);
   };
 };
