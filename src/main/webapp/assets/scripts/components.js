@@ -366,7 +366,10 @@ function registerComponent($SCRIPTPRM) {
         const { attrs, emit, expose, slots } = ctx;
         const vars = {
         };
-        const onClick = throttle(function(e) { return emit(ONCLICK, e); }, 300);
+        const onClick = throttle(function(e) {
+          cancelEvent(e);
+          return emit(ONCLICK, e);
+        }, 300);
         const v = {
           attrs,
           vars,
@@ -501,6 +504,11 @@ function registerComponent($SCRIPTPRM) {
             let stv = String(el.value ? el.value : "");
             let st = Number(el.selectionStart ? el.selectionStart : 0);
             let ed = Number(el.selectionEnd ? el.selectionEnd : 0);
+            switch (kcode) {
+              case KEYCODE_TABLE.PC.Enter: {
+                cancelEvent(e);
+              } break;
+            }
             /** 허용키 : ctrl+c ctrl+v 방향키 bs delete tab enter space */
             if (vars.itype === "number" || vars.itype === "numeric") {
               let v = 0;

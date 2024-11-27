@@ -6,6 +6,7 @@
     ref="form"
     name="form"
     action="${cbase}/smp/smp01001s02"
+    @submit="vars.submit"
     :validctx="vars.validctx"
     >
     <section>
