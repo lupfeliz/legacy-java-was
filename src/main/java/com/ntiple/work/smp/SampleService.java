@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import com.ntiple.commons.CryptoUtil;
 import com.ntiple.commons.WebUtil.RequestParameter;
@@ -30,13 +31,14 @@ public class SampleService {
   @PostConstruct public void init() { }
 
   /** 페이지용 서비스 */
-  public String smp01001s01() throws Exception {
+  public String smp01001s01(Model model) throws Exception {
+    model.addAttribute("TEST", "TEST-VALUE");
     log.debug("CHECK-PARAM:{}", params());
     return "/smp01001s01";
   }
 
   /** 페이지용 서비스 */
-  public String smp01001s02() throws Exception { 
+  public String smp01001s02(Model model) throws Exception { 
     RequestParameter params = params();
     log.debug("CHECK-PARAM:{} / {}", params.keys(), params);
     for (String key : params.keys()) {
@@ -45,15 +47,15 @@ public class SampleService {
     return "/smp01001s02";
   }
 
-  public String smp01001s03() throws Exception {
+  public String smp01001s03(Model model) throws Exception {
     return "/smp01001s03";
   }
 
-  public String smp01001s04() throws Exception {
+  public String smp01001s04(Model model) throws Exception {
     return "/smp01001s04";
   }
 
-  public String smp01001p01() {
+  public String smp01001p01(Model model) {
     log.debug("CHECK-PARAM:{}", params());
     return "/smp01001p01";
   }

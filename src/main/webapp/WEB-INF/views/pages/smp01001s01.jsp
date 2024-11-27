@@ -152,6 +152,9 @@
           ASIDE
         </c-button>
       </article>
+      <article>
+      [ ${TEST} ]
+      </article>
     </section>
   </c-form>
 </page:ex>

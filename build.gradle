@@ -39,8 +39,7 @@ configurations {
 }
 
 String PROFILE = System.env['PROFILE']
-String NEXUS_REPO = System.env['NEXUS_REPO']
-String NEXUS_SPRING_IO = System.env['NEXUS_SPRING_IO']
+String NEXUS_MAVEN_REPO = System.env['NEXUS_MAVEN_REPO']
 String CURRENT_DIR = System.properties['user.dir']
 Object DOTENV = new Properties()
 
@@ -49,9 +48,9 @@ if (ENVFILE.exists()) {
   InputStream is = new ByteArrayInputStream(ENVFILE.getText('UTF-8').getBytes())
   DOTENV.load(is)
   String profile = DOTENV.'PROFILE'
-  String nexusRepo = DOTENV.'NEXUS_REPO'
+  String nexusRepo = DOTENV.'NEXUS_MAVEN_REPO'
   if (profile != null && !''.equals(profile)) { PROFILE = profile }
-  if (nexusRepo != null && !''.equals(nexusRepo)) { NEXUS_REPO = nexusRepo }
+  if (nexusRepo != null && !''.equals(nexusRepo)) { NEXUS_MAVEN_REPO = nexusRepo }
 }
 
 if (System.properties['spring.profiles.active'] != null) {
@@ -61,7 +60,7 @@ if (System.properties['spring.profiles.active'] != null) {
 if (PROFILE == null || ''.equals(PROFILE)) { PROFILE = 'local' }
 
 // println('PROFILE:' + PROFILE)
-// println('NEXUS_REPO:' + NEXUS_REPO)
+// println('NEXUS_MAVEN_REPO:' + NEXUS_MAVEN_REPO)
 publishing {
   publications {
     maven(MavenPublication) {
@@ -75,19 +74,19 @@ publishing {
 
 /**
  * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
- * export NEXUS_REPO=http://192.168.0.2:8081/repository/maven-public/
+ * export NEXUS_MAVEN_REPO=http://192.168.0.2:8081/repository/maven-public/
  **/
 repositories {
-  if (NEXUS_REPO == null || ''.equals(NEXUS_REPO)) {
+  if (NEXUS_MAVEN_REPO == null || ''.equals(NEXUS_MAVEN_REPO)) {
     println('USE MAVEN CENTRAL REPOSITORY')
     mavenCentral()
     mavenLocal()
     maven { url 'https://repo.spring.io/milestone' }
   } else {
-    println('USE NEXUS REPOSITORY : ' + NEXUS_REPO)
+    println('USE NEXUS REPOSITORY : ' + NEXUS_MAVEN_REPO)
     mavenLocal()
     maven {
-      url NEXUS_REPO
+      url NEXUS_MAVEN_REPO
       allowInsecureProtocol = true
     }
   }
