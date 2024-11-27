@@ -355,12 +355,13 @@ function registerComponent($SCRIPTPRM) {
       template: (`
       \ <button
       \   v-bind="attrs"
-      \   class="btn"
+      \   \:class="className()"
       \   @click="onClick"
       \   >
       \   <slot />
       \ </button>`),
       props: {
+        variant: undefined
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
@@ -370,10 +371,14 @@ function registerComponent($SCRIPTPRM) {
           cancelEvent(e);
           return emit(ONCLICK, e);
         }, 300);
+        function className() {
+          return strm(`btn ${props.variant ? "btn-" + props.variant : ""}`);
+        };
         const v = {
           attrs,
           vars,
           onClick,
+          className,
         };
         return v;
       }
@@ -1151,7 +1156,7 @@ function registerComponent($SCRIPTPRM) {
       \         \:aria-expanded="vars.ivalue === slotid ? true : false"
       \         \:data-bs-target="'#' + vars.uid + '_' + slotid"
       \         \:aria-controls="'#' + vars.uid + '_' + slotid"
-      \         v-html="vars.titles[slotid]"
+      \         \:id="'accordion-title-' + vars.uid + '-' + slotid"
       \         @click="function(e) { onClick(e, slotid) }"
       \         >
       \       </button>
@@ -1175,23 +1180,17 @@ function registerComponent($SCRIPTPRM) {
         modelValue: undefined,
       },
       setup(props, ctx) {
-        // log.debug("CHECK:", props.modelValue);
         const { attrs, emit, expose, slots } = ctx;
         const uid = genId();
         const vars = {
           uid,
-          titles: {
-          },
           /** 최초값만 지정 */
           ivalue: props.modelValue
         };
         const self = cinst();
         slotItem = function(key) {
           return {
-            title: function(title) {
-              vars.titles[key] = title;
-              return "";
-            }
+            title: `#accordion-title-${uid}-${key}`
           };
         };
         async function onClick(e, slotid) {
@@ -1204,9 +1203,7 @@ function registerComponent($SCRIPTPRM) {
           };
           emit(ONCLICK, e);
         };
-        onMounted(async function() {
-          self.update();
-        });
+        onMounted(async function() { });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
         return {

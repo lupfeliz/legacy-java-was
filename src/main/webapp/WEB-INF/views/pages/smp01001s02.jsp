@@ -15,7 +15,7 @@
         <input type="hidden" name="value1" value="123" />
         <input type="hidden" name="value2" value="456" />
       </form>
-      <c-button class="btn-primary" @onclick="vars.clicked()">
+      <c-button variant="primary" @onclick="vars.clicked()">
         OK
       </c-button>
     </article>

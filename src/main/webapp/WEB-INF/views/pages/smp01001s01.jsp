@@ -125,30 +125,30 @@
         <div>[{{ vars.check }}]</div>
         <div>[{{ vars.select }}]</div>
         <div>[{{ vars.checklist }}]</div>
-        <c-button class="btn-primary mx-1" @onclick="vars.doProgress">
+        <c-button class="mx-1" variant="primary" @onclick="vars.doProgress">
           대기
         </c-button>
-        <c-button class="btn-primary mx-1" @onclick="vars.doAlert">
+        <c-button class="mx-1" variant="primary" @onclick="vars.doAlert">
           경고팝업
         </c-button>
-        <c-button class="btn-primary mx-1" @onclick="vars.doConfirm">
+        <c-button class="mx-1" variant="primary" @onclick="vars.doConfirm">
           확인팝업
         </c-button>
-        <c-button class="btn-primary mx-1" @onclick="vars.doWinpopup">
+        <c-button class="mx-1" variant="primary" @onclick="vars.doWinpopup">
           물리팝업
         </c-button>
         <div>백틱(``) 사용시 플레이스홀더 \${} 앞 '$' 에 이스케이프 문자열을 넣어주어야 한다. [{{ `\${vars.message}` }}]</div>
         <div>{{ vars.teststr }}</div>
-        <c-button class="btn-primary mx-1" @onclick="vars.doSubmit">
+        <c-button class="mx-1" variant="primary" @onclick="vars.doSubmit">
           SUBMIT
         </c-button>
-        <c-button class="btn-primary mx-1" @onclick="vars.doGetJson">
+        <c-button class="mx-1" variant="primary" @onclick="vars.doGetJson">
           JSON
         </c-button>
-        <c-button class="btn-primary mx-1" @onclick="vars.testEncrypt">
+        <c-button class="mx-1" variant="primary" @onclick="vars.testEncrypt">
           CRYPTO
         </c-button>
-        <c-button class="btn-primary mx-1" @onclick="asideVisible(!pagevars.aside)">
+        <c-button class="mx-1" variant="primary" @onclick="asideVisible(!pagevars.aside)">
           ASIDE
         </c-button>
       </article>

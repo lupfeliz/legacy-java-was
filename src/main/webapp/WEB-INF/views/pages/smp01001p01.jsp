@@ -11,10 +11,10 @@
         />
     </article>
     <article>
-      <c-button class="btn-primary mx-1" @onclick="vars.onClick(1)">
+      <c-button class="mx-1" variant="primary" @onclick="vars.onClick(1)">
         OK
       </c-button>
-      <c-button class="btn-primary mx-1" @onclick="vars.onClick(2)">
+      <c-button class="mx-1" variant="primary" @onclick="vars.onClick(2)">
         닫기
       </c-button>
     </article>
