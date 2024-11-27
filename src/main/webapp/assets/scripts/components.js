@@ -1484,42 +1484,76 @@ function registerComponent($SCRIPTPRM) {
     app.component(name, CAside);
   };
   {
-    const name = "c-tab";
-    const CTab = defineComponent({
+    const name = "c-tabview";
+    const CTabview = defineComponent({
       template: (`
       \ <nav>
       \   <div class="nav nav-tabs" id="nav-tab" role="tablist">
-      \     <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Home</button>
-      \     <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</button>
-      \     <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</button>
-      \     <button class="nav-link" id="nav-disabled-tab" data-bs-toggle="tab" data-bs-target="#nav-disabled" type="button" role="tab" aria-controls="nav-disabled" aria-selected="false" disabled>Disabled</button>
+      \     <template v-for="(itm, slotid) in slots">
+      \       <c-button
+      \         \:class="className()"
+      \         \:id="'tabname-' + vars.uid + '-' + slotid"
+      \         data-bs-toggle="tab"
+      \         \:data-bs-target="'#nav-' + vars.uid + '-' + slotid"
+      \         type="button"
+      \         role="tab"
+      \         \:aria-controls="'nav-' + vars.uid + '-' + slotid"
+      \         aria-selected="true"
+      \         >
+      \       </c-button>
+      \     </template>
       \   </div>
       \ </nav>
       \ <div class="tab-content" id="nav-tabContent">
-      \   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">...</div>
-      \   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">...</div>
-      \   <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">...</div>
-      \   <div class="tab-pane fade" id="nav-disabled" role="tabpanel" aria-labelledby="nav-disabled-tab" tabindex="0">...</div>
+      \   <template v-for="(itm, slotid) in slots">
+      \     <div
+      \       class="tab-pane fade show"
+      \       \:id="'nav-' + vars.uid + '-' + slotid"
+      \       role="tabpanel"
+      \       \:aria-labelledby="'nav-' + vars.uid + '-' + slotid + '-tab'"
+      \       tabindex="0"
+      \       >
+      \       <slot
+      \         \:name="slotid"
+      \         v-bind="slotItem(slotid)"
+      \         />
+      \     </div>
+      \   </template>
       \ </div>`),
       props: {
         modelValue: undefined,
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
+        const uid = genId();
         const vars = {
+          uid,
         };
         const self = cinst();
+        function className() {
+          let ret = undefined;
+          ret = "nav-link";
+          return ret;
+        }
+        slotItem = function(key) {
+          return {
+            tabname: `#tabname-${uid}-${key}`
+          };
+        };
         onMounted(async function() { });
         onBeforeUnmount(async function() { });
         onUpdated(async function() { });
         return {
           props,
           attrs,
+          slots,
           vars,
+          className,
+          slotItem,
         };
       },
     });
-    app.component(name, CTab);
+    app.component(name, CTabview);
   };
   {
     const name = "c-navbar";
