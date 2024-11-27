@@ -1381,11 +1381,12 @@ function registerComponent($SCRIPTPRM) {
         };
         watch(function() { return props.current; }, function(nv, ov) { vars.current = nv; });
         async function onClick(e, pagenum) {
+          vars.current = pagenum;
+          update(props.rows, props.pages, props.total, pagenum);
           if (!props.href) {
-            vars.current = pagenum;
-            update(props.rows, props.pages, props.total, pagenum);
             self.update();
           };
+          emit(ONCHANGE, { start: vars.rnums[0], end: vars.rnums[1] });
           emit(ONCLICK, e, pagenum);
         };
         async function onEnter(e) {
@@ -1398,6 +1399,7 @@ function registerComponent($SCRIPTPRM) {
           } else {
             self.update();
           };
+          emit(ONCHANGE, { start: vars.rnums[0], end: vars.rnums[1] });
           emit(ONCLICK, e, pagenum);
         };
         return {

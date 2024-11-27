@@ -11,7 +11,7 @@
         :total="999"
         tinput="true"
         thref="/smp/smp01001s04?page=#page"
-        @onclick="vars.paginationClick"
+        @onChange="vars.paginationClick"
         />
     </article>
   </section>
