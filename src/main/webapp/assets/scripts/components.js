@@ -1161,18 +1161,18 @@ function registerComponent($SCRIPTPRM) {
       \       <button
       \         type="button"
       \         data-bs-toggle="collapse"
-      \         \:class="['accordion-button', vars.ivalue === slotid ? '' : 'collapsed']"
-      \         \:aria-expanded="vars.ivalue === slotid ? true : false"
+      \         \:class="['accordion-button', vars.ivalue == slotid ? '' : 'collapsed']"
+      \         \:aria-expanded="vars.ivalue == slotid ? true : false"
       \         \:data-bs-target="'#' + vars.uid + '_' + slotid"
       \         \:aria-controls="'#' + vars.uid + '_' + slotid"
-      \         \:id="'accordion-title-' + vars.uid + '-' + slotid"
+      \         \:id="'at' + vars.uid + '' + slotid"
       \         @click="function(e) { onClick(e, slotid) }"
       \         >
       \       </button>
       \     </h3>
       \     <div
       \       \:id="vars.uid + '_' + slotid"
-      \       \:class="['accordion-collapse', 'collapse', vars.ivalue === slotid ? 'show' : '']"
+      \       \:class="['accordion-collapse', 'collapse', vars.ivalue == slotid ? 'show' : '']"
       \       \:data-bs-parent="'#' + vars.uid"
       \       >
       \       <div class="accordion-body">
@@ -1197,9 +1197,9 @@ function registerComponent($SCRIPTPRM) {
           ivalue: props.modelValue
         };
         const self = cinst();
-        slotItem = function(key) {
+        function slotItem(key) {
           return {
-            title: `#accordion-title-${uid}-${key}`
+            title: `#at${uid}${key}`
           };
         };
         async function onClick(e, slotid) {
@@ -1491,14 +1491,15 @@ function registerComponent($SCRIPTPRM) {
       \   <div class="nav nav-tabs" id="nav-tab" role="tablist">
       \     <template v-for="(itm, slotid) in slots">
       \       <c-button
-      \         \:class="className()"
-      \         \:id="'tabname-' + vars.uid + '-' + slotid"
+      \         \:class="['nav-link', vars.ivalue == slotid ? 'active' : '']"
+      \         \:id="'tt' + vars.uid + '' + slotid"
       \         data-bs-toggle="tab"
       \         \:data-bs-target="'#nav-' + vars.uid + '-' + slotid"
       \         type="button"
       \         role="tab"
       \         \:aria-controls="'nav-' + vars.uid + '-' + slotid"
       \         aria-selected="true"
+      \         @onclick="function(e) { onClick(e, slotid) }"
       \         >
       \       </c-button>
       \     </template>
@@ -1507,7 +1508,7 @@ function registerComponent($SCRIPTPRM) {
       \ <div class="tab-content" id="nav-tabContent">
       \   <template v-for="(itm, slotid) in slots">
       \     <div
-      \       class="tab-pane fade show"
+      \       \:class="['tab-pane', 'fade', 'show', vars.ivalue == slotid ? 'active' : '']"
       \       \:id="'nav-' + vars.uid + '-' + slotid"
       \       role="tabpanel"
       \       \:aria-labelledby="'nav-' + vars.uid + '-' + slotid + '-tab'"
@@ -1528,6 +1529,7 @@ function registerComponent($SCRIPTPRM) {
         const uid = genId();
         const vars = {
           uid,
+          ivalue: props.modelValue
         };
         const self = cinst();
         function className() {
@@ -1535,10 +1537,20 @@ function registerComponent($SCRIPTPRM) {
           ret = "nav-link";
           return ret;
         }
-        slotItem = function(key) {
+        function slotItem(key) {
           return {
-            tabname: `#tabname-${uid}-${key}`
+            title: `#tt${uid}${key}`
           };
+        };
+        async function onClick(e, slotid) {
+          LOOP: for (const k in slots) {
+            if (k === slotid) {
+              emit(UPDATE_MV, k);
+              emit(ONCHANGE, k);
+              break LOOP;
+            };
+          };
+          emit(ONCLICK, e);
         };
         onMounted(async function() { });
         onBeforeUnmount(async function() { });
@@ -1550,6 +1562,7 @@ function registerComponent($SCRIPTPRM) {
           vars,
           className,
           slotItem,
+          onClick,
         };
       },
     });

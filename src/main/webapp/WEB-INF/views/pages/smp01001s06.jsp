@@ -5,9 +5,10 @@
   <section>
     <article>
       <c-tabview
+        v-model="vars.tabindex"
         >
-        <template v-for="(itm, inx) in vars.tabs" #[inx]="{ tabname }">
-          <teleport defer :to="tabname">
+        <template v-for="(itm, inx) in vars.tabs" #[inx]="{ title }">
+          <teleport defer :to="title">
           {{ itm.name }}
           </teleport>
           <template v-if="inx == 0">
@@ -47,6 +48,7 @@
 </page:ex>
 <script:ex name="smp01001s06">
 putAll(vars, {
+  tabindex: 0,
   tabs: [
     { name: "첫번째 탭" },
     { name: "두번째 탭"},
