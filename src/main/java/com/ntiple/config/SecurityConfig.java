@@ -157,6 +157,7 @@ public class SecurityConfig {
         .anyRequest()
           .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
       )
+      /* 관리자, 예비사용자, 사용자, 협력사 */
       // /** 폼 로그인 불가 */
       // .formLogin(login -> login.disable())
       // /** 폼 로그아웃 불가 */
