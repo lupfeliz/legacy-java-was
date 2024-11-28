@@ -45,6 +45,15 @@ String NEXUS_MAVEN_REPO = System.env['NEXUS_MAVEN_REPO']
 String CURRENT_DIR = System.properties['user.dir']
 Object DOTENV = new Properties()
 
+/**
+ * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
+ * windows
+ * set NEXUS_MAVEN_REPO=http://192.168.0.2:8081/repository/maven-public/
+ * *nix 
+ * export NEXUS_MAVEN_REPO=http://192.168.0.2:8081/repository/maven-public/
+ * 또는 .env 파일에 쓸 수 있다.
+ * Eclipse(또는 STS) 에서 실행할 경우에는 Eclipse 실행경로에 .env 파일을 두어야 한다 
+ **/
 File ENVFILE = new File(CURRENT_DIR + '/.env')
 if (ENVFILE.exists()) {
   InputStream is = new ByteArrayInputStream(ENVFILE.getText('UTF-8').getBytes())
@@ -74,10 +83,6 @@ publishing {
   }
 }
 
-/**
- * 아래와 같이 넥서스 저장소 주소를 환경변수에 저장할 수 있다.
- * export NEXUS_MAVEN_REPO=http://192.168.0.2:8081/repository/maven-public/
- **/
 repositories {
   if (NEXUS_MAVEN_REPO == null || ''.equals(NEXUS_MAVEN_REPO)) {
     println('USE MAVEN CENTRAL REPOSITORY')
@@ -163,6 +168,7 @@ dependencies {
 
   implementation 'org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r'
   implementation 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:7.0.0.202409031743-r'
+  implementation 'org.tmatesoft.svnkit:svnkit:1.10.11'
 
   implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
   runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
