@@ -1,3 +1,4 @@
+[TOC]
 ## 개발환경 설정 및 프로젝트 설치
 
 ### 1. 확인 및 준비사항
@@ -28,16 +29,26 @@ Resolving deltas: 100% (998/998), done.
 
 이하 3, 4번 항목은 **폐쇄망에서 NEXUS 를 사용하는 경우**에 해당한다.
 
-NEXUS 서버의 주소는 `192.168.0.2` 포트번호는 `8081` 이라고 가정한다. (`maven-public`, `maven-plugin` 리포지터리)
+NEXUS 서버의 주소는 `192.168.0.2` 포트번호는 `8081` 이라고 가정한다. (`maven-public`, `maven-plugin` 리포지터리 사용)
 
 윈도우에서 `설정` → `시스템` → `정보` → `고급 시스템 설정` 을 클릭하여 `시스템 속성` 창을 띄운다
+
+![](./02-environment-001.png)
+
+![](./02-environment-002.png)
+
+![](./02-environment-003.png)
 
 하단의 `환경 변수` → `새로 만들기` 버튼을 클릭하고 `변수 이름` 과 `변수 값` 에 아래 항목을 기재하여 환경변수를 셋팅한다.
 
 - 변수이름 : `NEXUS_MAVEN_REPO` / 변수값 : `http://192.168.0.2:8081/repository/maven-public/`
 - 변수이름 : `NEXUS_PLUGIN_REPO` / 변수값 : `http://192.168.0.2:8081/repository/maven-plugins/`
 
+![](./02-environment-004.png)
+
 또는 프로젝트 최상위 디렉토리에 `.env` 파일을 아래와 같이 생성한다
+
+이클립스(또는 STS) 에서 사용중이라면 이클립스 실행위치에 `.env` 파일을 만들어준다
 
 <!--[-------------------------------------------------------------------------->
 ```bash
@@ -69,10 +80,22 @@ BUILD SUCCESSFUL in 17s
 ```
 <!--]-------------------------------------------------------------------------->
 
-### 5. Spring Tools Suit 에서 프로젝트 불러오기
+### 5. 이클립스 (또는 Spring Tools Suit) 에서 프로젝트 불러오기
 
-STS가 실행중이라면 재시작 한다.
+이클립스가 실행중이라면 재시작 한다.
 
-`file` `import` `Existing Gradle Project` `폴더선택` `Finish` 클릭
+`file` → `import` → `Existing Gradle Project` → `Next` → `폴더선택` → `Finish` 클릭
+
+![](./02-environment-005.png)
+
+![](./02-environment-006.png)
+
+![](./02-environment-007.png)
 
 ### 6. 구동 및 프로파일 변경
+
+정상적으로 import / 빌드 되었다면 `Spring Dashboard` 항목 하단에 `legacy-java-was` 가 생성된다
+
+오른쪽 버튼 클릭후 `(Re)start` 선택하면 프로젝트가 구동된다
+
+![](./02-environment-008.png)
