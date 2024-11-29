@@ -3,9 +3,49 @@
 
 ### 1. 확인 및 준비사항
 
-`JDK-1.8` 설치
+윈도우에서 `설정` → `시스템` → `정보` → `고급 시스템 설정` 을 클릭하여 `시스템 속성` 창을 띄운다
 
-`STS` 설치
+![](./02-environment-001.png)
+
+![](./02-environment-002.png)
+
+![](./02-environment-003.png)
+
+하단의 `환경 변수` → `새로 만들기` 버튼을 클릭하고 `변수 이름` 과 `변수 값` 에 아래 항목을 기재하여 `JAVA_HOME` 환경변수를 셋팅한다.
+
+![](./02-environment-012.png)
+
+같은 방법으로 `PATH` 변수에 `java.exe` 파일이 위치한 경로를 추가입력해 준다.
+
+![](./02-environment-013.png)
+
+jdk 버젼을 확인한다.
+
+<!--[-------------------------------------------------------------------------->
+```bash
+> java -version
+
+java version "1.8.0_65"
+Java(TM) SE Runtime Environment (build 1.8.0_65-b17)
+Java HotSpot(TM) 64-Bit Server VM (build 25.65-b01, mixed mode)
+```
+<!--]-------------------------------------------------------------------------->
+
+`lombok.jar` 파일을 이클립스 (STS) 디렉토리에 복사한다.
+
+![](./02-environment-010.png)
+
+`java -jar lombok.jar` 명령을 실행한다.
+
+<!--[-------------------------------------------------------------------------->
+```bash
+> java -jar lombok.jar
+```
+<!--]-------------------------------------------------------------------------->
+
+`Specify location` → `이클립스 설치위치 선택` → `실행파일 선택` → `Select` → `Install / Update` 순으로 클릭한다
+
+![](./02-environment-011.png)
 
 ### 2. 프로젝트 내려받기
 
@@ -31,15 +71,7 @@ Resolving deltas: 100% (998/998), done.
 
 NEXUS 서버의 주소는 `192.168.0.2` 포트번호는 `8081` 이라고 가정한다. (`maven-public`, `maven-plugin` 리포지터리 사용)
 
-윈도우에서 `설정` → `시스템` → `정보` → `고급 시스템 설정` 을 클릭하여 `시스템 속성` 창을 띄운다
-
-![](./02-environment-001.png)
-
-![](./02-environment-002.png)
-
-![](./02-environment-003.png)
-
-하단의 `환경 변수` → `새로 만들기` 버튼을 클릭하고 `변수 이름` 과 `변수 값` 에 아래 항목을 기재하여 환경변수를 셋팅한다.
+윈도우에서 `설정` → `시스템` → `정보` → `고급 시스템 설정` → `시스템 속성` → `환경 변수` → `새로 만들기` 버튼을 클릭하고 `변수 이름` 과 `변수 값` 에 아래 항목을 기재하여 환경변수를 셋팅한다.
 
 - 변수이름 : `NEXUS_MAVEN_REPO` / 변수값 : `http://192.168.0.2:8081/repository/maven-public/`
 - 변수이름 : `NEXUS_PLUGIN_REPO` / 변수값 : `http://192.168.0.2:8081/repository/maven-plugins/`
@@ -84,7 +116,7 @@ BUILD SUCCESSFUL in 17s
 
 이클립스가 실행중이라면 재시작 한다.
 
-`file` → `import` → `Existing Gradle Project` → `Next` → `폴더선택` → `Finish` 클릭
+`file` → `import` → `General` → `Projects from Folder or Archive` → `Next` → `Directory` →`폴더선택` → `Finish` 클릭
 
 ![](./02-environment-005.png)
 
@@ -92,10 +124,14 @@ BUILD SUCCESSFUL in 17s
 
 ![](./02-environment-007.png)
 
+이후 빌드가 완료될 때까지 대기한다.
+
 ### 6. 구동 및 프로파일 변경
 
 정상적으로 import / 빌드 되었다면 `Spring Dashboard` 항목 하단에 `legacy-java-was` 가 생성된다
 
-오른쪽 버튼 클릭후 `(Re)start` 선택하면 프로젝트가 구동된다
+오른쪽 버튼 클릭후 `(Re)start` 선택하면 프로젝트가 구동되며, 브라우저에서 `http://localhost:8080` 으로 결과 확인이 가능하다.
 
 ![](./02-environment-008.png)
+
+![](./02-environment-009.png)
