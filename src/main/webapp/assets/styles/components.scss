@@ -123,50 +123,38 @@ html#project {
     }
 
     /** [ modal 관련 */
-    > .modal.fade {
+    .modal.fade {
       transition: all var(--modal-fade-transition-time) ease-out;
       > .modal-dialog {
         transition: all var(--modal-fade-transition-time) ease-out;
         display: flex;
         justify-content: center;
+        transform: none;
         > .modal-content {
           width: auto;
           min-width: 10rem;
         }
       }
-    }
-    .modal.com-progress > .modal-dialog > .modal-content {
-      background: none;
-      border: none;
-      text-align: center;
-      overflow: visible;
-      display: block;
-      font-size:large;
-      color: #fff;
-    }
-
-    /** TODO: 중복선언 정리 필요 */
-    .modal.fade {
-      transition: all var(--modal-fade-transition-time);
-      > .modal-dialog {
-        transform: none;
-        > .modal-content {
-          transition: all var(--modal-fade-transition-time);
-        }
-      }
       &.com-progress {
         > .modal-dialog {
-          transition: none;
-          transform: none;
+          > .modal-content {
+            background: none;
+            border: none;
+            text-align: center;
+            overflow: visible;
+            display: block;
+            font-size:large;
+            color: #fff;
+          }
         }
       }
     }
+
     .modal-backdrop {
       &.fade {
         transition: all var(--modal-fade-transition-time);
       }
     }
-
     /** ] modal 관련 */
   }
 }
