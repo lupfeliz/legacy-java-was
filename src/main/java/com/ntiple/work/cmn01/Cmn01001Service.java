@@ -1,11 +1,11 @@
 /**
- * @File        : CommonService.java
+ * @File        : Cmn01001Service.java
  * @Author      : 정재백
  * @Since       : 2024-10-29
  * @Description : 공통적으로 사용할 시스템 서비스
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.work.cmn;
+package com.ntiple.work.cmn01;
 
 import static com.ntiple.commons.Constants.CTYPE_FILE;
 import static com.ntiple.commons.Constants.UTF8;
@@ -63,24 +63,24 @@ import com.ntiple.system.SystemException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntiple.commons.WebUtil;
 import com.ntiple.system.Settings;
-import com.ntiple.work.cmn.CommonEntity.CmmnFile;
-import com.ntiple.work.cmn.CommonEntity.Code;
-import com.ntiple.work.cmn.CommonEntity.DateUpdatable;
-import com.ntiple.work.cmn.CommonEntity.FileInterface;
-import com.ntiple.work.cmn.CommonEntity.Group;
-import com.ntiple.work.cmn.CommonEntity.InitObj;
-import com.ntiple.work.cmn.CommonEntity.Login;
-import com.ntiple.work.cmn.CommonEntity.Menu;
-import com.ntiple.work.cmn.CommonEntity.MenuAuthor;
-import com.ntiple.work.cmn.CommonEntity.SecureOut;
-import com.ntiple.work.cmn.CommonEntity.UpdusrId;
-import com.ntiple.work.sys.SystemRepository;
+import com.ntiple.work.cmn01.Cmn01001Entity.CmmnFile;
+import com.ntiple.work.cmn01.Cmn01001Entity.Code;
+import com.ntiple.work.cmn01.Cmn01001Entity.DateUpdatable;
+import com.ntiple.work.cmn01.Cmn01001Entity.FileInterface;
+import com.ntiple.work.cmn01.Cmn01001Entity.Group;
+import com.ntiple.work.cmn01.Cmn01001Entity.InitObj;
+import com.ntiple.work.cmn01.Cmn01001Entity.Login;
+import com.ntiple.work.cmn01.Cmn01001Entity.Menu;
+import com.ntiple.work.cmn01.Cmn01001Entity.MenuAuthor;
+import com.ntiple.work.cmn01.Cmn01001Entity.SecureOut;
+import com.ntiple.work.cmn01.Cmn01001Entity.UpdusrId;
+import com.ntiple.work.sys01.Sys01001Repository;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Service @SuppressWarnings(STATIC_ACCESS)
-public class CommonService {
+public class Cmn01001Service {
 
   private static com.ntiple.commons.ConvertUtil CU;
   private static com.ntiple.commons.StringUtil SU;
@@ -88,8 +88,8 @@ public class CommonService {
   private static com.ntiple.system.Constants S;
 
   @Autowired Settings settings;
-  @Autowired CommonRepository repository;
-  @Autowired SystemRepository systemrepo;
+  @Autowired Cmn01001Repository repository;
+  @Autowired Sys01001Repository systemrepo;
 
   boolean aliveState;
 
@@ -103,10 +103,10 @@ public class CommonService {
 
   static Map<String, List<Code>> cachedCode = new LinkedHashMap<>();
 
-  static CommonService instance;
+  static Cmn01001Service instance;
 
   @PostConstruct public void init() throws Exception {
-    log.trace("INIT {}", CommonService.class);
+    log.trace("INIT {}", Cmn01001Service.class);
     instance = this;
 
     aliveState = true;

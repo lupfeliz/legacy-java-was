@@ -1,11 +1,11 @@
 /**
- * @File        : CommonRepository.java
+ * @File        : Cmn01001Repository.java
  * @Author      : 정재백
  * @Since       : 2024-10-29
  * @Description : 공통 sqlmap
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.work.cmn;
+package com.ntiple.work.cmn01;
 
 import java.util.Date;
 import java.util.List;
@@ -13,11 +13,11 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.ntiple.work.cmn.CommonEntity.CmmnFile;
-import com.ntiple.work.cmn.CommonEntity.Code;
+import com.ntiple.work.cmn01.Cmn01001Entity.CmmnFile;
+import com.ntiple.work.cmn01.Cmn01001Entity.Code;
 
 @Mapper
-public interface CommonRepository {
+public interface Cmn01001Repository {
 
   /** cl_cd, cd, sn, cd_nm 4개 칼럼만 조회 */
   List<Code> findCode(@Param("prm") Object prm);

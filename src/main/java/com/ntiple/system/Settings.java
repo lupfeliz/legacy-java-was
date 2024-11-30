@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ntiple.Application;
-import com.ntiple.work.cmn.CommonEntity.SystemInfo;
+import com.ntiple.work.cmn01.Cmn01001Entity.SystemInfo;
 
 import lombok.Getter;
 import lombok.Setter;

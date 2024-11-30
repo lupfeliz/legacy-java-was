@@ -1,11 +1,11 @@
 /**
- * @File        : SampleRestController.java
+ * @File        : Smp01001ApiControl.java
  * @Author      : 정재백
  * @Since       : 2024-10-30
  * @Description : 메인 REST 컨트롤러
  * @Site        : https://gitlab.ntiple.com/developers
  **/
-package com.ntiple.work.smp;
+package com.ntiple.work.smp01;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ntiple.work.cmn.CommonEntity.Login;
+import com.ntiple.work.cmn01.Cmn01001Entity.Login;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +25,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Slf4j @RestController @RequestMapping({"/api/smp"})
-public class SampleRestController {
+public class Smp01001ApiControl {
   static final String CONTROLLER_TAG1 = "샘플 API"; 
 
-  @Autowired SampleService service;
+  @Autowired Smp01001ApiService service;
 
   @PostConstruct public void init() {
-    log.trace("INIT:{}", SampleRestController.class);
+    log.trace("INIT:{}", Smp01001ApiControl.class);
   }
 
   @Operation(summary = "샘플페이지API (smp01001a01)", tags = { CONTROLLER_TAG1 })

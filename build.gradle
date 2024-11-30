@@ -116,8 +116,9 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
 
   /** JSP, JSTL */
-  implementation 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
-
+  implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+  implementation 'javax.servlet:javax.servlet-api:4.0.1'
+  implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
   
   /** OpenAPI (swagger) */
   implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'

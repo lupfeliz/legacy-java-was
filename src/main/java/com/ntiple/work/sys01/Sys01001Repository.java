@@ -1,25 +1,25 @@
 /**
- * @File        : SystemRepository.java
+ * @File        : Sys01001Repository.java
  * @Author      : 정재백
  * @Since       : 2024-10-29
  * @Description : 관리자 공통 sqlmap
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.work.sys;
+package com.ntiple.work.sys01;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.ntiple.work.cmn.CommonEntity.Group;
-import com.ntiple.work.cmn.CommonEntity.GroupUser;
-import com.ntiple.work.cmn.CommonEntity.Menu;
-import com.ntiple.work.cmn.CommonEntity.MenuAuthor;
-import com.ntiple.work.cmn.CommonEntity.Mngr;
+import com.ntiple.work.cmn01.Cmn01001Entity.Group;
+import com.ntiple.work.cmn01.Cmn01001Entity.GroupUser;
+import com.ntiple.work.cmn01.Cmn01001Entity.Menu;
+import com.ntiple.work.cmn01.Cmn01001Entity.MenuAuthor;
+import com.ntiple.work.cmn01.Cmn01001Entity.Mngr;
 
 @Mapper
-public interface SystemRepository {
+public interface Sys01001Repository {
 
   Integer countMngr(@Param("prm") Object prm);
   List<Mngr> findMngr(@Param("prm") Object prm);

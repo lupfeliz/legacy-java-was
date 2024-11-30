@@ -23,9 +23,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.ntiple.work.cmn.CommonEntity.AuthResult;
-import com.ntiple.work.cmn.CommonEntity.InitObj;
-import com.ntiple.work.cmn.CommonService;
+import com.ntiple.work.cmn01.Cmn01001Service;
+import com.ntiple.work.cmn01.Cmn01001Entity.AuthResult;
+import com.ntiple.work.cmn01.Cmn01001Entity.InitObj;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RestResponse {
   public static RestResponse instance;
   @Autowired Settings settings;
-  @Autowired CommonService cmnservice;
+  @Autowired Cmn01001Service cmnservice;
   @PostConstruct public void init() {
     instance = this;
   }
@@ -103,7 +103,7 @@ public class RestResponse {
         status = HttpStatus.INTERNAL_SERVER_ERROR;
       }
     }
-    ResponseEntity<T> ret = cast(new ResponseEntity<>(CommonService.secureOut(res), hdrs, status), ret = null);
+    ResponseEntity<T> ret = cast(new ResponseEntity<>(Cmn01001Service.secureOut(res), hdrs, status), ret = null);
     return ret;
   }
 

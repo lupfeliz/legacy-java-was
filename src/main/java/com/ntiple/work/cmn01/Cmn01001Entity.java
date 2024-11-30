@@ -1,11 +1,11 @@
 /**
- * @File        : CommonEntity.java
+ * @File        : Cmn01001Entity.java
  * @Author      : 정재백
  * @Since       : 2024-04-16 
  * @Description : 공통적으로 사용할 DTO Entity
  * @Site        : https://devlog.ntiple.com
  **/
-package com.ntiple.work.cmn;
+package com.ntiple.work.cmn01;
 
 import static com.ntiple.commons.StringUtil.camelCase;
 import static java.lang.annotation.ElementType.FIELD;
@@ -35,7 +35,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CommonEntity {
+public class Cmn01001Entity {
 
   /** Primary키를 표기하기 위한 어노테이션 (특별한 기능은 없음) */
   @Target({METHOD, FIELD})

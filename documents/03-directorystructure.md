@@ -63,8 +63,8 @@
           │               │   ├── CommonRepository.java [공통DB처리기]
           │               │   └── CommonService.java [공통서비스]
           │               ├── smp
-          │               │   ├── SampleController.java [웹요청컨트롤]
-          │               │   ├── SampleRestController.java [REST요청컨트롤]
+          │               │   ├── SampleControl.java [웹요청컨트롤]
+          │               │   ├── SampleRestControl.java [REST요청컨트롤]
           │               │   └── SampleService.java [비즈니스로직서비스]
           │               └── sys
           │                   └── SystemRepository.java
@@ -174,7 +174,7 @@
 
   사용자 회원관리 DTO : `Usr02Entity.java`
 
-  사용자 회원관리 컨트롤러 : `Usr02Controller.java`
+  사용자 회원관리 컨트롤러 : `Usr02Control.java`
 
   사용자 회원관리 서비스 : `Usr02Service.java`
 
@@ -215,20 +215,22 @@
 
 - 약속어휘 체계 (뒤 덧말)
 
-|      분류      |          설명          |               비고               |
-| -------------- | ---------------------- | -------------------------------- |
-| `~ Controller` | 웹서비스 컨트롤러      |                                  |
-| `~ Service`    | 웹서비스 비즈니스 로직 |                                  |
-| `~ Entity`     | DTO 및 엔티티          |                                  |
-| `~ Repository` | 데이터베이스 접근자    | mybatis sql맵 인터페이스         |
-| `~ Broker`     | 외부시스템 연결자      | http 등 외부 프로토콜로 호출시   |
-| `~ Worker`     | 프로그램 수행자        | batch-job 등에서 예약작업 수행시 |
+|      분류      |          설명          |                     비고                     |
+| -------------- | ---------------------- | -------------------------------------------- |
+| `~ Control`    | 웹서비스 컨트롤러      | 페이지 request                               |
+| `~ ApiControl` | 웹서비스 Rest 컨트롤러 | API request                                  |
+| `~ Service`    | 웹서비스 비즈니스 로직 | 모든 로직은 Control이 아닌 Service 에서 진행 |
+| `~ ApiService` | 웹서비스 Api 로직      | Api Control 에 관한 비즈니스 로직            |
+| `~ Entity`     | DTO 및 엔티티          |                                              |
+| `~ Repository` | 데이터베이스 접근자    | mybatis sql맵 인터페이스                     |
+| `~ Broker`     | 외부시스템 연결자      | http 등 외부 프로토콜로 호출시               |
+| `~ Worker`     | 프로그램 수행자        | batch-job 등에서 예약작업 수행시             |
 
 #### 3-3. 파일 생성 위치 (안)
 
 - 웹서비스 (비즈니스로직)
 
-  `/src/main/java/.../work/{대분류}/` 폴더에 `{코드명}Controller.java` `{코드명}Service.java` 와 같이 생성한다.
+  `/src/main/java/.../work/{대분류}/` 폴더에 `{코드명}Control.java` `{코드명}Service.java` 와 같이 생성한다.
 
   `코드명은` 프로젝트 규모에 따라 `대분류 + 중분류` 또는 `대분류 + 중분류 + 소분류` 등의 형태로 정한다.
 
@@ -242,7 +244,7 @@
 
   `/src/main/webapps/WEB-INF/views/pages/{대분류}/` 폴더에 `{코드명}.jsp` 과 같이 생성한다.
 
-  `코드명` 규칙은 `대분류 + 중분류 + 소분류 + 구분자 + 세분류` 로 한다
+  `코드명` 규칙은 `대분류 + 중분류 + 소분류 + 구분자 + 세분류` (모든 코드 조합)로 한다
 
   `구분자` 는 특수 목적으로 사용된다 (**브라우저 팝업**의 경우 **레이아웃 요소 제외 기능** 등)
 
