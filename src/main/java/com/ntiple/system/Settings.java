@@ -12,9 +12,9 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.IOUtils.openResourceStream;
-import static com.ntiple.commons.IOUtils.reader;
-import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.IOUtil.openResourceStream;
+import static com.ntiple.commons.IOUtil.reader;
+import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.StringUtil.cat;
 
 import java.io.Reader;
@@ -100,14 +100,22 @@ public class Settings {
     Reader reader = null;
     Map<String, Object> map;
     // Object o;
-    try {
-      reader = reader(openResourceStream(Application.class, cat("/application-", profile, ".yml")), UTF8);
-      map = yaml.load(reader);
-      log.debug("YML:{}", map);
-    } catch (Exception e) {
-      log.error("", e);
-    } finally {
-      safeclose(reader);
+    for (int inx = 0; inx < 2; inx++) {
+      String fn = "";
+      try {
+        switch (inx) {
+        case 0:   fn = cat("/application.yml"); break;
+        default:  fn = cat("/application-", profile, ".yml"); break;
+        }
+
+        reader = reader(openResourceStream(Application.class, fn), UTF8);
+        map = yaml.load(reader);
+        log.debug("YML:{}", map);
+      } catch (Exception e) {
+        log.error("", e);
+      } finally {
+        safeclose(reader);
+      }
     }
   }
 

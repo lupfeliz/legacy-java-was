@@ -13,11 +13,11 @@ import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.CryptoUtil.RSA.decrypt;
 import static com.ntiple.commons.CryptoUtil.RSA.encrypt;
 import static com.ntiple.commons.HttpUtil.httpWorker;
-import static com.ntiple.commons.IOUtils.file;
-import static com.ntiple.commons.IOUtils.readAsString;
-import static com.ntiple.commons.IOUtils.reader;
-import static com.ntiple.commons.IOUtils.safeclose;
-import static com.ntiple.commons.IOUtils.writer;
+import static com.ntiple.commons.IOUtil.file;
+import static com.ntiple.commons.IOUtil.readAsString;
+import static com.ntiple.commons.IOUtil.reader;
+import static com.ntiple.commons.IOUtil.safeclose;
+import static com.ntiple.commons.IOUtil.writer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 

@@ -7,7 +7,7 @@
  **/
 package com.ntiple.system;
 
-import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.IOUtil.safeclose;
 
 import java.io.File;
 import java.io.Reader;

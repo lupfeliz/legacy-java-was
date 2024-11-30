@@ -8,13 +8,13 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
-import static com.ntiple.commons.IOUtils.file;
-import static com.ntiple.commons.IOUtils.istream;
-import static com.ntiple.commons.IOUtils.mkdirs;
-import static com.ntiple.commons.IOUtils.ostream;
-import static com.ntiple.commons.IOUtils.passthrough;
-import static com.ntiple.commons.IOUtils.readAsString;
-import static com.ntiple.commons.IOUtils.safeclose;
+import static com.ntiple.commons.IOUtil.file;
+import static com.ntiple.commons.IOUtil.istream;
+import static com.ntiple.commons.IOUtil.mkdirs;
+import static com.ntiple.commons.IOUtil.ostream;
+import static com.ntiple.commons.IOUtil.passthrough;
+import static com.ntiple.commons.IOUtil.readAsString;
+import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
 import static com.ntiple.commons.WebUtil.cleanXSS;
