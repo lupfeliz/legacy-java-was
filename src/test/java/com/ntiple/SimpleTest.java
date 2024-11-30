@@ -14,7 +14,6 @@ import static com.ntiple.commons.CryptoUtil.RSA.decrypt;
 import static com.ntiple.commons.CryptoUtil.RSA.encrypt;
 import static com.ntiple.commons.HttpUtil.httpWorker;
 import static com.ntiple.commons.IOUtils.file;
-import static com.ntiple.commons.IOUtils.istream;
 import static com.ntiple.commons.IOUtils.readAsString;
 import static com.ntiple.commons.IOUtils.reader;
 import static com.ntiple.commons.IOUtils.safeclose;
@@ -22,19 +21,10 @@ import static com.ntiple.commons.IOUtils.writer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.Reader;
 import java.io.Writer;
 import java.security.Key;
 import java.util.regex.Pattern;
-
-import javax.script.Bindings;
-import javax.script.Invocable;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.SimpleScriptContext;
 
 import org.junit.jupiter.api.Test;
 
@@ -73,44 +63,6 @@ public class SimpleTest {
       log.debug("STR:{}", PTN_NL.matcher(str).replaceAll(""));
     }
     assertTrue(true);
-  }
-
-  @Test
-  public void testMinifyJS() throws Exception {
-    if (!TestUtil.isEnabled("testMinifyJS", TestLevel.MANUAL)) { return; }
-    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-    ScriptContext context = new SimpleScriptContext();
-    context.getBindings(ScriptContext.GLOBAL_SCOPE);
-    context.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
-    Bindings bindings = context.getBindings(ScriptContext.GLOBAL_SCOPE); 
-    bindings.put("console", System.console());
-    engine.setContext(context);
-    BufferedReader reader = null;
-    Writer writer = null;
-    File scrFile = null;
-    File srcFile = null;
-    try {
-      Invocable invocable = (Invocable) engine;
-      scrFile = TestUtil.getResource(Application.class, "/scripts/uglify.min.js");
-      reader = reader(istream(scrFile), UTF8);
-      engine.eval(reader);
-      safeclose(reader);
-      scrFile = TestUtil.getResource(Application.class, "/scripts/do-minify.js");
-      reader = reader(istream(scrFile), UTF8);
-      engine.eval(reader);
-      safeclose(reader);
-      srcFile = file("/home/coder/documents/tmp/test.js");
-      String content = readAsString(srcFile);
-      content = content.replaceAll("`", "｀");
-      Object obj = invocable.invokeFunction("minifyCode", content);
-      if (obj != null) {
-        content = String.valueOf(obj).replaceAll("｀", "`");
-      }
-      log.debug("RESULT:{}", content);
-    } finally {
-      safeclose(reader);
-      safeclose(writer);
-    }
   }
 
   @Test
