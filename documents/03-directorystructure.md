@@ -13,6 +13,11 @@
   ├── LICENSE.txt
   ├── README.md
   ├── settings.gradle [빌드파일]
+  ├── gradle
+  │   └── wrapper
+  │       ├── gradle-8.2.1-bin.zip [외부파일복사]
+  │       ├── gradle-wrapper.jar
+  │       └── gradle-wrapper.properties
   ├── documents [문서]
   │   ├── 02-environment.md
   │   ├── 03-directorystructure.md
@@ -21,11 +26,6 @@
   │   ├── 06-components.md
   │   ├── 07-functions.md
   │   └── 08-misc.md
-  ├── gradle
-  │   └── wrapper
-  │       ├── gradle-8.2.1-bin.zip [파일추가필요]
-  │       ├── gradle-wrapper.jar
-  │       └── gradle-wrapper.properties
   ├── libs [외부라이브러리]
   │   └── tibero6-jdbc.jar
   └── src
@@ -118,6 +118,53 @@
 ```
 <!--]-------------------------------------------------------------------------->
 
-### 2. Gradle / Spring 기본 및 환경파일
+### 2. 각종 디렉토리 설명
 
-### 3. Gradle / Spring 기본파일
+#### 2-1. Gradle 기본 파일들
+
+- `/gradle` : gradle 라이브러리
+
+- `/gradlew`, `/gradlew.bat` : gradle 실행파일
+
+- `/build.gradle`, `/settings.gradle` : gradle 설정파일
+
+#### 2-2. Spring-boot 기본 및 환경파일
+
+- `/src/main/java/.../Application.java`, `/src/main/java/.../ServletInitializer.java` : 스프링부트 구동파일
+
+- `/src/main/java/.../config/*.java` : 스프링부트 설정
+
+- `/src/main/resources/application*.yml` : 스프링부트 설정
+
+- `/src/main/resources/logback-spring.xml` : 로그설정
+
+#### 2-3. 공통 / 비즈니스로직
+
+- `/src/main/java/.../system/*.java` : 공통 시스템 로직
+
+- `/src/main/java/.../work/*.java` : 비즈니스 로직
+
+#### 2-4. 웹 설정 및 리소스
+
+- `/src/main/webapps/assets` : javascript, css, 글꼴 등
+
+- `/src/main/webapps/WEB-INF/libs` : 의존라이브러리 및 tag-lib 설정들
+
+- `/src/main/webapps/WEB-INF/tiles.xml` : tiles 설정
+
+- `/src/main/webapps/WEB-INF/views` : jsp 페이지 파일들
+
+#### 2-5. 외부 라이브러리
+
+- `/libs` : Nexus 등 sandbox 로 추가 불가능한 라이브러리 파일들 (빌드시 `/WEB-INF/lib` 로 자동추가됨)
+
+#### 2-6. 기타
+
+- `/README.md`, `/LICENSE.txt`, `/documents` : 문서파일
+
+- `/src/main/resources/mybatis-config.xml`, `/src/main/resources/mapper` : mybatis 설정 및 맵핑
+
+
+### 3. 명명규칙
+
+#### 3-1. 
