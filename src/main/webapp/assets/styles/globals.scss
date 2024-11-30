@@ -10,7 +10,7 @@ html#project {
   --body-fade-transition-time: 0.2s;
   > body {
     font-family: 'Pretendard';
-    transition: opacity var(--body-fade-transition-time) var(--body-fade-transition-time) ease;
+    transition: opacity var(--body-fade-transition-time) ease;;
     display: block;
     &.hide-onload {
       opacity: 0;

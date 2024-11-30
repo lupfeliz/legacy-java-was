@@ -16,7 +16,7 @@
     <tiles:insertAttribute name="defines" />
     <tiles:insertAttribute name="assets" />
   </head>
-  <body cass="hide-onload">
+  <body class="hide-onload">
     <div>
     <c:if test="${reqtype == 's'}">
       <tiles:insertAttribute name="header"/>

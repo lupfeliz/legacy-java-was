@@ -366,12 +366,11 @@ function registerComponent($SCRIPTPRM) {
       },
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
-        const vars = {
-        };
+        const vars = { };
         const onClick = function(e) {
           cancelEvent(e);
           _onClick(e);
-        }
+        };
         const _onClick = throttle(function(e) {
           return emit(ONCLICK, e);
         }, 300);
@@ -1559,7 +1558,7 @@ function registerComponent($SCRIPTPRM) {
           let ret = undefined;
           ret = "nav-link";
           return ret;
-        }
+        };
         function slotItem(key) {
           return {
             title: `#tt${uid}${key}`
