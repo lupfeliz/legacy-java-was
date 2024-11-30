@@ -135,7 +135,7 @@
           확인팝업
         </c-button>
         <c-button class="mx-1" variant="danger" @onclick="vars.doWinpopup">
-          물리팝업
+          브라우저팝업
         </c-button>
         <c-button class="mx-1" variant="info" @onclick="vars.doToast">
           토스트
