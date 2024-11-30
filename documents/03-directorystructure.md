@@ -58,25 +58,28 @@
           │           │   ├── SpreadSheetUtil.java [엑셀파일생성유틸]
           │           │   └── SystemException.java [공통오류]
           │           └── work
-          │               ├── cmn
-          │               │   ├── CommonEntity.java [공통DTO]
-          │               │   ├── CommonRepository.java [공통DB처리기]
-          │               │   └── CommonService.java [공통서비스]
-          │               ├── smp
-          │               │   ├── SampleControl.java [웹요청컨트롤]
-          │               │   ├── SampleRestControl.java [REST요청컨트롤]
-          │               │   └── SampleService.java [비즈니스로직서비스]
-          │               └── sys
-          │                   └── SystemRepository.java
+          │               ├── cmn01
+          │               │   ├── Cmn01001Entity.java [공통DTO]
+          │               │   ├── Cmn01001Repository.java [공통DB처리기]
+          │               │   └── Cmn01001Service.java [공통서비스]
+          │               ├── smp01
+          │               │   ├── Smp0101Control.java [웹요청컨트롤]
+          │               │   ├── Smp0101Service.java [비즈니스로직서비스]
+          │               │   ├── Smp0101ApiControl.java [REST요청컨트롤]
+          │               │   └── Smp0101ApiService.java [REST요청서비스]
+          │               └── sys01
+          │                   └── Sys01001Repository.java
           ├── resources
           │   ├── application.yml [설정파일]
           │   ... [프로파일별설정]
           │   ├── application-prod.yml
           │   ├── logback-spring.xml [로그설정]
           │   ├── mapper
-          │   │   ├── common-repository.xml
+          │   │   ├── cmn01
+          │   │   │   └── cmn01001-repository.xml
           │   │   ... [데이터베이스map]
-          │   │   └── system-repository.xml
+          │   │   └── sys01
+          │   │       └── sys01001-repository.xml
           │   └── mybatis-config.xml
           └── webapp
               ├── assets
@@ -112,9 +115,10 @@
                       │   ├── layout.jsp [jsp레이아웃]
                       │   └── meta-define.jsp [html메타]
                       └── pages
-                          ├── smp01001p01.jsp
-                          ... [각종JSP파일]
-                          └── smp01001s06.jsp
+                          └── smp01
+                              ├── smp01001p01.jsp
+                              ... [각종JSP파일]
+                              └── smp01001s06.jsp
 ```
 <!--]-------------------------------------------------------------------------->
 
@@ -146,13 +150,13 @@
 
 #### 2-4. 웹 설정 및 리소스
 
-- `/src/main/webapps/assets` : javascript, css, 글꼴 등
+- `/src/main/webapp/assets` : javascript, css, 글꼴 등
 
-- `/src/main/webapps/WEB-INF/libs` : 의존라이브러리 및 tag-lib 설정들
+- `/src/main/webapp/WEB-INF/libs` : 의존라이브러리 및 tag-lib 설정들
 
-- `/src/main/webapps/WEB-INF/tiles.xml` : tiles 설정
+- `/src/main/webapp/WEB-INF/tiles.xml` : tiles 설정
 
-- `/src/main/webapps/WEB-INF/views` : jsp 페이지 파일들
+- `/src/main/webapp/WEB-INF/views` : jsp 페이지 파일들
 
 #### 2-5. 외부 라이브러리
 
@@ -230,29 +234,39 @@
 
 - 웹서비스 (비즈니스로직)
 
-  `/src/main/java/.../work/{대분류}/` 폴더에 `{코드명}Control.java` `{코드명}Service.java` 와 같이 생성한다.
+  `/src/main/java/.../work/{분류명}/` 폴더에 `{코드명}Control.java` `{코드명}Service.java` 와 같이 생성한다.
 
-  `코드명은` 프로젝트 규모에 따라 `대분류 + 중분류` 또는 `대분류 + 중분류 + 소분류` 등의 형태로 정한다.
+  `분류명`은 프로젝트 규모에 따라 `대분류` 또는 `대분류 + 중분류` 등의 형태로 정한다. (예시 : `smp` 또는 `smp01`)
+
+  `코드명`은 프로젝트 규모에 따라 `대분류 + 중분류` 또는 `대분류 + 중분류 + 소분류` 등의 형태로 정한다. (예시 : `Smp01` 또는 `Smp01001`)
+
+  예시 : `/src/main/java/.../work/smp01/Smp01001Control.java`
 
 - 데이터베이스 SQL맵
 
-  `/src/main/resources/mapper/` 폴더에 `{코드명}repository.xml` 과 같이 생성한다.
+  `/src/main/resources/mapper/{분류명}` 폴더에 `{코드명}-repository.xml` 과 같이 생성한다.
 
-  `코드명` 규칙은 웹서비스 코드명 규칙과 동일
+  `분류명` 및 `코드명` 규칙은 웹서비스 명명 규칙과 동일
+
+  예시 : `/src/main/resources/mapper/smp01/smp01001-repository.xml`
 
 - JSP 페이지
 
-  `/src/main/webapps/WEB-INF/views/pages/{대분류}/` 폴더에 `{코드명}.jsp` 과 같이 생성한다.
+  `/src/main/webapp/WEB-INF/views/pages/{분류명}/` 폴더에 `{코드명}.jsp` 과 같이 생성한다.
+
+  `분류명`은 프로젝트 규모에 따라 `대분류` 또는 `대분류 + 중분류` 등의 형태로 정한다.
 
   `코드명` 규칙은 `대분류 + 중분류 + 소분류 + 구분자 + 세분류` (모든 코드 조합)로 한다
 
   `구분자` 는 특수 목적으로 사용된다 (**브라우저 팝업**의 경우 **레이아웃 요소 제외 기능** 등)
 
+  예시 : `/src/main/webapp/WEB-INF/views/pages/smp01/smp01001s01.jsp`
+
 #### 3-4. 기타
 
 - REST 요청 경로 명명규칙
 
-  REST 요청 경로의 경우 반드시 `/api/` 로 시작하며, 이후 경로 규칙은 일반 코드규칙과 같다
+  REST 요청 경로의 경우 반드시 `/api/` 로 시작하며, 이후 경로 규칙은 일반 URL 작성규칙과 같다
 
   예시 : `/api/smp/smp01001a01`
 
