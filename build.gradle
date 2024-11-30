@@ -70,8 +70,6 @@ if (System.properties['spring.profiles.active'] != null) {
 }
 if (PROFILE == null || ''.equals(PROFILE)) { PROFILE = 'local' }
 
-// println('PROFILE:' + PROFILE)
-// println('NEXUS_MAVEN_REPO:' + NEXUS_MAVEN_REPO)
 publishing {
   publications {
     maven(MavenPublication) {
@@ -102,18 +100,14 @@ repositories {
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-security'
-  implementation 'org.springframework.boot:spring-boot-starter-websocket'
+  // implementation 'org.springframework.boot:spring-boot-starter-websocket'
   implementation 'org.springframework.boot:spring-boot-starter-aop'
-  implementation 'org.springframework.boot:spring-boot-starter-quartz'
-  implementation 'org.springframework.boot:spring-boot-starter-batch'
+  // implementation 'org.springframework.boot:spring-boot-starter-quartz'
+  // implementation 'org.springframework.boot:spring-boot-starter-batch'
   implementation 'org.springframework.boot:spring-boot-starter-mail'
-  implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  // implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+  // implementation 'org.springframework.boot:spring-boot-starter-data-rest'
   implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
-
-  implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-  implementation 'org.apache.httpcomponents:httpmime:4.5.14'
-  implementation 'javax.validation:validation-api:2.0.1.Final'
 
   /** JSP, JSTL */
   implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
@@ -129,52 +123,64 @@ dependencies {
   implementation 'org.apache.tiles:tiles-core:3.0.1'
   
   /** log4jdbc */
-  // implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16' 
+  implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16' 
 
+  /** http client */
+  implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+  implementation 'org.apache.httpcomponents:httpmime:4.5.14'
+
+  /** apache commons */
   implementation 'commons-fileupload:commons-fileupload:1.5'
   implementation 'commons-codec:commons-codec:1.17.1'
   implementation 'commons-io:commons-io:2.17.0'
-  implementation 'org.apache.poi:poi:5.3.0'
-  implementation 'org.apache.poi:poi-ooxml:5.3.0'
-  // implementation 'org.apache.commons:commons-dbcp2:2.12.0'
+  implementation 'org.apache.commons:commons-dbcp2:2.12.0'
+
+  /** 웹소켓 */
+  implementation 'org.webjars:webjars-locator-core'
+  implementation 'org.webjars:sockjs-client:1.5.1'
+  implementation 'org.webjars:stomp-websocket:2.3.4'
+
+  /** ssh / zip */
+  implementation 'com.jcraft:jsch:0.1.55'
+  implementation 'com.jcraft:jzlib:1.1.3'
+
+  /** git / svn */
+  implementation 'org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r'
+  implementation 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:7.0.0.202409031743-r'
+  implementation 'org.tmatesoft.svnkit:svnkit:1.10.11'
+
+  /** 웹토큰 */
+  implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+  runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+  runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+  /** json / yaml */
+  implementation 'org.json:json:20230618'
+  implementation 'org.yaml:snakeyaml:2.2'
+
+  /** 기타 */
   runtimeOnly 'org.postgresql:postgresql'
   runtimeOnly 'com.h2database:h2'
+  implementation 'org.apache.poi:poi:5.3.0'
+  implementation 'org.apache.poi:poi-ooxml:5.3.0'
   implementation 'org.ehcache:ehcache:3.10.8'
   implementation 'net.logicsquad:minifier:1.3'
+  implementation 'javax.validation:validation-api:2.0.1.Final'
+  implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
+  implementation 'com.ntiple:ntiple-utils:0.0.3-4'
 
+  /** file-based library */
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+  /** 빌드, 개발 및 테스트 관련 */
   compileOnly 'org.projectlombok:lombok'
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
   developmentOnly 'org.springframework.boot:spring-boot-starter-tomcat'
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
   annotationProcessor 'org.projectlombok:lombok'
 
-  implementation 'org.webjars:webjars-locator-core'
-  implementation 'org.webjars:sockjs-client:1.5.1'
-  implementation 'org.webjars:stomp-websocket:2.3.4'
-
-  implementation 'com.jcraft:jsch:0.1.55'
-  implementation 'com.jcraft:jzlib:1.1.3'
-
-  implementation 'org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r'
-  implementation 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:7.0.0.202409031743-r'
-  implementation 'org.tmatesoft.svnkit:svnkit:1.10.11'
-
-  implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-  runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-  runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-  implementation 'org.yaml:snakeyaml:2.2'
-  implementation 'org.json:json:20230618'
-
-  implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
-
-  implementation 'com.ntiple:ntiple-utils:0.0.3-4'
-
   testImplementation 'org.projectlombok:lombok'
   testAnnotationProcessor 'org.projectlombok:lombok'
-
-  implementation fileTree(dir: 'libs', include: ['*.jar'])
-
   testImplementation 'org.mockito:mockito-core:5.5.0'
   testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'

@@ -144,13 +144,29 @@ html#project {
       font-size:large;
       color: #fff;
     }
-    .modal.no-tran {
-      z-index: 10054;
+
+    /** TODO: 중복선언 정리 필요 */
+    .modal.fade {
+      transition: all var(--modal-fade-transition-time);
       > .modal-dialog {
-        transition: none !important;
-        transform: none !important;
+        transform: none;
+        > .modal-content {
+          transition: all var(--modal-fade-transition-time);
+        }
+      }
+      &.com-progress {
+        > .modal-dialog {
+          transition: none;
+          transform: none;
+        }
       }
     }
+    .modal-backdrop {
+      &.fade {
+        transition: all var(--modal-fade-transition-time);
+      }
+    }
+
     /** ] modal 관련 */
   }
 }
