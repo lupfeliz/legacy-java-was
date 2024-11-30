@@ -25,6 +25,7 @@ import org.springframework.web.servlet.view.tiles3.TilesViewResolver;
   @Bean TilesViewResolver tilesViewResolver() {
     final TilesViewResolver tilesViewResolver = new TilesViewResolver();
     tilesViewResolver.setViewClass(TilesView.class);
+    // tilesViewResolver.setOrder(0);
     return tilesViewResolver;
   }
 }

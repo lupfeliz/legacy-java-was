@@ -27,7 +27,7 @@ public class Smp01001Service {
   public String smp01001s01(Model model) throws Exception {
     model.addAttribute("TEST", "TEST-VALUE");
     log.debug("CHECK-PARAM:{}", params());
-    return "/smp01/smp01001s01";
+    return "smp01/smp01001s01";
   }
 
   /** 페이지용 서비스 */
@@ -37,27 +37,27 @@ public class Smp01001Service {
     for (String key : params.keys()) {
       log.debug("PARAMS:{}", params.get(key));
     }
-    return "/smp01/smp01001s02";
+    return "smp01/smp01001s02";
   }
 
   public String smp01001s03(Model model) throws Exception {
-    return "/smp01/smp01001s03";
+    return "smp01/smp01001s03";
   }
 
   public String smp01001s04(Model model) throws Exception {
-    return "/smp01/smp01001s04";
+    return "smp01/smp01001s04";
   }
 
   public String smp01001s05(Model model) throws Exception {
-    return "/smp01/smp01001s05";
+    return "smp01/smp01001s05";
   }
 
   public String smp01001s06(Model model) throws Exception {
-    return "/smp01/smp01001s06";
+    return "smp01/smp01001s06";
   }
 
   public String smp01001p01(Model model) throws Exception {
     log.debug("CHECK-PARAM:{}", params());
-    return "/smp01/smp01001p01";
+    return "smp01/smp01001p01";
   }
 }

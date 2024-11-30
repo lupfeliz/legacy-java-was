@@ -22,13 +22,16 @@
     <put-attribute name="body" value="" />
   </definition>
   <!-- 경로에 따른 바인드 규칙 (3-depth 까지) -->
-  <definition name="/*" extends="default">
+  <definition name="!*" extends="default">
     <put-attribute name="body" value="/WEB-INF/views/pages/{1}.jsp" />
   </definition>
-  <definition name="/*/*" extends="default">
+  <definition name="!*/*" extends="default">
     <put-attribute name="body" value="/WEB-INF/views/pages/{1}/{2}.jsp" />
   </definition>
-  <definition name="/*/*/*" extends="default">
+  <definition name="!*/*/*" extends="default">
     <put-attribute name="body" value="/WEB-INF/views/pages/{1}/{2}/{3}.jsp" />
+  </definition>
+  <definition name="!*/*/*/*" extends="default">
+    <put-attribute name="body" value="/WEB-INF/views/pages/{1}/{2}/{3}/{4}.jsp" />
   </definition>
 </tiles-definitions>

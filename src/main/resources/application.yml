@@ -7,6 +7,10 @@ debug: false
 spring:
   application:
     name: "demo"
+  mvc:
+    view:
+      prefix: "/WEB-INF/views/"
+      suffix: ".jsp"
   servlet:
     multipart:
       maxFileSize: "1GB"

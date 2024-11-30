@@ -58,10 +58,11 @@ public class RequestAspect {
       log.debug("BEFORE:{} / {}", uri, joint.toShortString());
       /** TODO: 인증 / 오류처리 등을 수행한다. */
       ret = joint.proceed();
-      // if (ret != null && ret instanceof JSONObject) { ret = convert(ret, newMap()); }
-      // if ("/smp01001s01".equals(ret)) { ret = "/smp01001s02"; }
       if ((ret == null || "".equals(ret)) && !"".equals(wkno)) {
-        ret = cat("/", cate, wkno, rqty, stno);
+        ret = cat(cate, wkno, "/", cate, wkno, rqty, stno);
+      }
+      if (ret != null && ret instanceof String) {
+        ret = cat("!", cat(ret).replaceAll("^/", ""));
       }
       log.debug("AFTER:{} / {} / {} / {}", uri, joint.toShortString(), ret);
     } catch (Exception e) {
