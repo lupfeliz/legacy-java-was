@@ -11,15 +11,19 @@ import static com.ntiple.commons.WebUtil.params;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import com.ntiple.commons.WebUtil.RequestParameter;
+import com.ntiple.work.cmn01.Cmn01001Service;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Service
 public class Smp01001Service {
+
+  @Autowired Cmn01001Service cmnsvc;
 
   @PostConstruct public void init() { }
 

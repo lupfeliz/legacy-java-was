@@ -26,9 +26,9 @@
 
 [컴포넌트 목록 및  설명](./documents/06-components.md) 문서 참고
 
-## 7. 내장함수 목록 및 설명
+## 7. 내장함수와 객체 목록 및 설명
 
-[내장함수 목록 및 설명](./documents/07-functions.md) 문서 참고
+[내장함수와 객체 목록 및 설명](./documents/07-functions.md) 문서 참고
 
 ## 8. 기타사항 
 

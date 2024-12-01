@@ -51,7 +51,7 @@ public class PersistentConfig {
   }
 
   @Bean @Qualifier(DATASOURCE)
-  @ConfigurationProperties(prefix = "spring.datasource")
+  @ConfigurationProperties(prefix = "spring.datasource-main")
   DataSource datasource() {
     DataSource ret = null;
     String jndiName = settings.getJndiName();

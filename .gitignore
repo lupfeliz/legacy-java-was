@@ -41,8 +41,11 @@ demo-app.db.mv.db
 
 /src/main/resources/static/*
 /src/main/resources/application-my.yml
-test.log
 /log
 **/*.cache
 .env
 /gradle/wrapper/gradle-8.2.1-bin.zip
+/test.http
+/test.sql
+/test.txt
+/test.log
