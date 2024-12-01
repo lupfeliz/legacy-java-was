@@ -3,15 +3,65 @@
 
 ### 1. 제어흐름
 
+- 비즈니스로직 제어흐름 (페이지 및 API 호출)
+
 ```mermaid
 sequenceDiagram
 Actor User
-User->>Frontend: 게시물 조회
-Frontend->>atc01001: 게시물 조회 (atc01001a02)
-atc01001->>DB: findOneByIdEquals(id)
-DB->>atc01001: 게시물정보
-atc01001->>Frontend: 게시물정보
-Frontend->>User: 게시물 상세 페이지
+participant APP
+box White 컨트롤
+participant AuthFilter
+participant CommonFilter
+participant RequestAspect
+participant Control
+participant Service
+end
+box White 모델
+participant Repository
+end
+User ->> APP: 요청
+APP ->> AuthFilter: 권한 판단
+AuthFilter ->> CommonFilter: 리소스 제어
+CommonFilter ->> RequestAspect: 　
+RequestAspect ->> RequestAspect: 선처리 (리퀘스트분석 등)
+RequestAspect ->> Control: 　
+Control ->> Service: 서비스 호출
+Service ->> Repository: SQL 호출
+Repository ->> Service: SQL 결과물
+Service ->> RequestAspect: 서비스 결과물
+RequestAspect ->> RequestAspect: 후처리 (오류 및 결과물 가공)
+RequestAspect ->> APP: 　
+APP ->>User: 결과물
+```
+- View(JSP) 처리흐름
+
+```mermaid
+sequenceDiagram
+Actor User
+box White Client Side
+participant Browser
+participant Vue템플릿
+end
+box White Server Side
+participant APP
+participant JSP
+participant Tiles
+participant Control
+end
+User ->> Browser: 페이지요청
+Browser ->> APP: 　
+APP ->> Control: 　
+Control ->> Control: 서비스 호출
+Control ->> Tiles: HTML 결과물 요청
+Tiles ->> Tiles: 레이아웃
+Tiles ->> JSP: 구성요소 요청
+JSP ->> JSP: Model 데이터 직접 렌더
+JSP ->> Tiles: 구성요소 HTML
+Tiles ->> APP: HTML 결과물
+APP ->> Browser: 페이지 렌더
+Browser ->> Vue템플릿: 컴포넌트 렌더
+Vue템플릿 ->> Browser: 렌더 결과
+Browser ->>User: 페이지 최종 결과물
 ```
 
 ### 2. 일반 웹페이지
