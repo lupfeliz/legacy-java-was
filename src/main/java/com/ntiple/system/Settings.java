@@ -12,14 +12,20 @@
 package com.ntiple.system;
 
 import static com.ntiple.commons.Constants.UTF8;
+import static com.ntiple.commons.ConvertUtil.getCascade;
+import static com.ntiple.commons.ConvertUtil.mergeMap;
+import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.IOUtil.openResourceStream;
 import static com.ntiple.commons.IOUtil.reader;
 import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.StringUtil.cat;
 
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
@@ -38,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Settings {
   private static Settings instance;
 
-  @Value("${system.profile}") private Object profile;
+  @Value("${system.profile}") private String profile;
 
   /** dbcrypto 관련 파라메터 */
   @Value("${security.dbcrypt.cipher:aes}") private String dbcCipher;
@@ -70,12 +76,13 @@ public class Settings {
   @PostConstruct public void init() {
     log.trace("INIT:{}", Settings.class);
     instance = this;
-    reloadYmlSettings();
+    reload();
   }
 
+  private static final Pattern PTN_PLACEHOLDER = Pattern.compile("[$][{]([a-zA-Z0-9_.-]+)([:].+){0,1}[}]");
+
   public static String getProfile() {
-    // return instance.profile;
-    return "";
+    return instance.profile;
   }
 
   public static boolean isProfile(String... profiles) {
@@ -95,11 +102,10 @@ public class Settings {
     return instance;
   }
 
-  public void reloadYmlSettings() {
+  public Settings reload() {
     Yaml yaml = new Yaml();
     Reader reader = null;
-    Map<String, Object> map;
-    // Object o;
+    Map<String, Object> map = newMap();
     for (int inx = 0; inx < 2; inx++) {
       String fn = "";
       try {
@@ -107,19 +113,38 @@ public class Settings {
         case 0:   fn = cat("/application.yml"); break;
         default:  fn = cat("/application-", profile, ".yml"); break;
         }
-
         reader = reader(openResourceStream(Application.class, fn), UTF8);
-        map = yaml.load(reader);
-        log.debug("YML:{}", map);
+        map = mergeMap(map, yaml.load(reader));
       } catch (Exception e) {
         log.error("", e);
       } finally {
         safeclose(reader);
       }
     }
-  }
-
-  public static void sleep(long time) {
-    try { Thread.sleep(time); } catch (Exception ignore) { }
+    for (Field field: getClass().getDeclaredFields()) {
+      try {
+        if (field == null) { continue; }
+        Value anon = field.getAnnotation(Value.class);
+        if (anon == null) { continue; }
+        String ak = anon.value();
+        String nam = "";
+        Object val = null;
+        String def = "";
+        Matcher mat = PTN_PLACEHOLDER.matcher(ak);
+        // log.debug("KEY:{} / {}", key, mat);
+        if (mat.find() && mat.groupCount() > 0) {
+          nam = mat.group(1);
+          if (mat.groupCount() > 1) { def = String.valueOf(mat.group(2)).replaceAll("^[:]", ""); }
+          val = getCascade(map, nam.split("[.]"));
+          if (val == null) { val = def; }
+          log.debug("KEY:{} / {} / {} / {}", nam, val, def, field.get(this));
+          field.set(this, val);
+        }
+      } catch (Exception e) {
+        log.debug("E:", e);
+      }
+    }
+    log.debug("YML:{} / {}", profile, map);
+    return this;
   }
 }

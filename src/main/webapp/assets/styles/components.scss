@@ -75,6 +75,12 @@ html#project {
       > button.nav-link {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
+        transition: all var(--component-transition-time);
+      }
+    }
+    .nav + .tab-content {
+      > .tab-pane {
+        transition: all var(--component-transition-time);
       }
     }
 

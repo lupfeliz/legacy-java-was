@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class WebResourceConfig implements WebMvcConfigurer {
 
   @Override
-  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+  public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
     CacheControl cacheControl = CacheControl
       // .noCache();
       .maxAge(30, TimeUnit.SECONDS);

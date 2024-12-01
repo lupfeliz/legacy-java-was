@@ -32,10 +32,6 @@
       └── main
           ├── java
           │   └── com
-          │       ├── github
-          │       │   └── usingsky
-          │       │       └── calendar
-          │       │           └── KoreanLunarCalendar.java [음력캘린더]
           │       └── ntiple
           │           ├── Application.java [스프링부트메인]
           │           ├── ServletInitializer.java [war부트메인]
@@ -193,6 +189,8 @@
 #### 3-2. 분류코드 및 약속어휘 체계 (안)
 
 - 분류코드 체계
+
+코드가 `cmn01002a03` 이라고 했을 때  다음과 같이 구분된다.
 
 | 분류  |  구분  |                          설명                           |
 | ----- | ------ | ------------------------------------------------------- |
