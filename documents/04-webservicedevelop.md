@@ -12,16 +12,12 @@
 sequenceDiagram
 Actor User
 participant APP
-box White 컨트롤
 participant AuthFilter
 participant CommonFilter
 participant RequestAspect
 participant Control
 participant Service
-end
-box White 모델
 participant Repository
-end
 User ->> APP: 요청
 APP ->> AuthFilter: 권한 판단
 AuthFilter ->> CommonFilter: 리소스 제어
@@ -41,16 +37,12 @@ APP ->>User: 결과물
 ```mermaid
 sequenceDiagram
 Actor User
-box White Client Side
 participant Browser
 participant Vue템플릿
-end
-box White Server Side
 participant APP
 participant JSP
 participant Tiles
 participant Control
-end
 User ->> Browser: 페이지요청
 Browser ->> APP: 　
 APP ->> Control: 　
