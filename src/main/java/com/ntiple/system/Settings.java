@@ -15,6 +15,13 @@ import static com.ntiple.commons.Constants.UTF8;
 import static com.ntiple.commons.ConvertUtil.getCascade;
 import static com.ntiple.commons.ConvertUtil.mergeMap;
 import static com.ntiple.commons.ConvertUtil.newMap;
+import static com.ntiple.commons.ConvertUtil.parseBoolean;
+import static com.ntiple.commons.ConvertUtil.parseByte;
+import static com.ntiple.commons.ConvertUtil.parseDouble;
+import static com.ntiple.commons.ConvertUtil.parseFloat;
+import static com.ntiple.commons.ConvertUtil.parseInt;
+import static com.ntiple.commons.ConvertUtil.parseLong;
+import static com.ntiple.commons.ConvertUtil.parseShort;
 import static com.ntiple.commons.IOUtil.openResourceStream;
 import static com.ntiple.commons.IOUtil.reader;
 import static com.ntiple.commons.IOUtil.safeclose;
@@ -59,6 +66,9 @@ public class Settings {
   /** 저장소 경로 */
   @Value("${storage.path:/tmp}") private String storagePath;
 
+  /** 암호화 seed */
+  @Value("${system.key-seed:}") private String encryptSeed;
+
   /** 기본URL 주소 */
   private List<String> hostNames;
 
@@ -79,7 +89,7 @@ public class Settings {
     reload();
   }
 
-  private static final Pattern PTN_PLACEHOLDER = Pattern.compile("[$][{]([a-zA-Z0-9_.-]+)([:].+){0,1}[}]");
+  private static final Pattern PTN_PLACEHOLDER = Pattern.compile("[$][{]([a-zA-Z0-9_.-]+)([:].*){0,1}[}]");
 
   public static String getProfile() {
     return instance.profile;
@@ -99,6 +109,10 @@ public class Settings {
   }
 
   public static Settings getInstance() {
+    if (instance == null) {
+      instance = new Settings();
+      instance.reload();
+    }
     return instance;
   }
 
@@ -129,16 +143,36 @@ public class Settings {
         String ak = anon.value();
         String nam = "";
         Object val = null;
+        Object tmp = null;
         String def = "";
         Matcher mat = PTN_PLACEHOLDER.matcher(ak);
         // log.debug("KEY:{} / {}", key, mat);
         if (mat.find() && mat.groupCount() > 0) {
+          Class<?> type = field.getType();
           nam = mat.group(1);
           if (mat.groupCount() > 1) { def = String.valueOf(mat.group(2)).replaceAll("^[:]", ""); }
           val = getCascade(map, nam.split("[.]"));
           if (val == null) { val = def; }
-          log.debug("KEY:{} / {} / {} / {}", nam, val, def, field.get(this));
-          field.set(this, val);
+          log.debug("KEY:{} / {} / {} / {} / {}", nam, val, def, type, field.get(this));
+          if (
+            ((type == int.class || type == Integer.class)
+              && (tmp = parseInt(val, null)) != null) ||
+            ((type == long.class || type == Long.class)
+              && (tmp = parseLong(val, null)) != null) ||
+            ((type == short.class || type == Short.class)
+              && (tmp = parseShort(val, null)) != null) ||
+            ((type == byte.class || type == Byte.class)
+              && (tmp = parseByte(val, null)) != null) ||
+            ((type == float.class || type == Float.class)
+              && (tmp = parseFloat(val, null)) != null) ||
+            ((type == double.class || type == Double.class)
+              && (tmp = parseDouble(val, null)) != null) ||
+            ((type == boolean.class || type == Boolean.class)
+              && (tmp = parseBoolean(val, null)) != null)) {
+            field.set(this, tmp);
+          } else {
+            field.set(this, val);
+          }
         }
       } catch (Exception e) {
         log.debug("E:", e);

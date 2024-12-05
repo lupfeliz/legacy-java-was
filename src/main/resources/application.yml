@@ -57,3 +57,4 @@ logging:
 
 ## 기타 프로젝트 일반 설정
 system:
+  key-seed: "project-key-seed-2024-12-06"

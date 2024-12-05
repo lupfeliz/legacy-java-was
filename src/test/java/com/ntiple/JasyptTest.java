@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.ntiple.TestUtil.TestLevel;
 import com.ntiple.config.JasyptConfig;
+import com.ntiple.system.Settings;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,8 +23,10 @@ public class JasyptTest {
 
   @Test public void testEncrypt() throws Exception {
     if (!TestUtil.isEnabled("testEncrypt", TestLevel.MANUAL)) { return; }
-    log.debug("OK");
-    StringEncryptor encryptor = JasyptConfig.getEncryptor("test");
+    Settings settings = Settings.getInstance();
+    String seed = settings.getEncryptSeed();
+    log.debug("SETTINGS-SEED:{}", settings.getEncryptSeed());
+    StringEncryptor encryptor = JasyptConfig.getEncryptor(seed);
     String txt = "";
     String enc = "";
     String dec = "";
