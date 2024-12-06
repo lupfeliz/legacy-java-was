@@ -17,19 +17,6 @@ spring:
   jackson:
     ## 로컬에서는 디버깅을 위해 모든 속성을 조회한다
     default-property-inclusion: always 
-  datasource-main:
-    hikari:
-      connection-test-query: SELECT 1 FROM DUAL
-      minimum-idle: 1
-      maximum-pool-size: 5
-      pool-name: dbp-kcdf2023
-      auto-commit: false
-    driver-class-name: org.postgresql.Driver
-    # jdbc-url: jdbc:postgresql://172.17.0.1:5432/kcdf2023
-    jdbc-url: jdbc:postgresql://192.168.0.139:5432/kcdf2023
-    username: kcdf_manager
-    password: kcdf#12#
-    maximum-pool-size: 10
 
 logging:
   level:
