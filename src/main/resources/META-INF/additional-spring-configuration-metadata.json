@@ -1,0 +1,46 @@
+{
+  "properties": [
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "system.key-seed",
+      "type": "java.lang.String"
+    },
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "system.profile",
+      "type": "java.lang.String"
+    },
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "system.assets.cache.dir",
+      "type": "java.lang.String"
+    },
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "system.assets.js.minify",
+      "type": "java.lang.String"
+    },
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "system.assets.scss.minify",
+      "type": "java.lang.String"
+    },
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "springdoc.server.url",
+      "type": "java.lang.String"
+    },
+    {
+      "defaultValue": "",
+      "description": "",
+      "name": "springdoc.server.description",
+      "type": "java.lang.String"
+    }
+  ]
+}
