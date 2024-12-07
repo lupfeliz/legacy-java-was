@@ -179,7 +179,7 @@ public class Settings {
               v = System.getProperty(k);
               str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
               log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
-              field.set(this, val);
+              field.set(this, str);
             } else {
               field.set(this, val);
             }
