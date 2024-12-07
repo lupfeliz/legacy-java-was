@@ -172,14 +172,23 @@ public class Settings {
             field.set(this, tmp);
           } else  if (type == String.class) {
             String str = String.valueOf(val);
-            String v = "";
+            String v = null;
             Matcher mat2 = PTN_PLACEHOLDER.matcher(str);
             if (mat2.find()) {
               String k = mat2.group(1);
-              v = System.getProperty(k);
-              str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
-              log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
-              field.set(this, str);
+              LOOP: for (int kinx = 0; kinx < 10; kinx++) {
+                SW: switch (kinx) {
+                case 0: { v = System.getProperty(k); } break SW;
+                default: { v = null; } break SW; }
+                if (v != null && !"".equals(v)) { break LOOP; }
+              }
+              if (v != null && "".equals(v)) {
+                str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
+                log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
+                field.set(this, str);
+              } else {
+                field.set(this, val);
+              }
             } else {
               field.set(this, val);
             }
