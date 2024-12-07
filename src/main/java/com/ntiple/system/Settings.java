@@ -153,7 +153,7 @@ public class Settings {
           if (mat.groupCount() > 1) { def = String.valueOf(mat.group(2)).replaceAll("^[:]", ""); }
           val = getCascade(map, nam.split("[.]"));
           if (val == null) { val = def; }
-          log.debug("KEY:{} / {} / {} / {} / {}", nam, val, def, type, field.get(this));
+          log.trace("KEY:{} / {} / {} / {} / {}", nam, val, def, type, field.get(this));
           if (
             ((type == int.class || type == Integer.class)
               && (tmp = parseInt(val, null)) != null) ||
@@ -170,6 +170,19 @@ public class Settings {
             ((type == boolean.class || type == Boolean.class)
               && (tmp = parseBoolean(val, null)) != null)) {
             field.set(this, tmp);
+          } else  if (type == String.class) {
+            String str = String.valueOf(val);
+            String v = "";
+            Matcher mat2 = PTN_PLACEHOLDER.matcher(str);
+            if (mat2.find()) {
+              String k = mat2.group(1);
+              v = System.getProperty(k);
+              str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
+              log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
+              field.set(this, val);
+            } else {
+              field.set(this, val);
+            }
           } else {
             field.set(this, val);
           }
@@ -178,7 +191,7 @@ public class Settings {
         log.debug("E:", e);
       }
     }
-    log.debug("YML:{} / {}", profile, map);
+    log.trace("YML:{} / {}", profile, map);
     return this;
   }
 }
