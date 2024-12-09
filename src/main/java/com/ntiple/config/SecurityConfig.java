@@ -78,6 +78,7 @@ public class SecurityConfig {
     reqPubLst.addAll(asList(
       matcher(GET, "/"),
       matcher(GET, "/smp/**"),
+      matcher(GET, "/pbl/**"),
       matcher(POST, "/smp/**"),
       matcher(GET, "/assets/**"),
       /** GET /api/cmn/* (공용API) */
