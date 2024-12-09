@@ -182,7 +182,7 @@ public class Settings {
                 default: { v = null; } break SW; }
                 if (v != null && !"".equals(v)) { break LOOP; }
               }
-              if (v != null && "".equals(v)) {
+              if (v != null && !"".equals(v)) {
                 str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
                 log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
                 field.set(this, str);
