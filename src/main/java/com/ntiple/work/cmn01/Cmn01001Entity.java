@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 
+import org.apache.ibatis.type.Alias;
 import org.springdoc.core.converters.models.DefaultPageable;
 import org.springdoc.core.converters.models.Pageable;
 
@@ -240,8 +241,7 @@ public class Cmn01001Entity {
 
   /** TB_CODE */
   @Schema(title = "공통코드 (TB_CODE / Code)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @Alias("Code") @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class Code {
     @Schema(title = "분류코드 (cl_cd)")
@@ -269,8 +269,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "공통 코드 분류 (TB_CODE_CL / CodeCl)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class CodeCl {
     @Schema(title = "분류코드 (cl_cd)")
@@ -286,8 +285,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "공통 파일 타입 (TB_CMMN_FILE / CmmnFile)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class CmmnFile implements FileInterface, DateUpdatable, UpdusrId {
     @Schema(title = "파일일련번호 (file_sn)")
@@ -330,8 +328,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "시스템정보")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class SystemInfo {
     public String iaddress;
@@ -343,8 +340,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "배포정보")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class DeployInfo {
     public String type;
@@ -352,8 +348,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "접속제한")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class ClientInfo {
     public IpAddressInfo allow;
@@ -361,8 +356,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "IP주소정보")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class IpAddressInfo {
     public String address;
@@ -370,8 +364,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "로그정보")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class LogInfo {
     public String type;
@@ -381,8 +374,7 @@ public class Cmn01001Entity {
 
 
   @Schema(title = "관리자정보 (TB_MNGR / Mngr)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @Alias("Mngr") @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class Mngr implements DateUpdatable, UpdusrId, Search {
     @Schema(title = "관리자ID")
@@ -420,8 +412,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "메뉴정보 (TB_MENU / Menu)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @Alias("Menu") @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class Menu implements Search {
     @Schema(title = "메뉴일련번호")
@@ -453,8 +444,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "메뉴권한정보 (TB_MENU_AUTHOR / MenuAuthor)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @Alias("MenuAuthor") @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class MenuAuthor {
     @Schema(title = "메뉴일련번호")
@@ -475,8 +465,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "그룹사용자 (TB_GROUP_USER / GroupUser)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @Alias("GroupUser") @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class GroupUser {
     @Schema(title = "그룹일련번호")
@@ -495,8 +484,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "그룹 (TB_GROUP / Group)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @Alias("Group") @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class Group implements DateUpdatable, UpdusrId, Search {
     @Schema(title = "그룹일련번호")
@@ -536,8 +524,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "관리자 로그인 기록 (TB_MNGR_LOGIN_HIST / MngrLoginHist)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class MngrLoginHist {
     @Schema(title = "로그인일련번호")
@@ -554,6 +541,7 @@ public class Cmn01001Entity {
     public String rm;
   }
 
+  @Alias("cmap")
   @Schema(title = "MYBATIS camelcase 매핑 (내부사용)", hidden = true)
   public static class CamelMap<K, V> extends HashMap<String, V> {
     @Override public V put(String k, V v) {
