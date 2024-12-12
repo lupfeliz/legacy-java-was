@@ -1,44 +1,74 @@
 {
   "properties": [
     {
-      "defaultValue": "",
-      "description": "",
       "name": "system.key-seed",
       "type": "java.lang.String"
     },
     {
-      "defaultValue": "",
-      "description": "",
       "name": "system.profile",
       "type": "java.lang.String"
     },
     {
-      "defaultValue": "",
-      "description": "",
       "name": "system.assets.cache.dir",
       "type": "java.lang.String"
     },
     {
-      "defaultValue": "",
-      "description": "",
       "name": "system.assets.js.minify",
       "type": "java.lang.String"
     },
     {
-      "defaultValue": "",
-      "description": "",
       "name": "system.assets.scss.minify",
       "type": "java.lang.String"
     },
     {
-      "defaultValue": "",
-      "description": "",
       "name": "springdoc.server.url",
       "type": "java.lang.String"
     },
     {
-      "defaultValue": "",
-      "description": "",
+      "name": "spring.datasource-main.hikari.connection-test-query",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.minimum-idle",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.pool-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.auto-commit",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.driver-class-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.jdbc-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.username",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.password",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
       "name": "springdoc.server.description",
       "type": "java.lang.String"
     }

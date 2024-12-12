@@ -21,7 +21,7 @@ import static com.ntiple.commons.WebUtil.curResponse;
 import static com.ntiple.commons.WebUtil.getUri;
 import static com.ntiple.commons.WebUtil.referer;
 import static com.ntiple.commons.WebUtil.remoteAddr;
-import static com.ntiple.config.PersistentConfig.SQLTRANSCT;
+import static com.ntiple.config.PersistentConfig.SQLTRANSCT_MAIN;
 import static com.ntiple.system.Constants.PROF_DEV;
 import static com.ntiple.system.Constants.PROF_LOCAL;
 import static com.ntiple.system.Constants.STATIC_ACCESS;
@@ -123,7 +123,7 @@ public class Cmn01001Service {
     // overloadSettings();
   }
 
-  @Transactional(SQLTRANSCT)
+  @Transactional(SQLTRANSCT_MAIN)
   public void refreshURLAuthorities() throws Exception {
     /** URL 권한정보 */
     URI_AUTH_MAP.clear();
@@ -346,7 +346,7 @@ public class Cmn01001Service {
     return ret;
   }
 
-  @Transactional(SQLTRANSCT)
+  @Transactional(SQLTRANSCT_MAIN)
   public Object saveCode(Code prm) throws Exception {
     List<Code> list = repository.findCode(prm);
     Code code = null;
@@ -360,7 +360,7 @@ public class Cmn01001Service {
     return code;
   }
 
-  @Transactional(SQLTRANSCT)
+  @Transactional(SQLTRANSCT_MAIN)
   public Object updateCode(Code prm, String clCd, String cd) throws Exception {
     return repository.updateCode(autoFill(prm), clCd, cd);
   }

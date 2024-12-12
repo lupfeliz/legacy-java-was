@@ -130,7 +130,8 @@ public class Settings {
         reader = reader(openResourceStream(Application.class, fn), UTF8);
         map = mergeMap(map, yaml.load(reader));
       } catch (Exception e) {
-        log.error("", e);
+        log.debug("PROFILE {} NOT FOUND", fn);
+        // log.error("", e);
       } finally {
         safeclose(reader);
       }

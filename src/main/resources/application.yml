@@ -15,7 +15,7 @@ spring:
     multipart:
       maxFileSize: "1GB"
       maxRequestSize: "1GB"
-  datasource:
+  datasource-main:
     driverClassName: org.h2.Driver
     ##  메모리 전용 DB 사용시 아래 설정 사용
     url: jdbc:h2:mem:test
