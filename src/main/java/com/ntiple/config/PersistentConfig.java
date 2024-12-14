@@ -8,6 +8,8 @@
 package com.ntiple.config;
 
 import static com.ntiple.commons.IOUtil.safeclose;
+import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.ReflectionUtil.findConstructor;
 import static com.ntiple.commons.StringUtil.cat;
 import static com.ntiple.commons.StringUtil.strreplace;
 
@@ -27,6 +29,7 @@ import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.Alias;
+import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
@@ -156,33 +159,44 @@ public class PersistentConfig {
     return ret;
   }
 
-  private static final void applyTypeAlias(SqlSessionFactoryBean fb, String pkg) {
+  private static final void applyTypeProcess(SqlSessionFactoryBean fb, String... pkg) {
     BufferedReader reader = null;
     try {
-      String ipkg = strreplace(pkg, ".", "/");
       ClassLoader loader = Application.class.getClassLoader();
       String bpath = getResourcePath(loader, "");
-      String fpath = getResourcePath(loader, ipkg);
-      List<String> list = findClasses(bpath, fpath);
+      List<String> list = new ArrayList<>();
+      for (int inx = 0; inx < pkg.length; inx++) {
+        list.addAll(findClasses(bpath, getResourcePath(loader, strreplace(pkg[inx], ".", "/"))));
+      }
       log.debug("FIND-CLASSES:{}", list);
       if (list != null && list.size() > 0) {
-        List<Class<?>> clslst = new ArrayList<>();
+        List<Class<?>> alsLst = new ArrayList<>();
+        List<TypeHandler<?>> hndLst = new ArrayList<>();
         for (String path : list) {
           log.trace("CLASS:{}", path);
           try {
             Class<?> cls = Class.forName(path);
             Annotation[] ans = cls.getAnnotations();
             for (Annotation an : ans) {
-              if (an.annotationType() == Alias.class) {
+              Class<? extends Annotation> type = an.annotationType();
+              if (type == Alias.class) {
                 log.debug("FOUND TYPE ALIAS:{} / {}", cls, an);
-                clslst.add(cls);
+                alsLst.add(cls);
               }
+            }
+            if (TypeHandler.class.isAssignableFrom(cls)) {
+              log.debug("FOUND TYPE HANDLER:{}", cls);
+              hndLst.add(cast(findConstructor(cls).newInstance(), TypeHandler.class));
             }
           } catch (Exception e) { log.trace("", e); }
         }
-        if (clslst.size() > 0) {
-          Class<?>[] classes = new Class[clslst.size()];
-          fb.setTypeAliases(clslst.toArray(classes));
+        if (alsLst.size() > 0) {
+          Class<?>[] array = new Class[alsLst.size()];
+          fb.setTypeAliases(alsLst.toArray(array));
+        }
+        if (hndLst.size() > 0) {
+          TypeHandler<?>[] array = new TypeHandler[hndLst.size()];
+          fb.setTypeHandlers(hndLst.toArray(array));
         }
       }
     } catch (Exception e) {
@@ -220,7 +234,7 @@ public class PersistentConfig {
     ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
     Resource[] resource = resolver.getResources("mapper/**/*.xml");
     fb.setMapperLocations(resource);
-    applyTypeAlias(fb, "com.ntiple.work");
+    applyTypeProcess(fb, "com.ntiple.work", "com.ntiple.system");
     return fb.getObject();
   }
 

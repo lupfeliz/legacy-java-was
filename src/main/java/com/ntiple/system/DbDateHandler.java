@@ -16,10 +16,14 @@ import java.util.Date;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.MappedJdbcTypes;
+import org.apache.ibatis.type.MappedTypes;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@MappedJdbcTypes({ JdbcType.TIMESTAMP, JdbcType.DATE })
+@MappedTypes({ Date.class })
 public class DbDateHandler extends BaseTypeHandler<Date> {
 
   @Override

@@ -30,6 +30,7 @@ public class Smp01001Service {
   /** 페이지용 서비스 */
   public String smp01001s01(Model model) throws Exception {
     model.addAttribute("TEST", "TEST-VALUE");
+    cmnsvc.dbCurrent();
     log.debug("CHECK-PARAM:{}", params());
     return "smp01/smp01001s01";
   }

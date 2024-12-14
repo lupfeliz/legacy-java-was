@@ -103,8 +103,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "검색질의 파라메터 (Search)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class SearchResult<T> implements Search {
     @Schema(title = "검색키워드")
@@ -124,8 +123,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "공통 REST 결과타입 (Result)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class Result<T> {
     @Schema(title = "결과코드")
@@ -139,8 +137,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "로그인 요청 파라메터 (Login)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class Login {
     @Schema(title = "사용자ID")
@@ -158,8 +155,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "로그인 응답 타입 (AuthResult)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class AuthResult {
     @Schema(title = "사용자 ID", hidden = true)
@@ -177,8 +173,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "검색결과 (SearchEntity)")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class SearchEntity<T> {
     @Schema(title = "검색타입")
@@ -212,8 +207,7 @@ public class Cmn01001Entity {
   }
 
   @Schema(title = "공통 환경변수 결과타입")
-  @AllArgsConstructor
-  @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class InitObj {
     @Schema(title = "서버현재시간 (Unix-Time / 시간동기화 용)")
@@ -240,8 +234,9 @@ public class Cmn01001Entity {
   }
 
   /** TB_CODE */
+  @Alias("Code")
   @Schema(title = "공통코드 (TB_CODE / Code)")
-  @Alias("Code") @AllArgsConstructor @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder
   public static class Code {
     @Schema(title = "분류코드 (cl_cd)")
@@ -373,8 +368,9 @@ public class Cmn01001Entity {
   }
 
 
+  @Alias("Mngr")
   @Schema(title = "관리자정보 (TB_MNGR / Mngr)")
-  @Alias("Mngr") @AllArgsConstructor @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class Mngr implements DateUpdatable, UpdusrId, Search {
     @Schema(title = "관리자ID")
@@ -411,8 +407,9 @@ public class Cmn01001Entity {
     public Object dateSc;
   }
 
+  @Alias("Menu")
   @Schema(title = "메뉴정보 (TB_MENU / Menu)")
-  @Alias("Menu") @AllArgsConstructor @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class Menu implements Search {
     @Schema(title = "메뉴일련번호")
@@ -443,8 +440,9 @@ public class Cmn01001Entity {
     public Object dateSc;
   }
 
+  @Alias("MenuAuthor")
   @Schema(title = "메뉴권한정보 (TB_MENU_AUTHOR / MenuAuthor)")
-  @Alias("MenuAuthor") @AllArgsConstructor @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class MenuAuthor {
     @Schema(title = "메뉴일련번호")
@@ -464,8 +462,9 @@ public class Cmn01001Entity {
     public Object groupSc;
   }
 
+  @Alias("GroupUser")
   @Schema(title = "그룹사용자 (TB_GROUP_USER / GroupUser)")
-  @Alias("GroupUser") @AllArgsConstructor @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class GroupUser {
     @Schema(title = "그룹일련번호")
@@ -483,8 +482,9 @@ public class Cmn01001Entity {
     public Object mngrSc;
   }
 
+  @Alias("Group")
   @Schema(title = "그룹 (TB_GROUP / Group)")
-  @Alias("Group") @AllArgsConstructor @NoArgsConstructor
+  @AllArgsConstructor @NoArgsConstructor
   @Getter @Setter @ToString @Builder @SecureOut
   public static class Group implements DateUpdatable, UpdusrId, Search {
     @Schema(title = "그룹일련번호")
