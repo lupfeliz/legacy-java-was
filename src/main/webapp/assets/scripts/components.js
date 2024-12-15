@@ -356,7 +356,7 @@ function registerComponent($SCRIPTPRM) {
       \ <button
       \   v-bind="attrs"
       \   \:class="className()"
-      \   @click="onClick"
+      \   \@click="onClick"
       \   >
       \   <slot />
       \ </button>`),
@@ -406,10 +406,10 @@ function registerComponent($SCRIPTPRM) {
       \     \:data-element-uid="vars.uid"
       \     \:inputmode="vars.inputMode"
       \     \:pattern="vars.pattern"
-      \     @keydown="onKeydown"
-      \     @keyup="onKeyup"
-      \     @focus="onFocus"
-      \     @blur="onBlur"
+      \     \@keydown="onKeydown"
+      \     \@keyup="onKeyup"
+      \     \@focus="onFocus"
+      \     \@blur="onBlur"
       \     />
       \   <span
       \     v-if="props.buttons === 'true'"
@@ -417,10 +417,10 @@ function registerComponent($SCRIPTPRM) {
       \     <a class="xmark"
       \       role="button"
       \       tabindex="0"
-      \       @blur="onBlur"
-      \       @focus="onFocus"
-      \       @click="onClickButton"
-      \       @keydown="onClickButton"
+      \       \@blur="onBlur"
+      \       \@focus="onFocus"
+      \       \@click="onClickButton"
+      \       \@keydown="onClickButton"
       \       \:ref="vars.buttons[0]"
       \       >
       \       <i class="bi bi-backspace"></i>
@@ -429,10 +429,10 @@ function registerComponent($SCRIPTPRM) {
       \     <a class="vmark"
       \       role="button"
       \       tabindex="0"
-      \       @blur="onBlur"
-      \       @focus="onFocus"
-      \       @click="onClickButton"
-      \       @keydown="onClickButton"
+      \       \@blur="onBlur"
+      \       \@focus="onFocus"
+      \       \@click="onClickButton"
+      \       \@keydown="onClickButton"
       \       \:ref="vars.buttons[1]"
       \       >
       \       <i class="bi bi-eye"></i>
@@ -827,7 +827,7 @@ function registerComponent($SCRIPTPRM) {
       \   \:data-nvalue="props.nvalue"
       \   \:data-group="vars.group"
       \   \:data-index="vars.index"
-      \   @click="onClick"
+      \   \@click="onClick"
       \   />`),
       props: {
         form: undefined,
@@ -940,7 +940,7 @@ function registerComponent($SCRIPTPRM) {
       template: (`
       \ <div
       \   class="dropdown"
-      \   @keyup="onKeypress"
+      \   \@keyup="onKeypress"
       \   >
       \   <button
       \     type="button"
@@ -964,7 +964,7 @@ function registerComponent($SCRIPTPRM) {
       \       <a
       \         data=""
       \         \:class="getClass('dropdown-item cursor-pointer ', 'item', inx)"
-      \         @click="onSelect(inx)"
+      \         \@click="onSelect(inx)"
       \         >
       \         {{ itm.name }}
       \       </a>
@@ -1101,10 +1101,10 @@ function registerComponent($SCRIPTPRM) {
       \   class="form-control"
       \   type="text"
       \   \:ref="vars.elem"
-      \   @mousedown="onMouseDown"
-      \   @click="onClick"
-      \   @focus="onFocus"
-      \   @blur="onBlur"
+      \   \@mousedown="onMouseDown"
+      \   \@click="onClick"
+      \   \@focus="onFocus"
+      \   \@blur="onBlur"
       \   />`),
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
@@ -1188,7 +1188,7 @@ function registerComponent($SCRIPTPRM) {
       \         \:data-bs-target="'#' + vars.uid + '_' + slotid"
       \         \:aria-controls="'#' + vars.uid + '_' + slotid"
       \         \:id="'at' + vars.uid + '' + slotid"
-      \         @click="function(e) { onClick(e, slotid) }"
+      \         \@click="function(e) { onClick(e, slotid) }"
       \         >
       \       </button>
       \     </h3>
@@ -1261,10 +1261,10 @@ function registerComponent($SCRIPTPRM) {
       \       v-if="props.input === 'true'"
       \       placeholder="숫자입력"
       \       type="numeric"
-      \       :maxlength="String(props.total).length"
+      \       \:maxlength="String(props.total).length"
       \       buttons="false"
-      \       @onenter="onEnter"
-      \       :ref="vars.input"
+      \       \@onenter="onEnter"
+      \       \:ref="vars.input"
       \       />
       \     <template
       \       v-if="vars.pnums[0] > 1"
@@ -1277,7 +1277,7 @@ function registerComponent($SCRIPTPRM) {
       \           role="button"
       \           \:aria-label="1 + ' 페이지로 이동'"
       \           \:href="linkHref(1)"
-      \           @click="function(e) { onClick(e, 1) }"
+      \           \@click="function(e) { onClick(e, 1) }"
       \           >
       \           <i class="bi bi-chevron-double-left"></i>
       \         </a>
@@ -1294,7 +1294,7 @@ function registerComponent($SCRIPTPRM) {
       \           role="button"
       \           \:aria-label="(vars.current - 1) + ' 페이지로 이동'"
       \           \:href="linkHref(vars.current - 1)"
-      \           @click="function(e) { onClick(e, vars.current - 1) }"
+      \           \@click="function(e) { onClick(e, vars.current - 1) }"
       \           >
       \           <i class="bi bi-chevron-left"></i>
       \         </a>
@@ -1324,7 +1324,7 @@ function registerComponent($SCRIPTPRM) {
       \           role="button"
       \           \:aria-label="itm.num + ' 페이지로 이동'"
       \           \:href="linkHref(itm.num)"
-      \           @click="function(e) { onClick(e, itm.num) }"
+      \           \@click="function(e) { onClick(e, itm.num) }"
       \           >
       \           {{ itm.num }}
       \         </a>
@@ -1343,7 +1343,7 @@ function registerComponent($SCRIPTPRM) {
       \           role="button"
       \           \:aria-label="(vars.current + 1) + ' 페이지로 이동'"
       \           \:href="linkHref(vars.current + 1)"
-      \           @click="function(e) { onClick(e, vars.current + 1) }"
+      \           \@click="function(e) { onClick(e, vars.current + 1) }"
       \           >
       \           <i class="bi bi-chevron-right"></i>
       \         </a>
@@ -1360,7 +1360,7 @@ function registerComponent($SCRIPTPRM) {
       \           role="button"
       \           \:aria-label="(vars.pnums[2]) + ' 페이지로 이동'"
       \           \:href="linkHref(vars.pnums[2])"
-      \           @click="function(e) { onClick(e, vars.pnums[2]) }"
+      \           \@click="function(e) { onClick(e, vars.pnums[2]) }"
       \           >
       \           <i class="bi bi-chevron-double-right"></i>
       \         </a>
@@ -1521,7 +1521,7 @@ function registerComponent($SCRIPTPRM) {
       \         role="tab"
       \         \:aria-controls="'nav-' + vars.uid + '-' + slotid"
       \         aria-selected="true"
-      \         @onclick="function(e) { onClick(e, slotid) }"
+      \         \@onclick="function(e) { onClick(e, slotid) }"
       \         >
       \       </c-button>
       \     </template>

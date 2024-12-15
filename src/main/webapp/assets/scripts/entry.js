@@ -1832,15 +1832,15 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         if (invalid) {
           if (v.type == "checkbox") {
             let name = josa(v.name, "에");
-            return String(`#(name) 반드시 체크해 주세요`)
+            return String(`\#(name)\ 반드시 체크해 주세요`)
               .replace(/\#\(name\)/g, name);
           } else if (v.type == "select" || v.type == "combobox") {
             let name = josa(v.name, "은");
-            return String(`#(name) 반드시 선택해 주세요`)
+            return String(`\#(name)\ 반드시 선택해 주세요`)
               .replace(/\#\(name\)/g, name);
           } else {
             let name = josa(v.name, "은");
-            return String(`#(name) 반드시 입력해 주세요`)
+            return String(`\#(name)\ 반드시 입력해 주세요`)
               .replace(/\#\(name\)/g, name);
           }
         };
@@ -1849,7 +1849,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "nospc": function(v, p) {
         if (/ /g.test(v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 공백을 입력할수 없어요`)
+          return String(`\#(name)\ 공백을 입력할수 없어요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1857,7 +1857,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "number": function(v, p) {
         if (!getPattern("number", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 숫자만 입력해 주세요`)
+          return String(`#(name)\ 숫자만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1865,7 +1865,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "numeric": function(v, p) {
         if (!getPattern("numeric", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 숫자만 입력해 주세요`)
+          return String(`\#(name)\ 숫자만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1873,7 +1873,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "alpha": function(v, p) {
         if (!getPattern("alpha", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 영문으로만 입력해 주세요`)
+          return String(`\#(name)\ 영문으로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1881,7 +1881,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "alphaspc": function(v, p) {
         if (!getPattern("alphaspc", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 영문으로만 입력해 주세요`)
+          return String(`\#(name)\ 영문으로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1889,7 +1889,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "alphastart": function(v, p) {
         if (!(getPattern(C.ALPHASTART, v.value))) {
           let name = josa(v.name, "의");
-          return String(`#(name) 첫글자는 반드시 영문으로 입력해 주세요`)
+          return String(`\#(name)\ 첫글자는 반드시 영문으로 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1897,7 +1897,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "alphanum": function(v, p) {
         if (!(getPattern("alphanum", v.value))) {
           let name = josa(v.name, "은");
-          return String(`#(name) 영문 또는 숫자로만 입력해 주세요`)
+          return String(`\#(name)\ 영문 또는 숫자로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1905,7 +1905,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "alphanumspc": function(v, p) {
         if (!(getPattern("alphanumspc", v.value))) {
           let name = josa(v.name, "은");
-          return String(`#(name) 영문 또는 숫자로만 입력해 주세요`)
+          return String(`\#(name)\ 영문 또는 숫자로만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1913,7 +1913,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "ascii": function(v, p) {
         if (!getPattern("ascii", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 영문, 숫자 또는 기호만 입력해 주세요`)
+          return String(`\#(name)\ 영문, 숫자 또는 기호만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1921,7 +1921,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       "hangul": function(v, p) {
         if (!getPattern("hangul", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 한글만 입력해 주세요`)
+          return String(`\#(name)\ 한글만 입력해 주세요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1937,7 +1937,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         };
         if (!valid) {
           let name = josa(v.value, "은");
-          return String(`#(name) 올바른 날자 형식이 아니예요`)
+          return String(`\#(name)\ 올바른 날자 형식이 아니예요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1953,7 +1953,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         };
         if (!valid) {
           let name = josa(v.value, "은");
-          return String(`#(name) 올바른 날자 형식이 아니예요`)
+          return String(`\#(name)\ 올바른 날자 형식이 아니예요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1962,7 +1962,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         let t;
         if (!getPattern("email", v.value)) {
           let name = josa(v.value, "은");
-          return String(`#(name) 올바른 이메일 형식이 아니예요`)
+          return String(`\#(name)\ 올바른 이메일 형식이 아니예요`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1971,7 +1971,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         let t;
         if (!getPattern("password", v.value)) {
           let name = josa(v.name, "은");
-          return String(`#(name) 4자리 이상, 영문자, 숫자, 기호를 반드시 섞어서 입력해 주세요.`)
+          return String(`\#(name)\ 4자리 이상, 영문자, 숫자, 기호를 반드시 섞어서 입력해 주세요.`)
             .replace(/\#\(name\)/g, name);
         };
         return true;
@@ -1985,13 +1985,13 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         const clen = String(div.innerText).trim().length;
         if (vmin > 0 && clen < vmin) {
           let name = josa(v.name, "의");
-          return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
+          return String(`\#(name)\ 길이는 최소 \#(min)\ 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
             .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
         if (vmax > 0 && clen > vmax) {
           let name = josa(v.name, "의");
-          return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
+          return String(`\#(name)\ 길이는 최대 \#(max)\ 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
             .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
@@ -2003,13 +2003,13 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         const vmax = num(nitem(p, 1), 0);
         if (vmin > 0 && v.value && String(v.value ? v.value : "").trim().length < vmin) {
           let name = josa(v.name, "의");
-          return String(`#(name) 길이는 최소 #(min) 글자 입니다.`)
+          return String(`\#(name)\ 길이는 최소 \#(min)\ 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
             .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
         if (vmax > 0 && v.value && String(v.value).length > vmax) {
           let name = josa(v.name, "의");
-          return String(`#(name) 길이는 최대 #(max) 글자 입니다.`)
+          return String(`\#(name)\ 길이는 최대 \#(max)\ 글자 입니다.`)
             .replace(/\#\(name\)/g, name)
             .replace(/\#\(max\)/g, String(numeric(vmax)));
         };
@@ -2021,7 +2021,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
         if (Number(numberOnly(v.value ? v.value : 0)) < vmin) {
           let name = josa(v.name, "은");
-          return String(`#(name) #(min) 이상의 값을 입력해 주세요`)
+          return String(`\#(name)\ \#(min)\ 이상의 값을 입력해 주세요`)
             .replace(/\#\(name\)/g, name)
             .replace(/\#\(min\)/g, String(numeric(vmin)));
         };
@@ -2033,7 +2033,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         /** FIXME: 부호체크(+-) 가능하도록 수정할것 */
         if (Number(numberOnly(v.value ? v.value : 0)) > vmax) {
           let name = josa(v.name, "은");
-          return String(`#(name) #(max) 이하의 값을 입력해 주세요`)
+          return String(`\#(name)\ \#(max)\ 이하의 값을 입력해 주세요`)
             .replace(/\#\(name\)/g, name)
             .replace(/\#\(max\)/g, String(numeric(vmax)));
         };
@@ -2056,17 +2056,17 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         if (found < count) {
           if (v.type == "checkbox") {
             let name = josa(v.name, "에");
-            return String(`#(name) 반드시 #(count)개 이상 체크해 주세요`)
+            return String(`\#(name)\ 반드시 \#(count)개 이상 체크해 주세요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
           } else if (v.type == "select") {
             let name = josa(v.name, "은");
-            return String(`#(name) 반드시 #(count)개 이상 선택해 주세요`)
+            return String(`\#(name)\ 반드시 \#(count)개 이상 선택해 주세요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
           } else {
             let name = josa(v.name, "은");
-            return String(`#(name) 반드시 #(count)개 이상 입력해 주세요`)
+            return String(`\#(name)\ 반드시 \#(count)개 이상 입력해 주세요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
           }
@@ -2088,17 +2088,17 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
         if (found > count) {
           if (v.type == "checkbox") {
             let name = josa(v.name, "은");
-            return String(`#(name) #(count)개 이상 체크할 수 없어요`)
+            return String(`\#(name)\ \#(count)개 이상 체크할 수 없어요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
           } else if (v.type == "select") {
             let name = josa(v.name, "은");
-            return String(`#(name) #(count)개 이상 선택할 수 없어요`)
+            return String(`\#(name)\ \#(count)개 이상 선택할 수 없어요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
           } else {
             let name = josa(v.name, "은");
-            return String(`#(name) #(count)개 이상 입력할 수 없어요`)
+            return String(`\#(name)\ \#(count)개 이상 입력할 수 없어요`)
               .replace(/\#\(name\)/g, name)
               .replace(/\#\(count\)/g, count);
           }
