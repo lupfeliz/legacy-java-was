@@ -200,7 +200,7 @@ public class PersistentConfig {
         }
       }
     } catch (Exception e) {
-      log.debug("CANNOT ACCESS PACKAGE:{}", pkg);
+      log.debug("CANNOT ACCESS PACKAGE:{}{}", "", pkg);
       log.debug("E:", e);
     } finally {
       safeclose(reader);
