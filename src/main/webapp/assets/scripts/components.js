@@ -1099,12 +1099,15 @@ function registerComponent($SCRIPTPRM) {
       \ <c-input
       \   v-bind="attrs"
       \   class="form-control"
-      \   type="text"
+      \   type="numeric"
       \   \:ref="vars.elem"
       \   \@mousedown="onMouseDown"
       \   \@click="onClick"
       \   \@focus="onFocus"
       \   \@blur="onBlur"
+      \   maxlength="10"
+      \   \:rtformatter="formatdate"
+      \   \:formatter="formatter"
       \   />`),
       setup(props, ctx) {
         const { attrs, emit, expose, slots } = ctx;
@@ -1153,6 +1156,21 @@ function registerComponent($SCRIPTPRM) {
           if (vars.widget.value) { $.datePicker.api.hide(vars.widget.value); };
           emit(ONBLUR, e);
         };
+        function formatdate(v) {
+          if (!v) { return v; }
+          let n = numberOnly(v ? v : 0);
+          if (n.length >= 8) {
+            let y = n.substring(0, 4);
+            let m = n.substring(4, 6);
+            let d = n.substring(6);
+            n = formatDate(makeDate(y, m, d), "YYYY-MM-DD");
+          } else if (n.length >= 6) {
+            n = `${n.substring(0, 4)}-${n.substring(4, 6)}-${n.substring(6)}`;
+          } else if (n.length >= 4) {
+            n = `${n.substring(0, 4)}-${n.substring(4)}`;
+          };
+          return n;
+        };
         onMounted(async function() {
           vars.elem = vars.elem.value._.setupState.vars.elem;
           $(vars.elem.value).attr("data-select", "datepicker");
@@ -1166,7 +1184,8 @@ function registerComponent($SCRIPTPRM) {
           onMouseDown,
           onClick,
           onFocus,
-          onBlur
+          onBlur,
+          formatdate 
         };
       },
     });
