@@ -7,6 +7,7 @@
  **/
 package com.ntiple.commons;
 
+import static com.ntiple.commons.FunctionUtil.Fn1avt;
 import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.StringUtil.cat;
 import static com.ntiple.commons.StringUtil.strreplace;
@@ -14,14 +15,10 @@ import static com.ntiple.commons.StringUtil.strreplace;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
-
-import com.ntiple.commons.FunctionUtil.Fn1av;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClassWorker {
 
   private static final Pattern PTN_WIN32FILEURL = Pattern.compile("^\\/[A-Z][:]\\/");
+  private static final String CLASS_EXT = ".class";
 
   private static final String getResourcePath(ClassLoader loader, String path) {
     String ret = "";
@@ -48,11 +46,11 @@ public class ClassWorker {
   }
 
   static class ClassFileFilter implements FileFilter {
-    private List<String> files;
-    private String prefix;
-    public ClassFileFilter(List<String> files, String prefix) {
-      this.files = files;
-      this.prefix = prefix;
+    private String base;
+    private Fn1avt<Class<?>> callback;
+    public ClassFileFilter(String base, Fn1avt<Class<?>> callback) {
+      this.base = base;
+      this.callback = callback;
     }
 
     @Override public boolean accept(File file) {
@@ -62,16 +60,20 @@ public class ClassWorker {
         } else {
           String name = strreplace(file.getAbsolutePath(), "\\", "/");
           LOOP: for (int inx = 0; inx < 2; inx++) {
-            String fprefix = prefix;
-            if (inx == 0 && fprefix.endsWith("/test/")) {
-              fprefix = cat(fprefix.substring(0, fprefix.length() - "/test/".length()), "/main/");
+            String prefix = base;
+            if (inx == 0 && prefix.endsWith("/test/")) {
+              prefix = cat(prefix.substring(0, prefix.length() - "/test/".length()), "/main/");
             }
-            log.trace("FILE:{} / {} / {}", file, fprefix, inx);
-            if (name.startsWith(fprefix) && name.endsWith(".class")) {
-              name = strreplace(name.substring(fprefix.length()).replaceAll("[.]class$", ""), "/", ".");
+            log.trace("FILE:{} / {} / {}", file, prefix, inx);
+            if (name.startsWith(prefix) && name.endsWith(CLASS_EXT)) {
+              name = strreplace(name.substring(prefix.length()).replaceAll("[.]class$", ""), "/", ".");
               log.debug("CLASS:{}", name);
-              files.add(name);
-              break LOOP;
+              try {
+                callback.apply(Class.forName(name));
+                break LOOP;
+              } catch (Exception e) {
+                log.trace("E:", e);
+              }
             }
           }
         }
@@ -80,21 +82,19 @@ public class ClassWorker {
     }
   }
 
-  public static List<String> findClasses(String bpath, String fpath) {
-    List<String> ret = new ArrayList<>();
+  public static void findClasses(String bpath, String fpath, Fn1avt<Class<?>> callback) {
     String jarext = ".jar";
     try {
       File file = new File(fpath);
       if (file.exists()) {
         log.debug("FILE:{} / {}", bpath, fpath);
-        file.listFiles(new ClassFileFilter(ret, bpath));
+        file.listFiles(new ClassFileFilter(bpath, callback));
       } else if (
         fpath.indexOf(cat((jarext = ".jar"), "!/")) != -1 ||
         fpath.indexOf(cat((jarext = ".war"), "!/")) != -1) {
         int st = -1;
         String ext = jarext;
-        String prefix = "WEB-INF/classes";
-        String suffix = ".class";
+        String base = "WEB-INF/classes";
         if ((st = fpath.indexOf(cat(ext, "!"))) != -1) {
           String jpath= cat(fpath.substring(0, st), ext);
           String ipath = fpath.substring(st + ext.length() + 1)
@@ -107,15 +107,19 @@ public class ClassWorker {
             entry = enums.nextElement();
             String ename = entry.getName();
             if(
-              ename.startsWith(prefix) &&
-              ename.endsWith(suffix)) {
-              ename = ename.substring(prefix.length());
+              ename.startsWith(base) &&
+              ename.endsWith(CLASS_EXT)) {
+              ename = ename.substring(base.length());
               if (ename.startsWith(ipath)) {
                 ename = ename.replaceAll("^/", "");
-                ename = ename.substring(0, ename.length() - suffix.length());
+                ename = ename.substring(0, ename.length() - CLASS_EXT.length());
                 ename = strreplace(ename, "/", ".");
-                log.debug("ENTRY:{}", ename);
-                ret.add(ename);
+                log.trace("ENTRY:{}", ename);
+                try {
+                  callback.apply(Class.forName(ename));
+                } catch (Exception e) {
+                  log.trace("E:", e);
+                }
               }
             }
           }
@@ -124,26 +128,17 @@ public class ClassWorker {
     } catch (Exception e) {
       log.debug("CANNOT FIND CLASSES IN {}", fpath);
     }
-    return ret;
   }
   
-  public static final void work(ClassLoader loader, Fn1av<Class<?>> callback, String... pkg) {
+  public static final void workClasses(ClassLoader loader, Fn1avt<Class<?>> callback, String... pkgs) {
     BufferedReader reader = null;
     try {
       String bpath = getResourcePath(loader, "");
-      for (int inx = 0; inx < pkg.length; inx++) {
-        List<String> list = findClasses(bpath, getResourcePath(loader, strreplace(pkg[inx], ".", "/")));
-        log.trace("FIND-CLASSES:{}", list);
-        for (String path : list) {
-          log.trace("CLASS:{}", path);
-          try {
-            Class<?> cls = Class.forName(path);
-            callback.apply(cls);
-          } catch (Exception e) { log.trace("", e); }
-        }
+      for (int inx = 0; inx < pkgs.length; inx++) {
+        findClasses(bpath, getResourcePath(loader, strreplace(pkgs[inx], ".", "/")), callback);
       }
     } catch (Exception e) {
-      log.debug("CANNOT ACCESS PACKAGE:{}{} / {}", "", pkg, e.getMessage());
+      log.debug("CANNOT ACCESS PACKAGE:{}{} / {}", "", pkgs, e.getMessage());
     } finally {
       safeclose(reader);
     }
