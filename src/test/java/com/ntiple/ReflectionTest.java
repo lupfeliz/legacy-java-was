@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReflectionTest {
 
   @Test public void testSimple() {
-    ClassWorker.work(Application.class.getClassLoader(),
+    ClassWorker.workClasses(Application.class.getClassLoader(),
     cls -> { log.debug("CLASS:{}", cls); },
     "com.ntiple.work", "com.ntiple.system");
   }

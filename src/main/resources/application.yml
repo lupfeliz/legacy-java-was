@@ -16,19 +16,19 @@ spring:
       maxFileSize: "1GB"
       maxRequestSize: "1GB"
   datasource-main:
-    driverClassName: org.h2.Driver
+    driverClassName: "org.h2.Driver"
     ##  메모리 전용 DB 사용시 아래 설정 사용
-    jdbcUrl: jdbc:h2:mem:test
+    jdbcUrl: "jdbc:h2:mem:test"
     # jdbcUrl: jdbc:h2:./demo-app.db
-    username: sa
+    username: "sa"
     password: 
   jackson:
-    default-property-inclusion: non-empty
+    default-property-inclusion: "non-empty"
   ## H2 Console 설정
   h2:
     console:
       enabled: true
-      path: /h2-console
+      path: "/h2-console"
       settings:
         web-allow-others: true
 

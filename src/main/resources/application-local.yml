@@ -6,21 +6,21 @@
 debug: false
 server:
   port: 8080
-  forward-headers-strategy: FRAMEWORK
+  forward-headers-strategy: "FRAMEWORK"
   servlet:
     encoding:
-      charset: UTF-8
+      charset: "UTF-8"
       enabled: true
       force: true
 
 spring:
   jackson:
     ## 로컬에서는 디버깅을 위해 모든 속성을 조회한다
-    default-property-inclusion: always 
+    default-property-inclusion: "always"
 
 logging:
   level:
-    root: INFO
+    root: "INFO"
 
 system:
   profile: "local"

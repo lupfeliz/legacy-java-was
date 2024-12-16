@@ -14,20 +14,7 @@
     <setting name="jdbcTypeForNull" value="NULL"/>
   </settings>
   <typeAliases>
-    <!--
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$CamelMap" alias="cmap"/>
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$Code" alias="Code"/>
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$Mngr" alias="Mngr"/>
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$Menu" alias="Menu"/>
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$MenuAuthor" alias="MenuAuthor"/>
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$GroupUser" alias="GroupUser"/>
-    <typeAlias type="com.ntiple.work.cmn01.Cmn01001Entity$Group" alias="Group"/>
-    -->
   </typeAliases>
   <typeHandlers>
-    <!--
-    <typeHandler handler="com.ntiple.system.DbDateHandler" javaType="java.util.Date" jdbcType="DATE"/>
-    <typeHandler handler="com.ntiple.system.DbDateHandler" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
-    -->
   </typeHandlers>
 </configuration>
