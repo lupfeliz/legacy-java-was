@@ -105,6 +105,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
   implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+  implementation 'org.springframework.session:spring-session-jdbc'
 
   /** JSP, JSTL */
   implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
@@ -169,6 +170,7 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
   implementation 'com.ntiple:ntiple-utils:0.0.3-8'
+  implementation 'org.reflections:reflections:0.10.2'
 
   /** file-based library */
   implementation fileTree(dir: 'libs', include: ['*.jar'])
