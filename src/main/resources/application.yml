@@ -18,8 +18,13 @@ spring:
   datasource-main:
     driverClassName: "org.h2.Driver"
     ##  메모리 전용 DB 사용시 아래 설정 사용
-    jdbcUrl: "jdbc:h2:mem:test"
+    jdbcUrl: "jdbc:h2:mem:main"
     # jdbcUrl: jdbc:h2:./demo-app.db
+    username: "sa"
+    password: 
+  datasource-dss:
+    driverClassName: "org.h2.Driver"
+    jdbcUrl: "jdbc:h2:mem:session"
     username: "sa"
     password: 
   jackson:

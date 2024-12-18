@@ -36,12 +36,13 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ntiple.Application;
-import com.ntiple.work.cmn01.Cmn01001Entity.SystemInfo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -69,19 +70,18 @@ public class Settings {
   /** 암호화 seed */
   @Value("${system.key-seed:}") private String encryptSeed;
 
+  @Value("${system.timediff:0}") private Long systemTimeDiff;
+
   /** 기본URL 주소 */
   private List<String> hostNames;
 
   /** 사용불가능한 id 목록 */
   private List<String> notAllowedUserId;
 
-  /** JNDI */
-  @Value("${spring.datasource.jndi-name:}") private String jndiName;
+  @Autowired private ApplicationContext appctx;
 
-  /** SYSTEM-ADM */
-  private SystemInfo admInfo;
-
-  @Value("${system.timediff:0}") private Long systemTimeDiff;
+  /** YML 셋팅맷 */
+  private Map<String, Object> settingMap;
 
   @PostConstruct public void init() {
     log.trace("INIT:{}", Settings.class);
@@ -116,10 +116,15 @@ public class Settings {
     return instance;
   }
 
+  public Object getProperty(String key) {
+    Object ret = getCascade(settingMap, key.split("[.]"));
+    return ret;
+  }
+
   public Settings reload() {
     Yaml yaml = new Yaml();
     Reader reader = null;
-    Map<String, Object> map = newMap();
+    this.settingMap = newMap();
     for (int inx = 0; inx < 2; inx++) {
       String fn = "";
       try {
@@ -128,7 +133,7 @@ public class Settings {
         default:  fn = cat("/application-", profile, ".yml"); break;
         }
         reader = reader(openResourceStream(Application.class, fn), UTF8);
-        map = mergeMap(map, yaml.load(reader));
+        settingMap = mergeMap(settingMap, yaml.load(reader));
       } catch (Exception e) {
         log.debug("PROFILE {} NOT FOUND", fn);
         // log.error("", e);
@@ -152,7 +157,7 @@ public class Settings {
           Class<?> type = field.getType();
           nam = mat.group(1);
           if (mat.groupCount() > 1) { def = String.valueOf(mat.group(2)).replaceAll("^[:]", ""); }
-          val = getCascade(map, nam.split("[.]"));
+          val = getCascade(settingMap, nam.split("[.]"));
           if (val == null) { val = def; }
           log.trace("KEY:{} / {} / {} / {} / {}", nam, val, def, type, field.get(this));
           if (
@@ -174,24 +179,26 @@ public class Settings {
           } else  if (type == String.class) {
             String str = String.valueOf(val);
             String v = null;
-            Matcher mat2 = PTN_PLACEHOLDER.matcher(str);
-            if (mat2.find()) {
-              String k = mat2.group(1);
-              LOOP: for (int kinx = 0; kinx < 10; kinx++) {
-                SW: switch (kinx) {
-                case 0: { v = System.getProperty(k); } break SW;
-                default: { v = null; } break SW; }
-                if (v != null && !"".equals(v)) { break LOOP; }
-              }
-              if (v != null && !"".equals(v)) {
-                str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
-                log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
-                field.set(this, str);
+            {
+              Matcher mat2 = PTN_PLACEHOLDER.matcher(str);
+              if (mat2.find()) {
+                String k = mat2.group(1);
+                LOOP: for (int kinx = 0; kinx < 10; kinx++) {
+                  SW: switch (kinx) {
+                  case 0: { v = System.getProperty(k); } break SW;
+                  default: { v = null; } break SW; }
+                  if (v != null && !"".equals(v)) { break LOOP; }
+                }
+                if (v != null && !"".equals(v)) {
+                  str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
+                  log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
+                  field.set(this, str);
+                } else {
+                  field.set(this, val);
+                }
               } else {
                 field.set(this, val);
               }
-            } else {
-              field.set(this, val);
             }
           } else {
             field.set(this, val);
@@ -201,7 +208,7 @@ public class Settings {
         log.debug("E:", e);
       }
     }
-    log.trace("YML:{} / {}", profile, map);
+    log.trace("YML:{} / {}", profile, settingMap);
     return this;
   }
 }

@@ -232,7 +232,7 @@ public class Cmn01001Service {
     default: break;
     }
     
-    log.debug("CHECK-IP:{}, {}, {}, {}, {} / {}", ret, ipaddr, refuri, referer, req.getRequestURL(), settings.getAdmInfo().client.allow.addressList);
+    // log.debug("CHECK-IP:{}, {}, {}, {}, {} / {}", ret, ipaddr, refuri, referer, req.getRequestURL(), settings.getAdmInfo().client.allow.addressList);
     if (ipaddr == null || "".equals(ipaddr)) { return false; }
     if (refuri != null && !"".equals(refuri)) {
     } else {
@@ -282,7 +282,7 @@ public class Cmn01001Service {
   public InitObj getEnv() throws Exception {
     if (!isAllowedClient()) {
       HttpServletRequest req = curRequest();
-      log.debug("NOT-ALLOWED: {} / {} / {}", remoteAddr(req), getUri(referer(req), settings.getHostNames()), settings.getAdmInfo().client.allow);
+      // log.debug("NOT-ALLOWED: {} / {} / {}", remoteAddr(req), getUri(referer(req), settings.getHostNames()), settings.getAdmInfo().client.allow);
       throw new SystemException(999, S.NOT_ALLOWED, S.SC_FORBIDDEN);
     }
 

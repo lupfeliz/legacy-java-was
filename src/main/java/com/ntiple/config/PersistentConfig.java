@@ -28,13 +28,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 
 import com.ntiple.Application;
@@ -52,7 +54,7 @@ public class PersistentConfig {
   public static final String SQLTRANSCT_MAIN = "sql-transaction-main";
   public static final String SQLTEMPLTE_MAIN = "sql-template-main";
 
-  @Autowired private ApplicationContext appctx;
+  public static final String DATASOURCE_DSS = "data-source-dss";
 
   @Autowired Settings settings;
 
@@ -87,15 +89,15 @@ public class PersistentConfig {
     }
   }
 
-  @Bean @Qualifier(DATASOURCE_MAIN)
+  @Bean @Primary @Qualifier(DATASOURCE_MAIN)
   @ConfigurationProperties(prefix = "spring.datasource-main")
   DataSource datasourceMain() {
     DataSource ret = null;
-    String jndiName = settings.getJndiName();
-    if (!"".equals(jndiName)) {
-      log.debug("USING JNDI:{}", jndiName);
+    String jndi = cast(settings.getProperty("spring.datasource-main.jndi-name"), "");
+    if (jndi != null && !"".equals(jndi)) {
+      log.debug("USING JNDI:{}", jndi);
       JndiDataSourceLookup lookup = new JndiDataSourceLookup();
-      ret = lookup.getDataSource(cat("java:/comp/env/jdbc/", jndiName));
+      ret = lookup.getDataSource(cat("java:/comp/env/jdbc/", jndi));
     } else {
       log.debug("USING HIKARI POOL");
       ret = DataSourceBuilder.create()
@@ -110,7 +112,7 @@ public class PersistentConfig {
     SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
     fb.setDataSource(datasourceMain());
     fb.setVfs(SpringBootVFS.class);
-    fb.setConfigLocation(appctx.getResource("classpath:mybatis-config.xml"));
+    fb.setConfigLocation(settings.getAppctx().getResource("classpath:mybatis-config.xml"));
     ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
     Resource[] resource = resolver.getResources("mapper/**/*.xml");
     fb.setMapperLocations(resource);
@@ -128,5 +130,14 @@ public class PersistentConfig {
   SqlSessionTemplate sqlSessionTemplateMain(
     @Autowired @Qualifier(SQLFACTORY_MAIN) SqlSessionFactory fac) {
     return new SqlSessionTemplate(fac);
+  }
+
+  @Bean @Qualifier(DATASOURCE_DSS)
+  @ConfigurationProperties(prefix = "spring.datasource-dss")
+  DataSource datasourceDss() {
+    DataSource ret = new EmbeddedDatabaseBuilder()
+      .setType(EmbeddedDatabaseType.H2)
+      .addScript("org/springframework/session/jdbc/schema-h2.sql").build();
+    return ret;
   }
 }

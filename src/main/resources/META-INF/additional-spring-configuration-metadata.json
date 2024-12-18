@@ -69,6 +69,50 @@
       "type": "java.lang.String"
     },
     {
+      "name": "spring.datasource-dss.hikari.connection-test-query",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.minimum-idle",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.pool-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.auto-commit",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.driver-class-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.jdbc-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.username",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.password",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
       "name": "springdoc.server.description",
       "type": "java.lang.String"
     }
