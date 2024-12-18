@@ -281,7 +281,7 @@ public class Cmn01001Service {
 
   public InitObj getEnv() throws Exception {
     if (!isAllowedClient()) {
-      HttpServletRequest req = curRequest();
+      // HttpServletRequest req = curRequest();
       // log.debug("NOT-ALLOWED: {} / {} / {}", remoteAddr(req), getUri(referer(req), settings.getHostNames()), settings.getAdmInfo().client.allow);
       throw new SystemException(999, S.NOT_ALLOWED, S.SC_FORBIDDEN);
     }

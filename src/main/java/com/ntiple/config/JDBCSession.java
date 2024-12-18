@@ -43,36 +43,36 @@ public class JDBCSession extends AbstractHttpSessionApplicationInitializer {
   }
 
   @Bean
-	SessionRepositoryCustomizer<JdbcIndexedSessionRepository> tableNameSessionRepositoryCustomizer() {
-		return r -> {
-			// String createSessionAttribute = "";
-			// // String createSessionAttribute = """
+  SessionRepositoryCustomizer<JdbcIndexedSessionRepository> tableNameSessionRepositoryCustomizer() {
+    return r -> {
+      // String createSessionAttribute = "";
+      // // String createSessionAttribute = """
       // //   INSERT INTO SPRING_SESSION_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
       // //   VALUES (?, ?, ?)
       // //   ON CONFLICT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME)
       // //   DO NOTHING
       // //   """;
-			// String getSession = "";
-			// // String getSession = """
+      // String getSession = "";
+      // // String getSession = """
       // //   SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES   
       // //   FROM SPRING_SESSION S 
       // //   LEFT OUTER JOIN SPRING_SESSION_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID 
       // //   WHERE S.SESSION_ID = ?
       // //   """;
-			// String updateSessionAttribute = "";
-			// // String updateSessionAttribute = """
+      // String updateSessionAttribute = "";
+      // // String updateSessionAttribute = """
       // //   UPDATE SPRING_SESSION_ATTRIBUTES SET ATTRIBUTE_BYTES = ?   
       // //   WHERE SESSION_PRIMARY_ID = ? 
       // //   AND ATTRIBUTE_NAME = ?
       // //   """;
-			// String deleteSessionAttribute = "";
-			// // String deleteSessionAttribute = """
+      // String deleteSessionAttribute = "";
+      // // String deleteSessionAttribute = """
       // //   DELETE FROM SPRING_SESSION_ATTRIBUTES   
       // //   WHERE SESSION_PRIMARY_ID = ? 
       // //   AND ATTRIBUTE_NAME = ?
       // //   """;
-			// String listSessionsByPrincipalName = "";
-			// // String listSessionsByPrincipalName = """
+      // String listSessionsByPrincipalName = "";
+      // // String listSessionsByPrincipalName = """
       // //   SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES  
       // //   FROM SPRING_SESSION S 
       // //   LEFT OUTER JOIN SPRING_SESSION_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID
@@ -83,6 +83,6 @@ public class JDBCSession extends AbstractHttpSessionApplicationInitializer {
       // r.setUpdateSessionAttributeQuery(updateSessionAttribute);
       // r.setDeleteSessionAttributeQuery(deleteSessionAttribute);
       // r.setListSessionsByPrincipalNameQuery(listSessionsByPrincipalName);
-		};
-	}
+    };
+  }
 }

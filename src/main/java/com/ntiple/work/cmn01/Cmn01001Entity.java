@@ -544,7 +544,8 @@ public class Cmn01001Entity {
   @Alias("cmap")
   @Schema(title = "MYBATIS camelcase 매핑 (내부사용)", hidden = true)
   public static class CamelMap<K, V> extends HashMap<String, V> {
-    @Override public V put(String k, V v) {
+    private static final long serialVersionUID = 6977771083423544750L;
+	@Override public V put(String k, V v) {
       return super.put(camelCase(k), v);
     }
   }

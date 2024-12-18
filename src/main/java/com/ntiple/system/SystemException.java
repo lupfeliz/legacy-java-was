@@ -18,10 +18,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor
 @Getter @Setter @ToString @Builder
 public class SystemException extends RuntimeException {
+  private static final long serialVersionUID = 6471080416270228711L;
   public HttpStatus status;
   public Integer errcd;
   public String errmsg;

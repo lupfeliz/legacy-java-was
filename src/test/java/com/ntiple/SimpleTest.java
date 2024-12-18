@@ -31,7 +31,7 @@ import com.ntiple.TestUtil.TestLevel;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j @SuppressWarnings("unused")
 public class SimpleTest {
 
   @Test public void testSimple() throws Exception {

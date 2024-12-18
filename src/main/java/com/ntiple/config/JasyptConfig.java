@@ -37,7 +37,7 @@ public class JasyptConfig {
   }
 
   @Bean("jasyptStringEncryptor")
-  public StringEncryptor stringEncryptor() {
+    StringEncryptor stringEncryptor() {
     return getEncryptor(settings.getEncryptSeed());
   }
 }
