@@ -8,7 +8,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import com.ntiple.TestUtil.TestLevel;
 

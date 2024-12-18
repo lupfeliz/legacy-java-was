@@ -10,7 +10,7 @@
 package com.ntiple;
 
 import org.jasypt.encryption.StringEncryptor;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import com.ntiple.TestUtil.TestLevel;
 import com.ntiple.config.JasyptConfig;

@@ -9,7 +9,7 @@
  **/
 package com.ntiple;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import com.ntiple.commons.ClassWorker;
 

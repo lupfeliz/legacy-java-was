@@ -18,15 +18,14 @@ import static com.ntiple.commons.IOUtil.readAsString;
 import static com.ntiple.commons.IOUtil.reader;
 import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.IOUtil.writer;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.junit.Assert.assertTrue;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.security.Key;
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import com.ntiple.TestUtil.TestLevel;
 
