@@ -1531,7 +1531,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     },
     /** GET 메소드 처리 */
     async get(apicd, data, opt) {
-      return new Promise<any>(async function(resolve, reject) {
+      return new Promise(async function(resolve, reject) {
         // if (apicd !== 'cmn01001') { await proc.until(() => app.ready(), { maxcheck: 1000, interval: 10 }); };
         await api.ping(opt);
         const { method, url, headers, signal, abortclr } = await apivars.init(MTD_GET, apicd, data, opt);
@@ -1541,7 +1541,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     },
     /** PUT 메소드 처리 */
     async put(apicd, data, opt) {
-      return new Promise<any>(async function(resolve, reject) {
+      return new Promise(async function(resolve, reject) {
         // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
         await api.ping(opt);
         const { method, url, body, headers, signal, abortclr } = await apivars.init(MTD_PUT, apicd, data, opt);
@@ -1551,7 +1551,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     },
     /** DELETE 메소드 처리 */
     async delete(apicd, data, opt) {
-      return new Promise<any>(async function(resolve, reject) {
+      return new Promise(async function(resolve, reject) {
         // await proc.until(function() { return app.ready(), { maxcheck: 1000, interval: 10 }; });
         await api.ping(opt);
         const { method, headers, signal, url, abortclr } = await apivars.init(MTD_DELETE, apicd, data, opt);
@@ -1733,7 +1733,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       __max_check: opt.maxcheck ? opt.maxcheck : 100,
       __interval: opt.interval ? opt.interval : 100
     };
-    return new Promise<any>(function(resolve, _reject) {
+    return new Promise(function(resolve, _reject) {
       function fnexec() {
         /** 조건을 만족시키면 */
         if (check()) {
