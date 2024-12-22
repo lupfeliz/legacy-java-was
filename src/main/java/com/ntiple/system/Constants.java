@@ -83,6 +83,15 @@ public class Constants {
   public static final String ATTR_KEY_IS_GUEST = "@%ATTR_IS_GUEST%";
   public static final String ATTR_KEY_EXTRAINFO = "@%ATTR_EXTRAINFO%";
 
+  public static final String ATTR_KEY_LAYOUT_META_DEFINE = "@%ATTR_KEY_LAYOUT_META_DEFINE%";
+  public static final String ATTR_KEY_LAYOUT_ASSETS_DEFINE = "@%ATTR_KEY_LAYOUT_ASSETS_DEFINE%";
+  public static final String ATTR_KEY_LAYOUT_HEADER = "@%ATTR_KEY_LAYOUT_HEADER%";
+  public static final String ATTR_KEY_LAYOUT_FOOTER = "@%ATTR_KEY_LAYOUT_FOOTER%";
+  public static final String ATTR_KEY_LAYOUT_ASIDE = "@%ATTR_KEY_LAYOUT_ASIDE%";
+  public static final String ATTR_KEY_LAYOUT_DCONTAINER = "@%ATTR_KEY_LAYOUT_DCONTAINER%";
+  public static final String ATTR_KEY_LAYOUT_SCRIPTS = "@%ATTR_KEY_LAYOUT_SCRIPTS%";
+  public static final String ATTR_KEY_LAYOUT_BODY = "@%ATTR_KEY_LAYOUT_BODY%";
+
   public static final String TYPE_XLSX = "xlsx";
   public static final String TYPE_XLS = "xls";
 

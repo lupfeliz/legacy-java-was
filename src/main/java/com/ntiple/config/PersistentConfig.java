@@ -135,9 +135,17 @@ public class PersistentConfig {
   @Bean @Qualifier(DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
   DataSource datasourceDss() {
-    DataSource ret = new EmbeddedDatabaseBuilder()
-      .setType(EmbeddedDatabaseType.H2)
-      .addScript("org/springframework/session/jdbc/schema-h2.sql").build();
+    DataSource ret = null;
+    String drv = cast(settings.getProperty("spring.datasource-dss.driver-class-name"), "");
+    if (drv == null || "".equals(drv) || "org.h2.Driver".equals(drv)) {
+      ret = new EmbeddedDatabaseBuilder()
+        .setType(EmbeddedDatabaseType.H2)
+        .addScript("org/springframework/session/jdbc/schema-h2.sql").build();
+    } else {
+      ret = DataSourceBuilder.create()
+        .type(HikariDataSource.class)
+        .build();
+    }
     return ret;
   }
 }

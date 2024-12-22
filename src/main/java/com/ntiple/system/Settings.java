@@ -25,6 +25,7 @@ import static com.ntiple.commons.ConvertUtil.parseShort;
 import static com.ntiple.commons.IOUtil.openResourceStream;
 import static com.ntiple.commons.IOUtil.reader;
 import static com.ntiple.commons.IOUtil.safeclose;
+import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
 
 import java.io.Reader;
@@ -36,6 +37,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
+import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -43,6 +45,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ntiple.Application;
+import com.ntiple.config.JasyptConfig;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -90,6 +93,7 @@ public class Settings {
   }
 
   private static final Pattern PTN_PLACEHOLDER = Pattern.compile("[$][{]([a-zA-Z0-9_.-]+)([:].*){0,1}[}]");
+  private static final Pattern PTN_ENCPATTERN = Pattern.compile("ENC\\(([a-zA-Z0-9\\/+=]+)\\)");
 
   public static String getProfile() {
     return instance.profile;
@@ -117,14 +121,52 @@ public class Settings {
   }
 
   public Object getProperty(String key) {
-    Object ret = getCascade(settingMap, key.split("[.]"));
+    Object ret = null;
+    ret = getCascade(this.settingMap, key.split("[.]"));
+    if (ret != null && ret instanceof String) {
+      ret = fillPlaceholder(String.valueOf(ret), key);
+    }
     return ret;
+  }
+
+  private String fillPlaceholder(String val, String nam) {
+    {
+      String str = val;
+      String v = null;
+      Matcher vmat = PTN_PLACEHOLDER.matcher(str);
+      if (vmat.find()) {
+        String k = vmat.group(1);
+        LOOP: for (int kinx = 0; kinx < 10; kinx++) {
+          SW: switch (kinx) {
+          case 0: { v = System.getProperty(k); } break SW;
+          default: { v = null; } break SW; }
+          if (v != null && !"".equals(v)) { break LOOP; }
+        }
+        if (v != null && !"".equals(v)) {
+          str = cat(str.substring(0, vmat.start()), v, str.substring(vmat.end()));
+          log.debug("VALUE:{} = {} / {} = {}", nam, str, k, v);
+          val = str;
+        }
+      }
+    }
+    {
+      String str = String.valueOf(val);
+      Matcher vmat = PTN_ENCPATTERN.matcher(str);
+      if (vmat.find()) {
+        StringEncryptor enc = JasyptConfig.getEncryptor(cast(getCascade(settingMap, "system", "key-seed"), ""));
+        str = enc.decrypt(vmat.group(1));
+        log.debug("VALUE:{} = {}", nam, str);
+        val = str;
+      }
+    }
+    return val;
   }
 
   public Settings reload() {
     Yaml yaml = new Yaml();
     Reader reader = null;
     this.settingMap = newMap();
+    String profile = System.getProperty("spring.profiles.active");
     for (int inx = 0; inx < 2; inx++) {
       String fn = "";
       try {
@@ -175,34 +217,11 @@ public class Settings {
               && (tmp = parseDouble(val, null)) != null) ||
             ((type == boolean.class || type == Boolean.class)
               && (tmp = parseBoolean(val, null)) != null)) {
-            field.set(this, tmp);
+            val = tmp;
           } else  if (type == String.class) {
-            String str = String.valueOf(val);
-            String v = null;
-            {
-              Matcher mat2 = PTN_PLACEHOLDER.matcher(str);
-              if (mat2.find()) {
-                String k = mat2.group(1);
-                LOOP: for (int kinx = 0; kinx < 10; kinx++) {
-                  SW: switch (kinx) {
-                  case 0: { v = System.getProperty(k); } break SW;
-                  default: { v = null; } break SW; }
-                  if (v != null && !"".equals(v)) { break LOOP; }
-                }
-                if (v != null && !"".equals(v)) {
-                  str = cat(str.substring(0, mat2.start()), v, str.substring(mat2.end()));
-                  log.trace("VALUE:{} = {} / {} = {}", nam, str, k, v);
-                  field.set(this, str);
-                } else {
-                  field.set(this, val);
-                }
-              } else {
-                field.set(this, val);
-              }
-            }
-          } else {
-            field.set(this, val);
+            val = fillPlaceholder(String.valueOf(val), nam);
           }
+          if (val != null) { field.set(this, val); }
         }
       } catch (Exception e) {
         log.debug("E:", e);

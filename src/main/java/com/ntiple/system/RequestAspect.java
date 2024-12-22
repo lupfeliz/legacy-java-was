@@ -10,6 +10,7 @@ package com.ntiple.system;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
 import static com.ntiple.commons.WebUtil.curRequest;
+import static com.ntiple.system.Constants.ATTR_KEY_LAYOUT_BODY;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +64,8 @@ public class RequestAspect {
         ret = cat(cate, wkno, "/", cate, wkno, rqty, stno);
       }
       if (ret != null && ret instanceof String) {
-        ret = cat("!", cat(ret).replaceAll("^/", ""));
+        req.setAttribute(ATTR_KEY_LAYOUT_BODY, ret);
+        ret = "/common/layout";
       }
       log.debug("AFTER:{} / {} / {} / {}", uri, joint.toShortString(), ret);
     } catch (Exception e) {

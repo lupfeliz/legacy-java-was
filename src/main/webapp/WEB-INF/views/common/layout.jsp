@@ -8,27 +8,27 @@
  **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="com.ntiple.system.Constants" %>
+<%@ include file="/WEB-INF/views/common/init.jsp" %>
 <!DOCTYPE html>
 <html lang="ko" id="project">
   <head>
-    <tiles:insertAttribute name="defines" />
-    <tiles:insertAttribute name="assets" />
+    <jsp:include page="meta-define.jsp" />
+    <jsp:include page="assets-define.jsp" />
   </head>
   <body class="hide-onload">
     <div>
-    <c:if test="${reqtype == 's'}">
-      <tiles:insertAttribute name="header"/>
+    <c:if test="${reqtype == 'S' || reqtype == 's'}">
+      <jsp:include page="header.jsp" />
     </c:if>
     <main class="container">
-      <tiles:insertAttribute name="body"/>
+      <jsp:include page="../pages/${request.getAttribute(Constants.ATTR_KEY_LAYOUT_BODY)}.jsp" />
     </main>
-    <c:if test="${reqtype == 's'}">
-      <tiles:insertAttribute name="footer"/>
+    <c:if test="${reqtype == 'S' || reqtype == 's'}">
+      <jsp:include page="footer.jsp" />
     </c:if>
-    <tiles:insertAttribute name="dcontainer" />
-    <tiles:insertAttribute name="launch" />
+    <jsp:include page="dialog-container.jsp" />
+    <jsp:include page="launch-script.jsp" />
     </div>
   </body>
 </html>
