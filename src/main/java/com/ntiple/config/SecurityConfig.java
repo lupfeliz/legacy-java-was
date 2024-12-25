@@ -22,9 +22,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSessionEvent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,11 +37,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
@@ -145,7 +150,11 @@ public class SecurityConfig {
       )
       /** 세션 사용 */
       .sessionManagement(mng -> mng
-        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+        .maximumSessions(1)
+        .maxSessionsPreventsLogin(true)
+        .sessionRegistry(sessionRegistry())
+      )
       /** URI별 인가설정 */
       .authorizeHttpRequests(req -> req
         // .anyRequest().permitAll()
@@ -217,5 +226,28 @@ public class SecurityConfig {
     return (web) -> web.ignoring()
       .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
       .antMatchers("/assets");
+  }
+
+  @Bean
+  SessionRegistry sessionRegistry() {
+    return new SessionRegistryImpl() {
+      @Override
+      public void registerNewSession(String sessionId, Object principal) {
+        log.debug("================================================================================");
+        log.debug("SESSION-CREATED!!!");
+        super.registerNewSession(sessionId, principal);
+      }
+    };
+  }
+
+  @Bean
+  static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
+    return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher() {
+      @Override public void sessionCreated(HttpSessionEvent event) {
+        log.debug("================================================================================");
+        log.debug("SESSION-CREATED!!!");
+        super.sessionCreated(event);
+      }
+    });
   }
 }

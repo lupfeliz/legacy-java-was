@@ -7,9 +7,13 @@
  **/
 package com.ntiple.work.smp01;
 
+import static com.ntiple.commons.ConvertUtil.parseInt;
+import static com.ntiple.commons.WebUtil.curRequest;
 import static com.ntiple.commons.WebUtil.params;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +29,8 @@ public class Smp01001Service {
 
   @Autowired Cmn01001Service cmnsvc;
 
-  @PostConstruct public void init() { }
+  @PostConstruct public void init() {
+  }
 
   /** 페이지용 서비스 */
   public String smp01001s01(Model model) throws Exception {
@@ -37,8 +42,14 @@ public class Smp01001Service {
 
   /** 페이지용 서비스 */
   public String smp01001s02(Model model) throws Exception { 
+    HttpServletRequest req = curRequest(HttpServletRequest.class);
+    HttpSession session = req.getSession();
     RequestParameter params = params();
+    Integer cnt = parseInt(session.getAttribute("TEST"), 0) + 1;
+    session.setAttribute("TEST", cnt);
+    log.debug("SESSION:{}", session);
     log.debug("CHECK-PARAM:{} / {}", params.keys(), params);
+    log.debug("SESSION:{}", cnt);
     for (String key : params.keys()) {
       log.debug("PARAMS:{}", params.get(key));
     }
@@ -63,6 +74,9 @@ public class Smp01001Service {
 
   public String smp01001p01(Model model) throws Exception {
     log.debug("CHECK-PARAM:{}", params());
+    HttpServletRequest req = curRequest(HttpServletRequest.class);
+    HttpSession session = req.getSession();
+    session.invalidate();
     return "smp01/smp01001p01";
   }
 }
