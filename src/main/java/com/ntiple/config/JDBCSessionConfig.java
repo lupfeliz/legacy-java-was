@@ -7,6 +7,8 @@
  **/
 package com.ntiple.config;
 
+import static com.ntiple.commons.ConvertUtil.parseInt;
+import static com.ntiple.commons.ConvertUtil.parseStr;
 import static com.ntiple.commons.ReflectionUtil.cast;
 
 import java.sql.PreparedStatement;
@@ -16,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +28,16 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionAttributeListener;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionContext;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 import javax.sql.DataSource;
 
+import org.apache.commons.collections.iterators.IteratorEnumeration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +66,9 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
+import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
@@ -63,38 +77,48 @@ import com.ntiple.system.Settings;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @Configuration
+@SuppressWarnings("deprecation")
+@Slf4j @Configuration @EnableJdbcHttpSession
 public class JDBCSessionConfig {
 
   @Autowired private Settings settings;
 
+  @Autowired
+  private HttpSessionListener slistener;
+
+  @Autowired
+  private HttpSessionAttributeListener alistener;
+
+  @Bean @SpringSessionDataSource
+  DataSource dataSourceDss() {
+    DataSource ret = cast(settings.getAppctx().getBean("datasourceDss"), ret = null);
+    return ret;
+  }
+
   @PostConstruct public void init() {
+    log.debug("CHECK:{} / {}", slistener, alistener);
   }
 
   @Bean @Primary
   CustomSessionRepository customSessionRepository() {
-    DataSource ds = cast(settings.getAppctx().getBean("datasourceDss"), ds = null);
+    DataSource ds = dataSourceDss();
+    JdbcIndexedSessionRepository rep = settings.getAppctx().getBean(JdbcIndexedSessionRepository.class);
     CustomSessionRepository ret = new CustomSessionRepository(
       new JdbcTemplate(ds),
       new TransactionTemplate(new DataSourceTransactionManager(ds)));
-    String createSession = "INSERT INTO SPRING_SESSION (PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    String createSessionAttribute = "INSERT INTO SPRING_SESSION_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) VALUES (?, ?, ?)";
-    String getSession = "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES FROM SPRING_SESSION S LEFT JOIN SPRING_SESSION_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID WHERE S.SESSION_ID = ?";
-    String updateSession = "UPDATE SPRING_SESSION SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, EXPIRY_TIME = ?, PRINCIPAL_NAME = ? WHERE PRIMARY_ID = ?";
-    String updateSessionAttribute = "UPDATE SPRING_SESSION_ATTRIBUTES SET ATTRIBUTE_BYTES = ? WHERE SESSION_PRIMARY_ID = ? AND ATTRIBUTE_NAME = ?";
-    String deleteSession = "DELETE FROM SPRING_SESSION WHERE SESSION_ID = ? AND MAX_INACTIVE_INTERVAL >= 0";
-    String deleteSessionAttribute = "DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE SESSION_PRIMARY_ID = ? AND ATTRIBUTE_NAME = ?";
-    String listSessionsByPrincipalName = "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES FROM SPRING_SESSION S LEFT OUTER JOIN SPRING_SESSION_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID WHERE S.PRINCIPAL_NAME = ?";
-    String deleteSessionsByExpiryTime = "DELETE FROM SPRING_SESSION WHERE EXPIRY_TIME < ?";
-    ret.setCreateSessionQuery(createSession);
-    ret.setCreateSessionAttributeQuery(createSessionAttribute);
-    ret.setGetSessionQuery(getSession);
-    ret.setUpdateSessionQuery(updateSession);
-    ret.setUpdateSessionAttributeQuery(updateSessionAttribute);
-    ret.setDeleteSessionQuery(deleteSession);
-    ret.setDeleteSessionAttributeQuery(deleteSessionAttribute);
-    ret.setListSessionsByPrincipalNameQuery(listSessionsByPrincipalName);
-    ret.setDeleteSessionsByExpiryTimeQuery(deleteSessionsByExpiryTime);
+    String qry;
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.create-session"), null)) != null) { ret.setCreateSessionQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.create-session-attribute"), null)) != null) { ret.setCreateSessionAttributeQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.get-session"), null)) != null) { ret.setGetSessionQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.update-session"), null)) != null) { ret.setUpdateSessionQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.update-session-attribute"), null)) != null) { ret.setUpdateSessionAttributeQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.delete-session"), null)) != null) { ret.setDeleteSessionQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.delete-session-attribute"), null)) != null) { ret.setDeleteSessionAttributeQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.list-sessions-by-principal-name"), null)) != null) { ret.setListSessionsByPrincipalNameQuery(qry); }
+    if ((qry = parseStr(settings.getProperty("spring.datasource-dss.dbsession-query.delete-sessions-by-expiry-time"), null)) != null) {
+      ret.setDeleteSessionsByExpiryTimeQuery(qry);
+      rep.setDeleteSessionsByExpiryTimeQuery(qry);
+    }
     return ret;
   }
 
@@ -159,6 +183,7 @@ public class JDBCSessionConfig {
       if (this.defaultMaxInactiveInterval != null) { delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval)); }
       CustomSession session = new CustomSession(delegate, UUID.randomUUID().toString(), true);
       session.flushIfRequired();
+      if (slistener != null) { slistener.sessionCreated(new HttpSessionEvent(new CustomSessionWrapper(session))); }
       log.debug("SESSION-CREATED!!! : {}", session.getId());
       return session;
     }
@@ -183,7 +208,9 @@ public class JDBCSessionConfig {
     }
 
     @Override public void deleteById(final String id) {
-      log.debug("SESSION-DESTROY!!! : {}", id);
+      CustomSession session = findById(id);
+      log.debug("SESSION-DESTROY!!! : {}", session);
+      if (slistener != null) { slistener.sessionCreated(new HttpSessionEvent(new CustomSessionWrapper(session))); }
       this.transactionOperations.executeWithoutResult((status) -> CustomSessionRepository.this.jdbcOperations
         .update(CustomSessionRepository.this.deleteSessionQuery, id));
     }
@@ -371,8 +398,7 @@ public class JDBCSessionConfig {
       }
 
       @Override public Set<String> getAttributeNames() { return this.delegate.getAttributeNames(); }
-      @Override
-      public void setAttribute(String attributeName, Object attributeValue) {
+      @Override public void setAttribute(String attributeName, Object attributeValue) {
         boolean attributeExists = (this.delegate.getAttribute(attributeName) != null);
         boolean attributeRemoved = (attributeValue == null);
         if (!attributeExists && attributeRemoved) { return; }
@@ -380,13 +406,16 @@ public class JDBCSessionConfig {
           if (attributeRemoved) {
             this.delta.merge(attributeName, DeltaValue.REMOVED,
               (oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? null : deltaValue);
+            if (alistener != null) { alistener.attributeRemoved(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName)); }
           } else {
             this.delta.merge(attributeName, DeltaValue.UPDATED, (oldDeltaValue,
               deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : deltaValue);
+            if (alistener != null) { alistener.attributeReplaced(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName)); }
           }
         } else {
           this.delta.merge(attributeName, DeltaValue.ADDED, (oldDeltaValue,
             deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : DeltaValue.UPDATED);
+            if (alistener != null) { alistener.attributeAdded(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName)); }
         }
         this.delegate.setAttribute(attributeName, value(attributeValue));
         if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) || SPRING_SECURITY_CONTEXT.equals(attributeName)) {
@@ -487,5 +516,40 @@ public class JDBCSessionConfig {
       }
     };
     return (supplier != null) ? lazySupplier : null;
+  }
+
+  public static class CustomSessionWrapper implements HttpSession {
+    private CustomSessionRepository.CustomSession s;
+    public CustomSessionWrapper(CustomSessionRepository.CustomSession s) { this.s = s; }
+    @Override public long getCreationTime() { return s.getCreationTime().toEpochMilli(); }
+    @Override public String getId() { return s.getId(); }
+    @Override public long getLastAccessedTime() { return s.getLastAccessedTime().toEpochMilli(); }
+    @Override public ServletContext getServletContext() {
+      return null;
+    }
+    @Override public void setMaxInactiveInterval(int interval) { s.setMaxInactiveInterval(Duration.ofMillis(interval)); }
+    @Override public int getMaxInactiveInterval() { return parseInt(s.getMaxInactiveInterval().toMillis()); }
+    @Deprecated @Override public HttpSessionContext getSessionContext() { return null; }
+    @Override public Object getAttribute(String name) { return s.getAttribute(name); }
+    @Override public Object getValue(String name) {
+      return null;
+    }
+    @Override public Enumeration<String> getAttributeNames() {
+      Enumeration<String> ret = null;
+      return cast(new IteratorEnumeration(s.getAttributeNames().iterator()), ret);
+    }
+
+    @Override public String[] getValueNames() {
+      return null;
+    }
+    @Override public void setAttribute(String name, Object value) { s.setAttribute(name, value); }
+    @Override public void putValue(String name, Object value) {
+    }
+    @Override public void removeAttribute(String name) { s.removeAttribute(name); }
+    @Override public void removeValue(String name) {
+    }
+    @Override public void invalidate() {
+    }
+    @Override public boolean isNew() { return s.isNew(); }
   }
 }
