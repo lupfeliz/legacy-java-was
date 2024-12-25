@@ -73,6 +73,7 @@ import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
+import com.ntiple.commons.ObjectStore;
 import com.ntiple.system.Settings;
 
 import lombok.extern.slf4j.Slf4j;
@@ -80,14 +81,11 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("deprecation")
 @Slf4j @Configuration @EnableJdbcHttpSession
 public class JDBCSessionConfig {
-
   @Autowired private Settings settings;
+  @Autowired private HttpSessionListener slistener;
+  @Autowired private HttpSessionAttributeListener alistener;
 
-  @Autowired
-  private HttpSessionListener slistener;
-
-  @Autowired
-  private HttpSessionAttributeListener alistener;
+  private static final ObjectStore<CustomSessionRepository> repo = new ObjectStore<>();
 
   @Bean @SpringSessionDataSource
   DataSource dataSourceDss() {
@@ -119,6 +117,7 @@ public class JDBCSessionConfig {
       ret.setDeleteSessionsByExpiryTimeQuery(qry);
       rep.setDeleteSessionsByExpiryTimeQuery(qry);
     }
+    repo.set(ret);
     return ret;
   }
 
@@ -538,7 +537,6 @@ public class JDBCSessionConfig {
       Enumeration<String> ret = null;
       return cast(new IteratorEnumeration(s.getAttributeNames().iterator()), ret);
     }
-
     @Override public String[] getValueNames() {
       return null;
     }
@@ -548,8 +546,7 @@ public class JDBCSessionConfig {
     @Override public void removeAttribute(String name) { s.removeAttribute(name); }
     @Override public void removeValue(String name) {
     }
-    @Override public void invalidate() {
-    }
+    @Override public void invalidate() { repo.get().deleteById(this.getId()); }
     @Override public boolean isNew() { return s.isNew(); }
   }
 }
