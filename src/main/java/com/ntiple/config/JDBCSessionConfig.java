@@ -55,7 +55,6 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
@@ -64,7 +63,7 @@ import com.ntiple.system.Settings;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @Configuration @EnableJdbcHttpSession(cleanupCron = "0 0 * * * *")
+@Slf4j @Configuration
 public class JDBCSessionConfig {
 
   @Autowired private Settings settings;
