@@ -26,4 +26,5 @@
 <%
 /** 기타 필요한 선언들을 여기에 기재한다 */
 pageContext.setAttribute("request", request);
+pageContext.setAttribute("session", request.getSession());
 %>

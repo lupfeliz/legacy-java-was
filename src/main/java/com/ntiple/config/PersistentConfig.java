@@ -141,10 +141,6 @@ public class PersistentConfig {
       ret = new EmbeddedDatabaseBuilder()
         .setType(org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2)
         .addScript("org/springframework/session/jdbc/schema-h2.sql").build();
-    } else if (drv == null || "".equals(drv) || "org.postgresql.Driver".equals(drv)) {
-      ret = DataSourceBuilder.create()
-        .type(HikariDataSource.class)
-        .build();
     } else {
       ret = DataSourceBuilder.create()
         .type(HikariDataSource.class)

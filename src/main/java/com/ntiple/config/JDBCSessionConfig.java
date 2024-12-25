@@ -405,16 +405,19 @@ public class JDBCSessionConfig {
           if (attributeRemoved) {
             this.delta.merge(attributeName, DeltaValue.REMOVED,
               (oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? null : deltaValue);
-            if (alistener != null) { alistener.attributeRemoved(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName)); }
+              DeltaValue dv = this.delta.get(attributeName);
+            if (alistener != null) { alistener.attributeRemoved(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName, attributeValue)); }
           } else {
             this.delta.merge(attributeName, DeltaValue.UPDATED, (oldDeltaValue,
               deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : deltaValue);
-            if (alistener != null) { alistener.attributeReplaced(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName)); }
+              DeltaValue dv = this.delta.get(attributeName);
+            if (alistener != null) { alistener.attributeReplaced(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName, attributeValue)); }
           }
         } else {
           this.delta.merge(attributeName, DeltaValue.ADDED, (oldDeltaValue,
             deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : DeltaValue.UPDATED);
-            if (alistener != null) { alistener.attributeAdded(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName)); }
+              DeltaValue dv = this.delta.get(attributeName);
+            if (alistener != null) { alistener.attributeAdded(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName, attributeValue)); }
         }
         this.delegate.setAttribute(attributeName, value(attributeValue));
         if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) || SPRING_SECURITY_CONTEXT.equals(attributeName)) {

@@ -47,6 +47,7 @@ public class Smp01001Service {
     RequestParameter params = params();
     Integer cnt = parseInt(session.getAttribute("TEST"), 0) + 1;
     session.setAttribute("TEST", cnt);
+    session.setAttribute("LOGIN-ID", "test");
     log.debug("SESSION:{}", session);
     log.debug("CHECK-PARAM:{} / {}", params.keys(), params);
     log.debug("SESSION:{}", cnt);

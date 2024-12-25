@@ -33,8 +33,6 @@ public class SessionListenerConfig {
     return new HttpSessionListener() {
       @Override public void sessionCreated(HttpSessionEvent se) {
         log.debug("SESSION-CREATED:{} / {} / {}", this, se, se.getSession());
-        HttpSession s = se.getSession();
-        idmap.put(s.getId(), null);
         HttpSessionListener.super.sessionCreated(se);
       }
 
@@ -50,17 +48,33 @@ public class SessionListenerConfig {
   @Bean HttpSessionAttributeListener httpSessionAttributeListener() {
     return new HttpSessionAttributeListener() {
       @Override public void attributeAdded(HttpSessionBindingEvent se) {
-        // log.debug("SESSION-VALUE-ADDED:");
+        log.debug("SESSION-VALUE-ADDED:{} = {}", se.getName(), se.getValue());
+        if ("LOGIN-ID".equals(se.getName())) { checkLogin(se.getName(), se.getValue(), se.getSession()); }
         HttpSessionAttributeListener.super.attributeAdded(se);
       }
       @Override public void attributeRemoved(HttpSessionBindingEvent se) {
-        // log.debug("SESSION-VALUE-REMOVED:");
+        log.debug("SESSION-VALUE-REMOVED:{} = {}", se.getName(), se.getValue());
         HttpSessionAttributeListener.super.attributeRemoved(se);
       }
       @Override public void attributeReplaced(HttpSessionBindingEvent se) {
-        // log.debug("SESSION-VALUE-REPLACED:");
+        log.debug("SESSION-VALUE-REPLACED:{}", se.getName(), se.getValue());
+        if ("LOGIN-ID".equals(se.getName())) { checkLogin(se.getName(), se.getValue(), se.getSession()); }
         HttpSessionAttributeListener.super.attributeReplaced(se);
       }
     };
+  }
+
+  private static void checkLogin(String name, Object value, HttpSession s) {
+    String loginId = value == null ? null : String.valueOf(value);
+    if (loginId != null && idmap.containsKey(loginId)) {
+      HttpSession o = idmap.get(loginId);
+      if (o != null && !o.getId().equals(s.getId())) {
+        log.debug("DUPLICATED-LOGIN-ID:{}", loginId);
+        idmap.remove(loginId).invalidate();
+      }
+    } else if (loginId != null) {
+      log.debug("LOGIN:{}", loginId);
+      idmap.put(loginId, s);
+    }
   }
 }

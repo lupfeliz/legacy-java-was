@@ -3,6 +3,7 @@
 <page:ex>
   <h1>샘플페이지 02</h1>
   <section>
+    <article>[${session.getAttribute("TEST")}]</article>
     <article>
       <c-input
         v-model="vars.popdata.message"
