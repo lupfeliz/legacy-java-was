@@ -29,10 +29,14 @@ spring:
       connection-test-query: "SELECT 1"
       pool-name: "dbp-dss"
       auto-commit: false
-    driver-class-name: "org.postgresql.Driver"
-    jdbc-url: "jdbc:postgresql://192.168.0.2:5432/legacy_java_was"
-    username: "legacy_java_was"
-    password: "!QWD2asc3zx"
+    driver-class-name: "org.h2.Driver"
+    jdbc-url: "jdbc:h2:mem:session"
+    username: "sa"
+    password: 
+    # driver-class-name: "org.postgresql.Driver"
+    # jdbc-url: "jdbc:postgresql://192.168.0.2:5432/legacy_java_was"
+    # username: "legacy_java_was"
+    # password: ""
     dbsession-query:
       create-session: "INSERT INTO SPRING_SESSION (PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) VALUES (?, ?, ?, ?, ?, ?, ?)"
       create-session-attribute: "INSERT INTO SPRING_SESSION_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) VALUES (?, ?, ?)"
