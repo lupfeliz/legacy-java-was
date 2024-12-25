@@ -151,6 +151,10 @@
     {
       "name": "spring.datasource-dss.dbsession-query.delete-sessions-by-expiry-time",
       "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.dbsession-broadcast",
+      "type": "java.util.List"
     }
   ]
 }

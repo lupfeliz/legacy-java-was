@@ -10,6 +10,8 @@
 package com.ntiple;
 
 import static com.ntiple.commons.Constants.UTF8;
+import static com.ntiple.commons.ConvertUtil.convert;
+import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.CryptoUtil.RSA.decrypt;
 import static com.ntiple.commons.CryptoUtil.RSA.encrypt;
 import static com.ntiple.commons.HttpUtil.httpWorker;
@@ -111,8 +113,13 @@ public class SimpleTest {
     if (!TestUtil.isEnabled("testHttpClient", TestLevel.MANUAL)) { return; }
     StringBuilder sb = new StringBuilder();
     httpWorker()
-      .url("https://gitlab.ntiple.com")
-      .method(p -> p.GET())
+      .url("http://localhost:3000/api/cmn/cmn01001a01")
+      .method(p -> p.POST())
+      .charset(UTF8)
+      .contentType(p -> p.APPLICATION_JSON())
+      .contents(convert(new String[][]{
+        { "loginId", "1234" }
+      }, newMap()))
       .agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0")
       .work((stat, stream, hdr, ctx) -> {
         try {

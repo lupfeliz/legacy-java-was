@@ -40,7 +40,7 @@ lombok.config
 demo-app.db.mv.db
 
 /src/main/resources/static/*
-/src/main/resources/application-my.yml
+/src/main/resources/application-my*.yml
 /log
 **/*.cache
 .env

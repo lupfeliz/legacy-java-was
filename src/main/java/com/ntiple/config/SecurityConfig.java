@@ -82,7 +82,7 @@ public class SecurityConfig {
       matcher(POST, "/smp/**"),
       matcher(GET, "/assets/**"),
       /** GET /api/cmn/* (공용API) */
-      matcher(GET, "/api/cmn/**"),
+      matcher(null, "/api/cmn/**"),
       /** GET /api/usr/usr01001a01/** (마이페이지) */
       matcher(GET, "/api/usr/usr01001/**"),
       /** PUT /api/usr/** (회원가입) */

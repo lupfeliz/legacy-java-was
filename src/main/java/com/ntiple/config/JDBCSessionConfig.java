@@ -10,6 +10,7 @@ package com.ntiple.config;
 import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.ConvertUtil.parseStr;
 import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.StringUtil.cat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionAttributeListener;
@@ -74,8 +77,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import com.ntiple.commons.ObjectStore;
+import com.ntiple.system.Debouncer;
 import com.ntiple.system.Settings;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("deprecation")
@@ -87,15 +94,18 @@ public class JDBCSessionConfig {
 
   private static final ObjectStore<CustomSessionRepository> repo = new ObjectStore<>();
 
+  private Map<String, CacheItem> findByIdCache = new LinkedHashMap<>();
+
+  private final Debouncer debouncer = new Debouncer();
+
   @Bean @SpringSessionDataSource
   DataSource dataSourceDss() {
     DataSource ret = cast(settings.getAppctx().getBean("datasourceDss"), ret = null);
     return ret;
   }
 
-  @PostConstruct public void init() {
-    log.debug("CHECK:{} / {}", slistener, alistener);
-  }
+  @PostConstruct public void init() { }
+  @PreDestroy public void destroy() { }
 
   @Bean @Primary
   CustomSessionRepository customSessionRepository() {
@@ -190,9 +200,30 @@ public class JDBCSessionConfig {
     @Override public void save(final CustomSession session) { session.save(); }
     @Override public CustomSession findById(final String id) {
       final CustomSession session = this.transactionOperations.execute((status) -> {
-        List<CustomSession> sessions = CustomSessionRepository.this.jdbcOperations.query(
-          CustomSessionRepository.this.getSessionQuery, (ps) -> ps.setString(1, id),
-          CustomSessionRepository.this.extractor);
+        List<CustomSession> sessions = null;
+        CacheItem item = findByIdCache.get(id);
+        if (item == null) {
+          sessions = CustomSessionRepository.this.jdbcOperations.query(
+            CustomSessionRepository.this.getSessionQuery, (ps) -> ps.setString(1, id),
+            CustomSessionRepository.this.extractor);
+          findByIdCache.put(id,
+            CacheItem.builder()
+              .obj(sessions)
+              .expiry(System.currentTimeMillis() + 100)
+            .build());
+        } else {
+          sessions = cast(item.getObj(), sessions);
+        }
+        debouncer.debounce(cat("CLEARCACHE", id), () -> {
+          log.debug("CLEAR-SESSION-CACHE:{}", id);
+          long curtime = System.currentTimeMillis();
+          for (String key : findByIdCache.keySet()) {
+            CacheItem itm = findByIdCache.get(key);
+            if (itm.getExpiry() > curtime) {
+              findByIdCache.remove(key);
+            }
+          }
+        }, 100);
         if (sessions.isEmpty()) { return null; }
         return sessions.get(0);
       });
@@ -212,6 +243,7 @@ public class JDBCSessionConfig {
       if (slistener != null) { slistener.sessionCreated(new HttpSessionEvent(new CustomSessionWrapper(session))); }
       this.transactionOperations.executeWithoutResult((status) -> CustomSessionRepository.this.jdbcOperations
         .update(CustomSessionRepository.this.deleteSessionQuery, id));
+      if (findByIdCache.containsKey(id)) { findByIdCache.remove(id); }
     }
 
     @Override public Map<String, CustomSession> findByIndexNameAndIndexValue(String indexName, final String indexValue) {
@@ -405,18 +437,15 @@ public class JDBCSessionConfig {
           if (attributeRemoved) {
             this.delta.merge(attributeName, DeltaValue.REMOVED,
               (oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? null : deltaValue);
-              DeltaValue dv = this.delta.get(attributeName);
             if (alistener != null) { alistener.attributeRemoved(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName, attributeValue)); }
           } else {
             this.delta.merge(attributeName, DeltaValue.UPDATED, (oldDeltaValue,
               deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : deltaValue);
-              DeltaValue dv = this.delta.get(attributeName);
             if (alistener != null) { alistener.attributeReplaced(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName, attributeValue)); }
           }
         } else {
           this.delta.merge(attributeName, DeltaValue.ADDED, (oldDeltaValue,
             deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : DeltaValue.UPDATED);
-              DeltaValue dv = this.delta.get(attributeName);
             if (alistener != null) { alistener.attributeAdded(new HttpSessionBindingEvent(new CustomSessionWrapper(this), attributeName, attributeValue)); }
         }
         this.delegate.setAttribute(attributeName, value(attributeValue));
@@ -428,15 +457,13 @@ public class JDBCSessionConfig {
 
       @Override public void removeAttribute(String attributeName) { setAttribute(attributeName, null); }
       @Override public Instant getCreationTime() { return this.delegate.getCreationTime(); }
-      @Override
-      public void setLastAccessedTime(Instant lastAccessedTime) {
+      @Override public void setLastAccessedTime(Instant lastAccessedTime) {
         this.delegate.setLastAccessedTime(lastAccessedTime);
         this.changed = true;
         flushIfRequired();
       }
       @Override public Instant getLastAccessedTime() { return this.delegate.getLastAccessedTime(); }
-      @Override
-      public void setMaxInactiveInterval(Duration interval) {
+      @Override public void setMaxInactiveInterval(Duration interval) {
         this.delegate.setMaxInactiveInterval(interval);
         this.changed = true;
         flushIfRequired();
@@ -463,39 +490,42 @@ public class JDBCSessionConfig {
             if (!attributeNames.isEmpty()) { insertSessionAttributes(CustomSession.this, new ArrayList<>(attributeNames)); }
           });
         } else {
-          CustomSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
-            if (CustomSession.this.changed) {
-              Map<String, String> indexes = CustomSessionRepository.this.indexResolver
-                .resolveIndexesFor(CustomSession.this);
-              CustomSessionRepository.this.jdbcOperations
-                .update(CustomSessionRepository.this.updateSessionQuery, (ps) -> {
-                  ps.setString(1, getId());
-                  ps.setLong(2, getLastAccessedTime().toEpochMilli());
-                  ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
-                  ps.setLong(4, getExpiryTime().toEpochMilli());
-                  ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
-                  ps.setString(6, CustomSession.this.primaryKey);
-                });
-            }
-            List<String> addedAttributeNames = CustomSession.this.delta.entrySet().stream()
-              .filter((entry) -> entry.getValue() == DeltaValue.ADDED).map(Map.Entry::getKey)
-              .collect(Collectors.toList());
-            if (!addedAttributeNames.isEmpty()) {
-              insertSessionAttributes(CustomSession.this, addedAttributeNames);
-            }
-            List<String> updatedAttributeNames = CustomSession.this.delta.entrySet().stream()
-              .filter((entry) -> entry.getValue() == DeltaValue.UPDATED).map(Map.Entry::getKey)
-              .collect(Collectors.toList());
-            if (!updatedAttributeNames.isEmpty()) {
-              updateSessionAttributes(CustomSession.this, updatedAttributeNames);
-            }
-            List<String> removedAttributeNames = CustomSession.this.delta.entrySet().stream()
-              .filter((entry) -> entry.getValue() == DeltaValue.REMOVED).map(Map.Entry::getKey)
-              .collect(Collectors.toList());
-            if (!removedAttributeNames.isEmpty()) {
-              deleteSessionAttributes(CustomSession.this, removedAttributeNames);
-            }
-          });
+          debouncer.debounce(cat("UPDATE", getId()), () -> {
+            log.debug("UPDATE-SESSION:{}", getId());
+            CustomSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
+              if (CustomSession.this.changed) {
+                Map<String, String> indexes = CustomSessionRepository.this.indexResolver
+                  .resolveIndexesFor(CustomSession.this);
+                CustomSessionRepository.this.jdbcOperations
+                  .update(CustomSessionRepository.this.updateSessionQuery, (ps) -> {
+                    ps.setString(1, getId());
+                    ps.setLong(2, getLastAccessedTime().toEpochMilli());
+                    ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
+                    ps.setLong(4, getExpiryTime().toEpochMilli());
+                    ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
+                    ps.setString(6, CustomSession.this.primaryKey);
+                  });
+              }
+              List<String> addedAttributeNames = CustomSession.this.delta.entrySet().stream()
+                .filter((entry) -> entry.getValue() == DeltaValue.ADDED).map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+              if (!addedAttributeNames.isEmpty()) {
+                insertSessionAttributes(CustomSession.this, addedAttributeNames);
+              }
+              List<String> updatedAttributeNames = CustomSession.this.delta.entrySet().stream()
+                .filter((entry) -> entry.getValue() == DeltaValue.UPDATED).map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+              if (!updatedAttributeNames.isEmpty()) {
+                updateSessionAttributes(CustomSession.this, updatedAttributeNames);
+              }
+              List<String> removedAttributeNames = CustomSession.this.delta.entrySet().stream()
+                .filter((entry) -> entry.getValue() == DeltaValue.REMOVED).map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+              if (!removedAttributeNames.isEmpty()) {
+                deleteSessionAttributes(CustomSession.this, removedAttributeNames);
+              }
+            });
+          }, 100);
         }
         clearChangeFlags();
       }
@@ -551,5 +581,11 @@ public class JDBCSessionConfig {
     }
     @Override public void invalidate() { repo.get().deleteById(this.getId()); }
     @Override public boolean isNew() { return s.isNew(); }
+  }
+
+  @Getter @Setter @Builder
+  public static class CacheItem {
+    private Object obj;
+    private long expiry;
   }
 }
