@@ -11,6 +11,7 @@ import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.ConvertUtil.parseStr;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
+import static com.ntiple.commons.WebUtil.curRequest;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,11 +28,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
@@ -92,9 +96,12 @@ public class JDBCSessionConfig {
   @Autowired private HttpSessionListener slistener;
   @Autowired private HttpSessionAttributeListener alistener;
 
+  private static final Pattern PTN_EXT = Pattern.compile("[.](?<ext>[a-zA-Z0-9]+)$");
+
   private static final ObjectStore<CustomSessionRepository> repo = new ObjectStore<>();
 
   private Map<String, CacheItem> findByIdCache = new LinkedHashMap<>();
+
 
   private final Debouncer debouncer = new Debouncer();
 
@@ -197,8 +204,54 @@ public class JDBCSessionConfig {
       return session;
     }
 
-    @Override public void save(final CustomSession session) { session.save(); }
+    @Override public void save(final CustomSession session) {
+// HttpServletRequest req = curRequest(HttpServletRequest.class);
+// if (req != null) {
+//   String uri = req.getRequestURI();
+//   String ext = "";
+//   Matcher mat = null;
+//   if ((mat = PTN_EXT.matcher(uri)).find()) { ext = mat.group("ext"); }
+//   switch (ext) {
+//   case "js":
+//   case "jsp":
+//   case "scss":
+//   case "jpg":
+//   case "jpeg":
+//   case "ico":
+//   case "woff":
+//   case "woff2":
+//   case "css": { return; }
+//   default: { } }
+//   log.debug("================================================================================");
+//   log.debug("EXT:{} / {}", ext, uri);
+// } else {
+//   log.debug("!!");
+// }
+      session.save(curRequest(HttpServletRequest.class));
+    }
     @Override public CustomSession findById(final String id) {
+HttpServletRequest req = curRequest(HttpServletRequest.class);
+if (req != null) {
+  String uri = req.getRequestURI();
+  String ext = "";
+  Matcher mat = null;
+  if ((mat = PTN_EXT.matcher(uri)).find()) { ext = mat.group("ext"); }
+  switch (ext) {
+  case "js":
+  case "jsp":
+  case "scss":
+  case "jpg":
+  case "jpeg":
+  case "ico":
+  case "woff":
+  case "woff2":
+  case "css": { return null; }
+  default: { } }
+  log.debug("================================================================================");
+  log.debug("EXT:{} / {}", ext, uri);
+} else {
+  log.debug("!!");
+}
       final CustomSession session = this.transactionOperations.execute((status) -> {
         List<CustomSession> sessions = null;
         CacheItem item = findByIdCache.get(id);
@@ -219,10 +272,11 @@ public class JDBCSessionConfig {
           long curtime = System.currentTimeMillis();
           for (String key : findByIdCache.keySet()) {
             CacheItem itm = findByIdCache.get(key);
-            if (itm.getExpiry() > curtime) {
+            if (itm.getExpiry() < curtime) {
               findByIdCache.remove(key);
             }
           }
+          log.debug("CACHE-SIZE:{}", findByIdCache.size());
         }, 100);
         if (sessions.isEmpty()) { return null; }
         return sessions.get(0);
@@ -415,8 +469,7 @@ public class JDBCSessionConfig {
       }
       @Override public String getId() { return this.delegate.getId(); }
       @Override public String changeSessionId() { this.changed = true; return this.delegate.changeSessionId(); }
-      @Override
-      public <T> T getAttribute(String attributeName) {
+      @Override public <T> T getAttribute(String attributeName) {
         Supplier<T> supplier = this.delegate.getAttribute(attributeName);
         if (supplier == null) { return null; }
         T attributeValue = supplier.get();
@@ -470,8 +523,10 @@ public class JDBCSessionConfig {
       }
       @Override public Duration getMaxInactiveInterval() { return this.delegate.getMaxInactiveInterval(); }
       @Override public boolean isExpired() { return this.delegate.isExpired(); }
-      private void flushIfRequired() { if (CustomSessionRepository.this.flushMode == FlushMode.IMMEDIATE) { save(); } }
-      private void save() {
+      private void flushIfRequired() {
+        // if (CustomSessionRepository.this.flushMode == FlushMode.IMMEDIATE) { save(null); }
+      }
+      private void save(HttpServletRequest req) {
         if (this.isNew) {
           CustomSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
             Map<String, String> indexes = CustomSessionRepository.this.indexResolver
@@ -490,9 +545,10 @@ public class JDBCSessionConfig {
             if (!attributeNames.isEmpty()) { insertSessionAttributes(CustomSession.this, new ArrayList<>(attributeNames)); }
           });
         } else {
-          debouncer.debounce(cat("UPDATE", getId()), () -> {
-            log.debug("UPDATE-SESSION:{}", getId());
-            CustomSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
+          CustomSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
+            // debouncer.debounce(cat("UPDATE", CustomSession.this.getId()), () -> {
+            // }, 100);
+              log.debug("UPDATE-SESSION:{} / {}", CustomSession.this.getId(), CustomSession.this.changed);
               if (CustomSession.this.changed) {
                 Map<String, String> indexes = CustomSessionRepository.this.indexResolver
                   .resolveIndexesFor(CustomSession.this);
@@ -524,8 +580,7 @@ public class JDBCSessionConfig {
               if (!removedAttributeNames.isEmpty()) {
                 deleteSessionAttributes(CustomSession.this, removedAttributeNames);
               }
-            });
-          }, 100);
+          });
         }
         clearChangeFlags();
       }
