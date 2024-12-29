@@ -61,7 +61,7 @@ public class PersistentConfig {
   public void init() {
   }
 
-  private static final void applyTypeProcess(SqlSessionFactoryBean fb, String... pkgs) {
+  public static final void applyTypeProcess(SqlSessionFactoryBean fb, String... pkgs) {
     final List<Class<?>> alsLst = new ArrayList<>();
     final List<TypeHandler<?>> hndLst = new ArrayList<>();
     ClassWorker.workClasses(Application.class.getClassLoader(), cls -> {

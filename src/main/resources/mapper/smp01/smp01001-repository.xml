@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' '../../dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.ntiple.work.smp01.Smp01001Repository'>
+  <!--
+  @File        : smp01001-repository.xml
+  @Author      : 정재백
+  @Since       : 2024-12-29
+  @Description : 공통 sqlmap
+  @Site        : https://devlog.ntiple.com
+  -->
+  <!-- [ 샘플조회 -->
+  <select id='findSample' parameterType='map' resultType='SampleArticle'>
+    SELECT
+      COUNT(*)
+    FROM
+      ARTICLE
+    <trim prefixOverrides='AND|OR'>
+    </trim> 
+  </select>
+  <!-- ] 샘플조회 -->
+
+  <!-- [ 샘플 수량 조회 -->
+  <select id='countSample' parameterType='map' resultType='int'>
+    SELECT
+      COUNT(*)
+    FROM
+      ARTICLE
+    <trim prefixOverrides='AND|OR'>
+    </trim> 
+  </select>
+  <!-- ] 샘플 수량 조회 -->
+
+  <!-- [ 샘플 입력 -->
+  <insert id='addSample' parameterType='map'>
+    INSERT INTO
+    ARTICLE
+    (
+      UID,
+      TITLE,
+      CONTENTS,
+      USER_ID,
+      USER_NM,
+      CTIME,
+      UTIME
+    )
+    VALUES
+    (
+      #{prm.uid},
+      #{prm.title},
+      #{prm.contents},
+      #{prm.userId},
+      #{prm.userNm},
+      #{prm.ctime},
+      #{prm.utime}
+    )
+  </insert>
+  <!-- ] 샘플 입력 -->
+</mapper>

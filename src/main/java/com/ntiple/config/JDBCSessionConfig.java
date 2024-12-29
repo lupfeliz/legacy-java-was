@@ -10,7 +10,6 @@ package com.ntiple.config;
 import static com.ntiple.commons.ConvertUtil.parseInt;
 import static com.ntiple.commons.ConvertUtil.parseStr;
 import static com.ntiple.commons.ReflectionUtil.cast;
-import static com.ntiple.commons.StringUtil.cat;
 import static com.ntiple.commons.WebUtil.curRequest;
 
 import java.sql.PreparedStatement;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,12 +79,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import com.ntiple.commons.ObjectStore;
-import com.ntiple.system.Debouncer;
 import com.ntiple.system.Settings;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("deprecation")
@@ -100,17 +94,8 @@ public class JDBCSessionConfig {
 
   private static final ObjectStore<CustomSessionRepository> repo = new ObjectStore<>();
 
-  private Map<String, CacheItem> findByIdCache = new LinkedHashMap<>();
-
-
-  private final Debouncer debouncer = new Debouncer();
-
   @Bean @SpringSessionDataSource
-  DataSource dataSourceDss() {
-    DataSource ret = cast(settings.getAppctx().getBean("datasourceDss"), ret = null);
-    return ret;
-  }
-
+  DataSource dataSourceDss() { return cast(settings.getAppctx().getBean("datasourceDss"), DataSource.class); }
   @PostConstruct public void init() { }
   @PreDestroy public void destroy() { }
 
@@ -165,10 +150,11 @@ public class JDBCSessionConfig {
     private String deleteSessionsByExpiryTimeQuery;
     private Integer defaultMaxInactiveInterval;
     private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
-    private ConversionService conversionService = createDefaultConversionService();
     private LobHandler lobHandler = new DefaultLobHandler();
     private FlushMode flushMode = FlushMode.ON_SAVE;
     private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+    private ConversionService conversionService = createDefaultConversionService();
+    @Bean ConversionService blobToObjectConverter() { return conversionService; }
     public CustomSessionRepository(JdbcOperations jdbcOperations, TransactionOperations transactionOperations) {
       this.jdbcOperations = jdbcOperations;
       this.transactionOperations = transactionOperations;
@@ -204,80 +190,25 @@ public class JDBCSessionConfig {
       return session;
     }
 
-    @Override public void save(final CustomSession session) {
-// HttpServletRequest req = curRequest(HttpServletRequest.class);
-// if (req != null) {
-//   String uri = req.getRequestURI();
-//   String ext = "";
-//   Matcher mat = null;
-//   if ((mat = PTN_EXT.matcher(uri)).find()) { ext = mat.group("ext"); }
-//   switch (ext) {
-//   case "js":
-//   case "jsp":
-//   case "scss":
-//   case "jpg":
-//   case "jpeg":
-//   case "ico":
-//   case "woff":
-//   case "woff2":
-//   case "css": { return; }
-//   default: { } }
-//   log.debug("================================================================================");
-//   log.debug("EXT:{} / {}", ext, uri);
-// } else {
-//   log.debug("!!");
-// }
-      session.save(curRequest(HttpServletRequest.class));
-    }
+    @Override public void save(final CustomSession session) { session.save(curRequest(HttpServletRequest.class)); }
     @Override public CustomSession findById(final String id) {
-HttpServletRequest req = curRequest(HttpServletRequest.class);
-if (req != null) {
-  String uri = req.getRequestURI();
-  String ext = "";
-  Matcher mat = null;
-  if ((mat = PTN_EXT.matcher(uri)).find()) { ext = mat.group("ext"); }
-  switch (ext) {
-  case "js":
-  case "jsp":
-  case "scss":
-  case "jpg":
-  case "jpeg":
-  case "ico":
-  case "woff":
-  case "woff2":
-  case "css": { return null; }
-  default: { } }
-  log.debug("================================================================================");
-  log.debug("EXT:{} / {}", ext, uri);
-} else {
-  log.debug("!!");
-}
+      HttpServletRequest req = curRequest(HttpServletRequest.class);
+      if (req != null) {
+        String uri = req.getRequestURI();
+        String ext = "";
+        Matcher mat = null;
+        if ((mat = PTN_EXT.matcher(uri)).find()) { ext = String.valueOf(mat.group("ext")).toLowerCase(); }
+        switch (ext) {
+        case "js": case "jsp": case "scss": case "jpg": case "png":
+        case "jpeg": case "ico": case "woff": case "woff2":
+        case "css": { return null; }
+        default: { } }
+        log.debug("CHECK-EXT:{} / {}", ext, uri);
+      }
       final CustomSession session = this.transactionOperations.execute((status) -> {
-        List<CustomSession> sessions = null;
-        CacheItem item = findByIdCache.get(id);
-        if (item == null) {
-          sessions = CustomSessionRepository.this.jdbcOperations.query(
-            CustomSessionRepository.this.getSessionQuery, (ps) -> ps.setString(1, id),
-            CustomSessionRepository.this.extractor);
-          findByIdCache.put(id,
-            CacheItem.builder()
-              .obj(sessions)
-              .expiry(System.currentTimeMillis() + 100)
-            .build());
-        } else {
-          sessions = cast(item.getObj(), sessions);
-        }
-        debouncer.debounce(cat("CLEARCACHE", id), () -> {
-          log.debug("CLEAR-SESSION-CACHE:{}", id);
-          long curtime = System.currentTimeMillis();
-          for (String key : findByIdCache.keySet()) {
-            CacheItem itm = findByIdCache.get(key);
-            if (itm.getExpiry() < curtime) {
-              findByIdCache.remove(key);
-            }
-          }
-          log.debug("CACHE-SIZE:{}", findByIdCache.size());
-        }, 100);
+        List<CustomSession> sessions = CustomSessionRepository.this.jdbcOperations.query(
+          CustomSessionRepository.this.getSessionQuery, (ps) -> ps.setString(1, id),
+          CustomSessionRepository.this.extractor);
         if (sessions.isEmpty()) { return null; }
         return sessions.get(0);
       });
@@ -297,7 +228,6 @@ if (req != null) {
       if (slistener != null) { slistener.sessionCreated(new HttpSessionEvent(new CustomSessionWrapper(session))); }
       this.transactionOperations.executeWithoutResult((status) -> CustomSessionRepository.this.jdbcOperations
         .update(CustomSessionRepository.this.deleteSessionQuery, id));
-      if (findByIdCache.containsKey(id)) { findByIdCache.remove(id); }
     }
 
     @Override public Map<String, CustomSession> findByIndexNameAndIndexValue(String indexName, final String indexValue) {
@@ -524,7 +454,7 @@ if (req != null) {
       @Override public Duration getMaxInactiveInterval() { return this.delegate.getMaxInactiveInterval(); }
       @Override public boolean isExpired() { return this.delegate.isExpired(); }
       private void flushIfRequired() {
-        // if (CustomSessionRepository.this.flushMode == FlushMode.IMMEDIATE) { save(null); }
+        if (CustomSessionRepository.this.flushMode == FlushMode.IMMEDIATE) { save(null); }
       }
       private void save(HttpServletRequest req) {
         if (this.isNew) {
@@ -636,11 +566,5 @@ if (req != null) {
     }
     @Override public void invalidate() { repo.get().deleteById(this.getId()); }
     @Override public boolean isNew() { return s.isNew(); }
-  }
-
-  @Getter @Setter @Builder
-  public static class CacheItem {
-    private Object obj;
-    private long expiry;
   }
 }

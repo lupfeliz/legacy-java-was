@@ -7,10 +7,22 @@
  **/
 package com.ntiple;
 
+import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
 
 import java.io.File;
 import java.net.URL;
+
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+
+import com.ntiple.config.PersistentConfig;
+import com.ntiple.system.Settings;
+import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,6 +87,38 @@ public class TestUtil {
       }
       log.debug("BUILDPATH:{} / {}", buildpath, ret);
       // ret = new File(path);
+    } catch (Exception e) {
+      log.debug("E:", e);
+    }
+    return ret;
+  }
+
+  public static SqlSessionTemplate initDb() {
+    SqlSessionTemplate ret = null;
+    try {
+      ClassLoader loader = null;
+      Settings settings = Settings.getInstance();
+      log.debug("TEST:{}", settings.getProperty("spring.datasource-dss.dbsession-query.create-session"));
+      String driver = cast(settings.getProperty("spring.datasource-dss.driver-class-name"), "");
+      String jdburl = cast(settings.getProperty("spring.datasource-dss.jdbc-url"), "");
+      String jdbusr = cast(settings.getProperty("spring.datasource-dss.username"), "");
+      String jdbpsw = cast(settings.getProperty("spring.datasource-dss.password"), "");
+      HikariDataSource source = new HikariDataSource();
+      source.setDriverClassName(driver);
+      source.setJdbcUrl(jdburl);
+      source.setUsername(jdbusr);
+      source.setPassword(jdbpsw);
+      loader = Application.class.getClassLoader();
+      SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
+      fb.setDataSource(source);
+      fb.setConfigLocation(new FileUrlResource(loader.getResource("mybatis-config.xml")));
+      PersistentConfig.applyTypeProcess(fb, "com.ntiple.work", "com.ntiple.system");
+      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+      Resource[] resource = resolver.getResources("mapper/**/*.xml");
+      fb.setMapperLocations(resource);
+      ret = new SqlSessionTemplate(fb.getObject());
+      log.info("RESOURCES:{}{}", "", resource);
+      log.info("SQLTMP:{}{}", "", ret);
     } catch (Exception e) {
       log.debug("E:", e);
     }

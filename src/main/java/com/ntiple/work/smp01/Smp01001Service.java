@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Smp01001Service {
 
   @Autowired Cmn01001Service cmnsvc;
+  @Autowired Smp01001Repository smprepo;
 
   @PostConstruct public void init() {
   }
