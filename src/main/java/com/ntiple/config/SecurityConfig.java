@@ -48,6 +48,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.ntiple.system.Settings;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Configuration @EnableWebSecurity
@@ -57,6 +59,7 @@ public class SecurityConfig {
   @Autowired private AuthFilter authFilter;
   @Autowired private JwtAuthenticationEntryPoint authPoint;
   @Autowired private JwtAccessDeniedHandler authHandler;
+  @Autowired private Settings settings;
 
   /** URL 패턴매칭 */
   private static AntPathRequestMatcher matcher(HttpMethod m, String path) {

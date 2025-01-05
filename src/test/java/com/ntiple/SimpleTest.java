@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.security.Key;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
 import org.junit.Test;
 
 import com.ntiple.TestUtil.TestLevel;
@@ -106,6 +107,20 @@ public class SimpleTest {
       dec = decrypt(1, pubk, enc);
       log.debug("DECRYPT-PUB:{} -> {}", enc, dec);
     }
+  }
+
+  @Test
+  public void testConvert() throws Exception {
+    if (!TestUtil.isEnabled("testConvert", TestLevel.MANUAL)) { return; }
+    log.debug("TEST:{}", convert(new String[][] {
+      { "CHECK", "OK" }
+    }, newMap()));
+    log.debug("TEST2:{}", new JSONObject(convert(new String[][] {
+      { "CHECK", "OK" }
+    }, newMap())));
+    log.debug("TEST3:{}", convert(new String[][] {
+      { "CHECK", "OK" }
+    }, ""));
   }
 
   @Test

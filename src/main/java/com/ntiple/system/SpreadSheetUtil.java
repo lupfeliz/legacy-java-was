@@ -135,7 +135,7 @@ public class SpreadSheetUtil {
           rownum++;
         }
       }
-      if (file != null && file.exists()) {
+      if (file != null) {
         ret = file;
       } else {
         ret = File.createTempFile("sheet", ".bin");
