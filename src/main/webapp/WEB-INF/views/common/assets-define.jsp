@@ -32,7 +32,7 @@
 <script src="${cbase}/assets/libs/core-js-3.38.1.min.js"></script>
 <script src="${cbase}/assets/libs/crypto-js-4.2.0.min.js"></script>
 <script src="${cbase}/assets/libs/abortcontroller-polyfill-1.7.5.min.js"></script>
-<script src="${cbase}/assets/libs/lrucache-1.0.3.min.js"></script>
+<%-- <script src="${cbase}/assets/libs/lrucache-1.0.3.min.js"></script> --%>
 <script src="${cbase}/assets/libs/jsencrypt-3.3.2.min.js"></script>
 <script src="${cbase}/assets/libs/jsbn-1.4.min.js"></script>
 <script src="${cbase}/assets/libs/jsbn2-1.4.min.js"></script>

@@ -251,4 +251,19 @@ putAll(vars, {
     log.debug("RESULT:", res);
   },
 });
+{
+  const cache = new LRUCache(10, 1000);
+  for (let inx = 0; inx < 1000; inx++) {
+    let num = getRandom(1000, 100);
+    cache.put(`KEY-\${num}`, `VALUE-\${num}`);
+  }
+  let iter = cache.keyIter();
+  for (let inx = 0; inx < cache.size() && iter.hasNext(); inx++) {
+    let key = iter.next();
+    log.debug("KEY:", inx, key);
+  }
+  let str = cache.stringify();
+  log.debug("CACHE:", str);
+  cache.parse(str);
+}
 </script:ex>

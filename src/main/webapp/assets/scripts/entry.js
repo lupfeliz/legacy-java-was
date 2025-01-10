@@ -1800,6 +1800,212 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     };
   };
 
+  class LRUCache {
+    capacity = 0;
+    cacheList = [];
+    cacheMap = {};
+    expiry = 0;
+    constructor(capacity, expiry = 1000 * 10) {
+      this.capacity = capacity;
+      this.cacheList = new DoublyLinkedList();
+      this.cacheMap = {};
+      this.expiry = expiry;
+    };
+    get(key) {
+      let node = this.cacheMap[key];
+      if (node === undefined) { return undefined; };
+      if (node.expire < new Date().getTime()) {
+        this.remove(key);
+        return undefined;
+      };
+      node.expire = new Date().getTime() + this.expiry;
+      this.moveToHead(node);
+      return node.value;
+    };
+    put(key, value) {
+      let node = this.cacheMap[key];
+      if (node !== undefined) {
+        node.value = value;
+        node.expire - new Date().getTime() + this.expiry;
+        this.moveToHead(node);
+        return;
+      };
+      let newNode = new DoublyLinkedNode(key, value);
+      this.cacheList.addFirst(newNode);
+      newNode.expire = new Date().getTime() + this.expiry;
+      if (this.cacheList.size() > this.capacity) {
+        this.removeLeast();
+      }
+      this.cacheMap[key] = newNode;
+    };
+    remove(key) {
+      let node = this.cacheMap[key];
+      delete this.cacheMap[key];
+      if (node === undefined) { return; };
+      this.cacheList.remove(node);
+    };
+    size() { return this.cacheList.size(); };
+    dump() { this.cacheList.dump(this.capacity); };
+    moveToHead(node) {
+      this.cacheList.remove(node);
+      this.cacheList.addFirst(node);
+    };
+    removeLeast() {
+      let size = this.cacheList.size();
+      let tail = this.cacheList.removeLast();
+      for (let inx = size; tail !== undefined && inx > this.capacity; inx--) {
+        let prev = tail.prev;
+        delete this.cacheMap[tail.key];
+        this.cacheList.remove(tail);
+        tail = prev;
+      };
+    };
+    removeExpired() { this.cacheList.removeExpired(); };
+    keySet() { return Object.keys(this.cacheMap); };
+    keyIter() {
+      let node = this.cacheList.head;
+      return {
+        hasNext() { return node !== undefined && node.next !== undefined; },
+        next() {
+          if (node === undefined) { return undefined; };
+          let ret = node.key;
+          node = node.next;
+          return ret;
+        }
+      };
+    };
+    stringify() { return this.cacheList.stringify(); };
+    parse(str) {
+      let list = JSON.parse(str);
+      let prev = undefined;
+      let node = this.cacheList.head = this.cacheList.tail = undefined;
+      for (const itm of list) {
+        let value = itm.v;
+        if (value.startsWith("n:")) {
+          value = Number(value.substring(2));
+        } else if (value.startsWith("s:")) {
+          value = value.substring(2);
+        } else if (value.startsWith("o:")) {
+          value = JSON.parse(value.substring(2));
+        };
+        node = new DoublyLinkedNode(itm.k, value);
+        node.expire = Number(itm.t);
+        if (prev === undefined) {
+          this.cacheList.head = node;
+        } else {
+          prev.next = node;
+        }
+        node.prev = prev;
+        this.cacheList.tail = node;
+        this.cacheMap[itm.k] = node;
+        prev = node;
+      };
+    };
+  };
+  class DoublyLinkedNode {
+    key;
+    value;
+    prev;
+    next;
+    expire;
+    constructor(key, value) {
+      this.key = key;
+      this.value = value;
+    };
+  };
+  class DoublyLinkedList {
+    head = undefined;
+    tail = undefined;
+    addFirst(node) {
+      if (this.isEmpty()) {
+        this.head = this.tail = node;
+      } else {
+        node.next = this.head;
+        this.head.prev = node;
+        this.head = node;
+      };
+    };
+    remove(node) {
+      if (node === this.head) {
+        this.head = this.head.next;
+        if (this.heead !== undefined) { this.head.prev = undefined; };
+      } else if (node === this.tail) {
+        this.tail = this.tail.prev;
+        if (this.tail !== undefined) { this.tail.next = undefined; };
+      };
+      if (node.prev !== undefined) { node.prev.next = node.next; };
+      if (node.next !== undefined) { node.next.prev = node.prev; };
+      node.next = undefined;
+      node.prev = undefined;
+    };
+    removeLast() {
+      if (this.isEmpty()) { return; };
+      let last = this.tail;
+      this.remove(last);
+      return last;
+    };
+    isEmpty() {
+      return this.head === undefined;
+    };
+    removeExpired() {
+      let node = this.tail;
+      let prev = undefined;
+      let curtime = new Date().getTime();
+      LOOP: while (node !== undefined) {
+        if (node.expire < curtime) {
+          prev = node.prev;
+          this.remove(node);
+          node = prev;
+          continue LOOP;
+        }
+        if (node.prev !== undefined) { break LOOP; }
+        node = node.prev;
+      };
+    };
+    size() {
+      let size = 0;
+      let node = this.head;
+      while (node !== undefined) {
+        size += 1;
+        if (node.next === undefined) { break; };
+        node = node.next;
+      };
+      return size;
+    };
+    dump(limit) {
+      let size = 0;
+      let node = this.head;
+      while (node !== undefined && size < limit) {
+        log.debug("NODE:", node);
+        size += 1;
+        if (node.next === undefined) { break; };
+        node = node.next;
+      };
+    };
+    stringify() {
+      let ret = "";
+      let size = 0;
+      let node = this.head;
+      while (node !== undefined) {
+        if (ret) { ret = `${ret},`; };
+        let value = node.value;
+        if (typeof value === "string") {
+          value = `s:${value}`;
+        } else if (typeof value === "number") {
+          value = `n:${value}`;
+        } else {
+          value = `o:${JSON.stringify(value)}`;
+        }
+        ret = `${ret}{"k":"${node.key}","v":"${value}","t":${node.expire}}`;
+        size += 1;
+        if (node.next === undefined) { break; };
+        node = node.next;
+      };
+      if (ret) { ret = `[${ret}]`; };
+      return ret;
+    };
+  };
+
   function update() {
     if (appvars.instance._) {
       log.debug("UPDATE:", appvars.instance._);
@@ -2329,6 +2535,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
   lodash,
   log,
   lpad,
+  LRUCache,
   makeDate,
   max,
   mergeAll,

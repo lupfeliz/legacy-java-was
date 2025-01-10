@@ -20,18 +20,30 @@ import static com.ntiple.commons.IOUtil.readAsString;
 import static com.ntiple.commons.IOUtil.reader;
 import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.IOUtil.writer;
+import static com.ntiple.commons.StringUtil.cat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.json.JSONObject;
 import org.junit.Test;
 
 import com.ntiple.TestUtil.TestLevel;
+import com.ntiple.commons.HierarchyUtil;
+import com.ntiple.commons.HierarchyUtil.HierarchyEntry;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @SuppressWarnings("unused")
@@ -143,5 +155,36 @@ public class SimpleTest {
         return null;
       });
       log.debug("RESULT:{}", sb);
+  }
+
+  @Test public void testSort() throws Exception {
+    if (!TestUtil.isEnabled("testSort", TestLevel.MANUAL)) { return; }
+    List<MenuEntry> list = new ArrayList<>();
+    for (int inx = 0; inx < 10; inx++) {
+      int sortNo = Math.abs(new Random().nextInt() % 999);
+      MenuEntry menu = MenuEntry.builder()
+        .entryId(cat("menu", inx))
+        .sortNo(sortNo)
+        .build();
+      if (inx == 3) { menu.setParentId("menu1"); }
+      list.add(menu);
+    }
+    log.debug("--------------------------------------------------------------------------------");
+    log.debug("BEFORE:{}", list);
+    log.debug("--------------------------------------------------------------------------------");
+    List<MenuEntry> hierarchy = HierarchyUtil.makeHierarchy(list);
+    log.debug("SORTED:{}", hierarchy);
+    log.debug("OK");
+  }
+
+  @NoArgsConstructor @AllArgsConstructor
+  @Getter @Setter @Builder @ToString
+  public static class MenuEntry implements HierarchyEntry<MenuEntry> {
+    private String entryId;
+    private String parentId;
+    private Integer depth;
+    private Integer sortNo;
+    private List<MenuEntry> children;
+    @Override public int compareTo(MenuEntry o) { return this.sortNo - o.sortNo; }
   }
 }

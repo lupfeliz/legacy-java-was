@@ -30,6 +30,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
@@ -56,10 +60,17 @@ public class SpreadSheetUtil {
     log.trace("INIT:{}", SpreadSheetUtil.class);
   }
 
-  public static <T> File createSheet(String type, List<T> list,
+  public static <T> File createSheet(String type, BlockingQueue<T> list,
     List<String> keys, List<String> titles,
     Map<String, Object> filters,
     File file) throws Exception {
+      return createSheet(type, list, keys, titles, filters, file, null, null);
+  }
+
+  public static <T> File createSheet(String type, BlockingQueue<T> list,
+    List<String> keys, List<String> titles,
+    Map<String, Object> filters,
+    File file, AtomicInteger cnt, AtomicBoolean working) throws Exception {
     File ret = null;
     Map<String, Object> map = null;
     OutputStream ostream = null;
@@ -77,7 +88,18 @@ public class SpreadSheetUtil {
       }
       sheet = wbook.createSheet();
       int rownum = 0;
-      for (T itm : list) {
+      LOOP: while (true) {
+        T itm = null;
+        try {
+          itm = list.poll(500, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+          log.debug("E:{}", e);
+          break LOOP;
+        }
+        if (itm == null) {
+          if (working != null && working.get()) { continue LOOP; }
+          break LOOP;
+        }
         if (itm instanceof XlsSubject) {
           XlsSubject subject = cast(itm, subject = null);
           {
@@ -123,7 +145,7 @@ public class SpreadSheetUtil {
             if (cinx != -1) {
               cell = row.createCell(cinx);
               if ((t = map.get(k)) != null) {
-                t = applyFilter(t, k, filters);
+                t = applyFilter(t, k, map, filters);
                 if (t instanceof Integer) {
                   cell.setCellValue(parseInt(t));
                 } else {
@@ -134,6 +156,7 @@ public class SpreadSheetUtil {
           }
           rownum++;
         }
+        if (cnt != null) { cnt.set(rownum); }
       }
       if (file != null) {
         ret = file;
@@ -149,7 +172,7 @@ public class SpreadSheetUtil {
     return ret;
   }
 
-  public static Object applyFilter(Object v, String k, Map<String, Object> filters) {
+  public static Object applyFilter(Object v, String k, Map<String, Object> map, Map<String, Object> filters) {
     Object ret = v;
     if (filters == null) { return ret; }
     if (filters.containsKey(k)) {
@@ -163,9 +186,11 @@ public class SpreadSheetUtil {
       } else if (fobj instanceof Function) {
         Function<Object, Object> fnc = cast(fobj, fnc = null);
         try {
-          Object res = fnc.apply(v);
+          Object res = fnc.apply(map);
           ret = parseStr(res, "");
-        } catch (Exception ignore) { }
+        } catch (Exception e) {
+          log.debug("E:{}", e.getMessage());
+        }
       }
     }
     return ret;

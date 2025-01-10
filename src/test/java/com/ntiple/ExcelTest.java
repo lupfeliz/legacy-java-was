@@ -9,6 +9,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ExcelTest {
   @Test public void test1() throws Exception {
     if (!TestUtil.isEnabled("test1", TestLevel.MANUAL)) { return; }
-    List<Object> list = new ArrayList<>();
+    // List<Object> list = new ArrayList<>();
     List<String> keys = new ArrayList<>();
     Map<String, Object> filters = newMap();
+    BlockingQueue<Object> list = new LinkedBlockingDeque<>();
     list.add(XlsSubject.builder()
       .subject("테스트")
       .titles(keys)

@@ -63,6 +63,7 @@ function registerComponent($SCRIPTPRM) {
   lodash,
   log,
   lpad,
+  LRUCache,
   makeDate,
   max,
   mergeAll,

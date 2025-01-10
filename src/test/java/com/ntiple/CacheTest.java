@@ -125,6 +125,7 @@ public class CacheTest {
         for (int inx = size; tail != null && inx > capacity; inx--) {
           Node<K, V> prev = tail.prev;
           cacheMap.remove(tail.key);
+          cacheList.remove(tail);
           tail = prev;
         }
       }

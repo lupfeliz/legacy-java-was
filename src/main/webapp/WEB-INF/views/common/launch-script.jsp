@@ -102,6 +102,7 @@ initEntryScript(async function($SCRIPTPRM) {
   lodash,
   log,
   lpad,
+  LRUCache,
   makeDate,
   max,
   mergeAll,
@@ -151,7 +152,9 @@ initEntryScript(async function($SCRIPTPRM) {
     <script:names var="scripts"/>
     <c:forEach items="${scripts}" var="name">
       <c:if test="${name != '#launcher#'}">
-      try { <script:ex name="${name}" /> } catch (e) { log.debug("E:", e); };
+      try {
+        <script:ex name="${name}" />
+      } catch (e) { log.debug("E:", e); };
       </c:if>
     </c:forEach>
     return putAll(BIND_VALUES({ props, context }), {
