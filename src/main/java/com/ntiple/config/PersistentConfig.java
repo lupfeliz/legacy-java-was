@@ -35,7 +35,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 
 import com.ntiple.Application;
@@ -134,17 +133,8 @@ public class PersistentConfig {
   @Bean @Qualifier(DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
   DataSource datasourceDss() {
-    DataSource ret = null;
-    String drv = cast(settings.getProperty("spring.datasource-dss.driver-class-name"), "");
-    if (drv == null || "".equals(drv) || "org.h2.Driver".equals(drv)) {
-      ret = new EmbeddedDatabaseBuilder()
-        .setType(org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2)
-        .addScript("org/springframework/session/jdbc/schema-h2.sql").build();
-    } else {
-      ret = DataSourceBuilder.create()
-        .type(HikariDataSource.class)
-        .build();
-    }
-    return ret;
+    return DataSourceBuilder.create()
+      .type(HikariDataSource.class)
+      .build();
   }
 }

@@ -1,11 +1,99 @@
 {
   "properties": [
     {
-      "name": "system.key-seed",
+      "name": "spring.datasource-dss.driver-class-name",
       "type": "java.lang.String"
     },
     {
-      "name": "system.profile",
+      "name": "spring.datasource-dss.hikari.auto-commit",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.connection-test-query",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.minimum-idle",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.hikari.pool-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.jdbc-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.password",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-dss.username",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.driver-class-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.auto-commit",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.connection-test-query",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.minimum-idle",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.hikari.pool-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.jdbc-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.maximum-pool-size",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.password",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "spring.datasource-main.username",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "springdoc.server.description",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "springdoc.server.url",
       "type": "java.lang.String"
     },
     {
@@ -21,140 +109,68 @@
       "type": "java.lang.String"
     },
     {
-      "name": "springdoc.server.url",
+      "name": "system.dbsession-query.create-session-attribute",
       "type": "java.lang.String"
     },
     {
-      "name": "spring.datasource-main.hikari.connection-test-query",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.hikari.minimum-idle",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.hikari.maximum-pool-size",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.hikari.pool-name",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.hikari.auto-commit",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.driver-class-name",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.url",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.jdbc-url",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.username",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.password",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-main.maximum-pool-size",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.hikari.connection-test-query",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.hikari.minimum-idle",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.hikari.maximum-pool-size",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.hikari.pool-name",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.hikari.auto-commit",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.driver-class-name",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.url",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.jdbc-url",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.username",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.password",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.maximum-pool-size",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "springdoc.server.description",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.create-session",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.create-session-attribute",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.get-session",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.update-session",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.update-session-attribute",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.delete-session",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.delete-session-attribute",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.list-sessions-by-principal-name",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-query.delete-sessions-by-expiry-time",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "spring.datasource-dss.dbsession-broadcast",
+      "name": "system.dbsession-query.create-session-table",
       "type": "java.util.List"
+    },
+    {
+      "name": "system.dbsession-query.create-session",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.delete-session-attribute-all",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.delete-session-attribute",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.delete-session-by-id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.delete-sessions-by-expiry-time",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.delete-session",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.find-login-id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.get-session",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.list-sessions-by-principal-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.update-login-id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.update-session-attribute",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession-query.update-session",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.key-seed",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.profile",
+      "type": "java.lang.String"
     }
   ]
 }
