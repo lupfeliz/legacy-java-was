@@ -86,7 +86,7 @@ public class SessionListenerConfig {
     } else if (value instanceof String) {
       loginId = cast(value, "");
     }
-
+    if (loginId == null) { return; }
     CustomSessionWrapper cs = null;
     try {
       if (s instanceof CustomSessionWrapper) {

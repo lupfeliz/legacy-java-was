@@ -109,59 +109,63 @@
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.create-session-attribute",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "system.dbsession-query.create-session-table",
+      "name": "system.dbsession.exclude-pattern",
       "type": "java.util.List"
     },
     {
-      "name": "system.dbsession-query.create-session",
+      "name": "system.dbsession.query.create-session-attribute",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.delete-session-attribute-all",
+      "name": "system.dbsession.query.create-session-table",
+      "type": "java.util.List"
+    },
+    {
+      "name": "system.dbsession.query.create-session",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.delete-session-attribute",
+      "name": "system.dbsession.query.delete-session-attribute-all",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.delete-session-by-id",
+      "name": "system.dbsession.query.delete-session-attribute",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.delete-sessions-by-expiry-time",
+      "name": "system.dbsession.query.delete-session-by-id",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.delete-session",
+      "name": "system.dbsession.query.delete-session",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.find-login-id",
+      "name": "system.dbsession.query.delete-sessions-by-expiry-time",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.get-session",
+      "name": "system.dbsession.query.find-login-id",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.list-sessions-by-principal-name",
+      "name": "system.dbsession.query.get-session",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.update-login-id",
+      "name": "system.dbsession.query.list-sessions-by-principal-name",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.update-session-attribute",
+      "name": "system.dbsession.query.update-login-id",
       "type": "java.lang.String"
     },
     {
-      "name": "system.dbsession-query.update-session",
+      "name": "system.dbsession.query.update-session-attribute",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "system.dbsession.query.update-session",
       "type": "java.lang.String"
     },
     {

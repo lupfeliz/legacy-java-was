@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -91,8 +90,6 @@ public class JDBCSessionConfig {
   @Autowired private HttpSessionListener slistener;
   @Autowired private HttpSessionAttributeListener alistener;
 
-  private static final Pattern PTN_EXT = Pattern.compile("[.](?<ext>[a-zA-Z0-9]+)$");
-
   private static final ObjectStore<CustomSessionRepository> repo = new ObjectStore<>();
 
   @Bean @SpringSessionDataSource
@@ -113,6 +110,7 @@ public class JDBCSessionConfig {
     private final JdbcOperations dbc;
     private final TransactionOperations tdc;
     private final ResultSetExtractor<List<CustomSession>> ext = new SessionResultSetExtractor();
+    private final List<Pattern> ptnExclude = new ArrayList<>();
     private String createSessionQuery;
     private String createSessionAttributeQuery;
     private String getSessionQuery;
@@ -138,7 +136,7 @@ public class JDBCSessionConfig {
       this.tdc = new TransactionTemplate(new DataSourceTransactionManager(dsr));
       List<String> list = null;
       if (dss == dsr &&
-        (list = cast(settings.getProperty("system.dbsession-query.create-session-table"), list)) != null) {
+        (list = cast(settings.getProperty("system.dbsession.query.create-session-table"), list)) != null) {
         for (String itm : list) {
           log.debug("EXECUTE-DDL:{}", itm);
           try {
@@ -149,19 +147,25 @@ public class JDBCSessionConfig {
         }
       }
       String s = null;
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.create-session"), null)) != null) { this.createSessionQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.create-session-attribute"), null)) != null) { this.createSessionAttributeQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.get-session"), null)) != null) { this.getSessionQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.update-session"), null)) != null) { this.updateSessionQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.update-session-attribute"), null)) != null) { this.updateSessionAttributeQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.delete-session"), null)) != null) { this.deleteSessionQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.delete-session-attribute"), null)) != null) { this.deleteSessionAttributeQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.list-sessions-by-principal-name"), null)) != null) { this.listSessionsByPrincipalNameQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.delete-sessions-by-expiry-time"), null)) != null) { this.deleteSessionsByExpiryTimeQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.find-login-id"), null)) != null) { this.findLoginIdQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.delete-session-attribute-all"), null)) != null) { this.deleteSessionAttributeAllQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.delete-session-by-id"), null)) != null) { this.deleteSessionByIdQuery = s; }
-      if ((s = parseStr(settings.getProperty("system.dbsession-query.update-login-id"), null)) != null) { this.updateLoginIdQuery = s; }
+      List<String> l = null;
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.create-session"))) != null) { this.createSessionQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.create-session-attribute"), null)) != null) { this.createSessionAttributeQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.get-session"))) != null) { this.getSessionQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.update-session"))) != null) { this.updateSessionQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.update-session-attribute"))) != null) { this.updateSessionAttributeQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.delete-session"))) != null) { this.deleteSessionQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.delete-session-attribute"))) != null) { this.deleteSessionAttributeQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.list-sessions-by-principal-name"))) != null) { this.listSessionsByPrincipalNameQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.delete-sessions-by-expiry-time"))) != null) { this.deleteSessionsByExpiryTimeQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.find-login-id"))) != null) { this.findLoginIdQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.delete-session-attribute-all"))) != null) { this.deleteSessionAttributeAllQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.delete-session-by-id"))) != null) { this.deleteSessionByIdQuery = s; }
+      if ((s = parseStr(settings.getProperty("system.dbsession.query.update-login-id"))) != null) { this.updateLoginIdQuery = s; }
+      if ((l = cast(settings.getProperty("system.dbsession.exclude-pattern"), l)) != null) {
+        for (String str : l) {
+          try { ptnExclude.add(Pattern.compile(str)); } catch (Exception e) { log.debug("E:{}", e.getMessage()); }
+        }
+      }
       repo.set(this);
     }
     public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) { this.defaultMaxInactiveInterval = defaultMaxInactiveInterval; }
@@ -183,17 +187,9 @@ public class JDBCSessionConfig {
     @Override public CustomSession findById(final String id) {
       final HttpServletRequest req = curRequest(HttpServletRequest.class);
       if (req != null) {
-        String uri = req.getRequestURI();
-        String ext = "";
-        Matcher mat = null;
-        if (uri.startsWith("/assets/")) { return null; }
-        if ((mat = PTN_EXT.matcher(uri)).find()) { ext = String.valueOf(mat.group("ext")).toLowerCase(); }
-        switch (ext) {
-        case "js": case "jsp": case "scss": case "jpg": case "png": case "gif":
-        case "jpeg": case "ico": case "woff": case "woff2": case "xml": case "html":
-        case "css": { return null; }
-        default: { } }
-        log.debug("CHECK-REQUEST-EXT:{} / {}", ext, uri);
+        for (Pattern ptn : ptnExclude) {
+          if (ptn.matcher(req.getRequestURI()).find()) { return null; }
+        }
       }
       final CustomSession session = this.tdc.execute(st -> {
         List<CustomSession> sessions = CustomSessionRepository.this.dbc.query(
@@ -575,10 +571,7 @@ public class JDBCSessionConfig {
     @Deprecated @Override public HttpSessionContext getSessionContext() { return null; }
     @Override public Object getAttribute(String name) { return s.getAttribute(name); }
     @Override public Object getValue(String name) { return getAttribute(name); }
-    @Override public Enumeration<String> getAttributeNames() {
-      Enumeration<String> ret = null;
-      return cast(new IteratorEnumeration<>(s.getAttributeNames().iterator()), ret);
-    }
+    @Override public Enumeration<String> getAttributeNames() { return new IteratorEnumeration<>(s.getAttributeNames().iterator()); }
     @Override public String[] getValueNames() { return cast(s.getAttributeNames().toArray(), String[].class); }
     @Override public void setAttribute(String name, Object value) { s.setAttribute(name, value); }
     @Override public void putValue(String name, Object value) { setAttribute(name, value); }

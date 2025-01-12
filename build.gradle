@@ -162,6 +162,8 @@ dependencies {
   implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
   implementation 'com.ntiple:ntiple-utils:0.0.3-13'
   implementation 'org.reflections:reflections:0.10.2'
+  implementation 'org.graalvm.js:js:21.3.12'
+  implementation 'org.graalvm.js:js-scriptengine:21.3.12'
 
   /** file-based library */
   implementation fileTree(dir: 'libs', include: ['*.jar'])

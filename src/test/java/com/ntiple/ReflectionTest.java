@@ -11,6 +11,7 @@ package com.ntiple;
 
 import org.junit.Test;
 
+import com.ntiple.TestUtil.TestLevel;
 import com.ntiple.commons.ClassWorker;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReflectionTest {
 
   @Test public void testSimple() {
+    if (!TestUtil.isEnabled("testSimple", TestLevel.MANUAL)) { return; }
     ClassWorker.workClasses(Application.class.getClassLoader(),
     cls -> { log.debug("CLASS:{}", cls); },
     "com.ntiple.work", "com.ntiple.system");
