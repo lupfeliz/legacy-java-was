@@ -10,6 +10,7 @@ import com.ntiple.TestUtil.TestLevel;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 public class JavascriptTest {
 
@@ -27,20 +28,4 @@ public class JavascriptTest {
       System.err.println(e);
     }
   }
-
-  // @Test public void test2() throws Exception {
-  //   if (!TestUtil.isEnabled("test2", TestLevel.MANUAL)) { return; }
-  //   try (Context context = Context.create("js")) {
-  //     // 스크립트 파일을 읽어와서 실행시킨다.
-  //     context.eval(Source.newBuilder("js",
-  //         ClassLoader.getSystemResource("sample_script.js")).build());
-  //     // 컨텍스트의 바인딩 객체에서 "accumulator" 함수를 가져온다.
-  //     Value accumulatorFunc = context.getBindings("js").getMember("accumulator");
-  //     // 함수를 파라미터 1, 2을 넘겨 실행시키고 결과는 int에 매핑시킨다.
-  //     int result = accumulatorFunc.execute(1, 2).asInt();
-  //     System.out.println("result: " + result);
-  //   } catch (IOException e) {
-  //     System.err.println(e);
-  //   }
-  // }
 }

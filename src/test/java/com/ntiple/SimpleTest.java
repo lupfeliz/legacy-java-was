@@ -27,10 +27,13 @@ import java.io.Reader;
 import java.io.Writer;
 import java.security.Key;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -124,15 +127,42 @@ public class SimpleTest {
   @Test
   public void testConvert() throws Exception {
     if (!TestUtil.isEnabled("testConvert", TestLevel.MANUAL)) { return; }
-    log.debug("TEST:{}", convert(new String[][] {
-      { "CHECK", "OK" }
-    }, newMap()));
-    log.debug("TEST2:{}", new JSONObject(convert(new String[][] {
-      { "CHECK", "OK" }
-    }, newMap())));
-    log.debug("TEST3:{}", convert(new String[][] {
-      { "CHECK", "OK" }
-    }, ""));
+    {
+      log.debug("TEST:{}", convert(new String[][] {
+        { "CHECK", "OK" }
+      }, newMap()));
+    }
+    {
+      log.debug("TEST2:{}", new JSONObject(convert(new String[][] {
+        { "CHECK", "OK" }
+      }, newMap())));
+    }
+    {
+      log.debug("TEST3:{}", convert(new String[][] {
+        { "CHECK", "OK" }
+      }, ""));
+    }
+    {
+      JSONObject jobj = new JSONObject();
+      jobj.put("test", "abcd");
+      log.debug("TEST:{}", convert(jobj, newMap()));
+    }
+    {
+      Map<String, Object> map = new LinkedHashMap<>();
+      JSONObject jobj = new JSONObject();
+      map.put("test", "abcd");
+      log.debug("TEST:{} / {} / {}", convert(map, jobj), jobj.getClass());
+    }
+    {
+      List<Map<String, Object>> list = new ArrayList<>();
+      JSONArray jobj = new JSONArray();
+      {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("test", "abcd");
+        list.add(map);
+      }
+      log.debug("TEST:{} / {} / {}", convert(list, jobj), jobj.getClass());
+    }
   }
 
   @Test
