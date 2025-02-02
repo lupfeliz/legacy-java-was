@@ -8,13 +8,16 @@
 package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
-import static com.ntiple.commons.ConvertUtil.convert;
 import static com.ntiple.commons.ConvertUtil.list;
 import static com.ntiple.commons.ConvertUtil.newMap;
+import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.ReflectionUtil.findConstructor;
 import static com.ntiple.commons.StringUtil.cat;
+import static com.ntiple.commons.XMLWorker.parseXML;
+import static com.ntiple.commons.XMLWorker.xmlAttr;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,9 +25,12 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -51,10 +57,13 @@ import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 
 import com.ntiple.Application;
 import com.ntiple.commons.ClassWorker;
-import com.ntiple.commons.XMLWorker;
 import com.ntiple.system.Settings;
 import com.zaxxer.hikari.HikariDataSource;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Configuration
@@ -100,6 +109,20 @@ public class PersistentConfig {
   @Documented @Inherited @Retention(RetentionPolicy.RUNTIME)
   @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER })
   public @interface MapperMain { }
+
+  @Getter @Setter @ToString
+  public static class MapperInfo {
+    private String className;
+    private Map<String, String> methods = new LinkedHashMap<>();
+  }
+
+  @Getter @Setter @ToString @Builder
+  public static class MapperContext {
+    Resource[] resources;
+    List<MapperInfo> mapperList;
+  }
+
+  private static Map<String, MapperContext> mapperContext = new LinkedHashMap<>();
 
   public static final void applyTypeProcess(SqlSessionFactoryBean fb, String... pkgs) {
     final List<Class<?>> alsLst = new ArrayList<>();
@@ -154,37 +177,38 @@ public class PersistentConfig {
     fb.setDataSource(datasourceMain());
     fb.setConfigLocation(settings.getAppctx().getResource("classpath:mybatis-config.xml"));
     ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-    log.debug("CHECK-RESOURCES:{}{}", "", resolver.getResources("com/ntiple/work/**/*.class"));
+    // log.debug("CHECK-RESOURCES:{}{}", "", resolver.getResources("com/ntiple/work/**/*.class"));
     Resource[] resources = resolver.getResources("mapper/**/*.xml");
+    final MapperContext config = MapperContext.builder()
+      .resources(resources)
+      .mapperList(new ArrayList<>())
+      .build();
+    mapperContext.put(SQLFACTORY_MAIN, config);
     fb.setMapperLocations(resources);
-    XMLWorker.parse(c -> { },
-      resources[0].getInputStream(), (uri, lname, qname, attr, ctx) -> {
-        switch (qname) {
-        case "mapper": {
-        } break;
-        case "select": {
-        } break;
-        case "update": {
-        } break;
-        case "insert": {
-        } break;
-        default: };
-        for (int ainx = 0; ainx < attr.getLength(); ainx++) {
-          String anam = attr.getQName(ainx);
-          String aval = attr.getValue(ainx);
-          switch (anam) {
-          case "namespace": {
-            log.debug("NAMESPACE:{}", aval);
+    for (Resource resource : resources) {
+      InputStream istream = null;
+      final MapperInfo info = new MapperInfo();
+      try {
+        parseXML(c -> { },
+          istream = resource.getInputStream(), (uri, lname, qname, depth, attr, ctx) -> {
+          switch(cat(depth, qname)) {
+          case "1mapper": {
+            info.setClassName(xmlAttr(attr, "namespace"));
+            // log.debug("MAPPER FOUND:{}", info.getClassName());
           } break;
-          case "id": {
-            log.debug("ID:{} / {}", qname, aval);
+          case "2select": case "2update": case "2insert": case "2delete": {
+            String key = xmlAttr(attr, "id");
+            info.getMethods().put(key, qname);
+            // log.debug("MAPPER-METHOD FOUND:{} / {}", qname, key);
           } break;
           default: }
-        }
-        log.debug("XML:{} / {}", qname, attr);
-      }, (uri, lname, qname, ctx) -> {
-      }, (ch, st, len, ctx) -> {
-      });
+        }, (uri, lname, qname, depth, ctx) -> {
+        }, (ch, st, len, depth, ctx) -> {
+        });
+      } finally { safeclose(istream); }
+      config.mapperList.add(info);
+      // log.debug("INFO:{}", info);
+    }
     applyTypeProcess(fb, "com.ntiple.work", "com.ntiple.system");
     return fb.getObject();
   }
@@ -197,17 +221,46 @@ public class PersistentConfig {
   @Bean(name = SQLTEMPLTE_MAIN)
   SqlSessionTemplate sqlSessionTemplateMain(@Autowired @Qualifier(SQLFACTORY_MAIN) SqlSessionFactory fac) {
     SqlSessionTemplate ret = new SqlSessionTemplate(fac);
-    try {
-      log.debug("--------------------------------------------------------------------------------");
-      Object res = ret.selectList("com.ntiple.work.smp01.Smp01001Repository.findSample", convert(new Object[][] {
-        { "prm", convert(new Object[][] {
-            { "test", "TEST" }
-          }, newMap()) }
-      }, newMap()));
-      log.debug("CHECK:{}", res);
-    } catch (Exception e) {
-      log.debug("E:{}", e.getMessage());
+    MapperContext config = mapperContext.get(SQLFACTORY_MAIN);
+    log.debug("INFO:{}", config.getMapperList());
+    for (final MapperInfo info : config.getMapperList()) {
+      try {
+        Object bean = null;
+        Class<?> cls = Class.forName(info.getClassName());
+        log.debug("MAPPER-CLASS:{}", cls, bean);
+        for (Method method : cls.getMethods()) {
+          log.debug("METHOD:{} / {}", method.getName(), info.getMethods().get(method.getName()));
+        }
+        // bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
+        //   String mname = mtd.getName();
+        //   switch (info.methods.get(mname)) {
+        //   case "select": {
+        //   } break;
+        //   case "update": {
+        //   } break;
+        //   case "insert": {
+        //   } break;
+        //   case "delete": {
+        //   } break;
+        //   default: }
+        //   return null;
+        // });
+        // ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
+        // log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
+        // bf.registerResolvableDependency(cls, bean);
+      } catch (Exception e) { log.debug("E:", e); }
     }
+    // try {
+    //   log.debug("--------------------------------------------------------------------------------");
+    //   Object res = ret.selectList("com.ntiple.work.smp01.Smp01001Repository.findSample", convert(new Object[][] {
+    //     { "prm", convert(new Object[][] {
+    //         { "test", "TEST" }
+    //       }, newMap()) }
+    //   }, newMap()));
+    //   log.debug("CHECK:{}", res);
+    // } catch (Exception e) {
+    //   log.debug("E:{}", e.getMessage());
+    // }
     try {
       Object bean = null;
       Class<?> cls = com.ntiple.work.smp01.Smp01001Repository.class;
@@ -218,24 +271,12 @@ public class PersistentConfig {
         case "toString": { return this.toString(); }
         case "findSample": { return list(newMap(), newMap()); }
         default: }
-        // return m.invoke(p, a);
         return null;
       });
-
-      // log.debug("BEAN:{}", bean.getClass());
       ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
-      // bean = new com.ntiple.work.smp01.Smp01001Repository() {
-      //   @Override public List<SampleArticle> findSample(Object prm) throws Exception { return new ArrayList<>(); }
-      //   @Override public Integer countSample(Object prm) throws Exception { return 0; }
-      //   @Override public Integer addSample(Object prm) throws Exception { return 0; }
-      // };
       log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
       bf.registerResolvableDependency(cls, bean);
-      // bf.registerSingleton(bean.getClass().getCanonicalName(), bean);
-      // bf.registerSingleton("com.ntiple.work.smp01.Smp01001Repository", bean);
-    } catch (Exception e) {
-      log.debug("E:", e);
-    }
+    } catch (Exception e) { log.debug("E:", e); }
     return ret;
   }
 
