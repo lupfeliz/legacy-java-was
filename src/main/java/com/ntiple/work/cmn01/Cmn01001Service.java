@@ -62,6 +62,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ntiple.system.SystemException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ntiple.commons.ObjectStore;
 import com.ntiple.commons.WebUtil;
 import com.ntiple.system.Settings;
 import com.ntiple.work.cmn01.Cmn01001Entity.CmmnFile;
@@ -104,12 +105,11 @@ public class Cmn01001Service {
 
   static Map<String, List<Code>> cachedCode = new LinkedHashMap<>();
 
-  static Cmn01001Service instance;
+  private static final ObjectStore<Cmn01001Service> instance = new ObjectStore<>();
 
   @PostConstruct public void init() throws Exception {
     log.trace("INIT {}", Cmn01001Service.class);
-    instance = this;
-
+    instance.set(this);
     aliveState = true;
 
     /** 자주 사용하는 코드 */
@@ -327,7 +327,7 @@ public class Cmn01001Service {
       lst = cachedCode.get(clCd);
 
     } else {
-      lst = instance.repository.findCode(
+      lst = instance.get().repository.findCode(
         Code.builder()
           .clCd(clCd)
           .cd(cd)
@@ -517,7 +517,7 @@ public class Cmn01001Service {
   }
 
   public boolean uploadFile(String[] path, MultipartFile mprt, FileInterface info) throws Exception {
-    File ofile = file(instance.settings.getStoragePath(), path);
+    File ofile = file(instance.get().settings.getStoragePath(), path);
     return uploadFile(ofile, mprt, info);
   }
 
@@ -547,7 +547,7 @@ public class Cmn01001Service {
 
     try {
       /** 메타파일 */
-      String root = file(instance.settings.getStoragePath()).getAbsolutePath();
+      String root = file(instance.get().settings.getStoragePath()).getAbsolutePath();
       String path = file.getParentFile().getAbsolutePath();
       log.debug("CHECK-PATH:{} / {} / {}", path.startsWith(root), root, path);
       if (path.startsWith(root)) { path = path.substring(root.length()); }
@@ -874,14 +874,15 @@ public class Cmn01001Service {
     Boolean isAdmin = false;
     Boolean isUser = false;
     HttpServletRequest req = curRequest();
+    Cmn01001Service inst = instance.get();
     if (instance != null) {
-      userId = instance.getCurrentUserId(req);
-      isAdmin = instance.isAdmin(req);
-      isUser = instance.isUser(req);
+      userId = inst.getCurrentUserId(req);
+      isAdmin = inst.isAdmin(req);
+      isUser = inst.isUser(req);
       /** 관리자인 경우 id 앞에 a: 붙임 */
       if (isAdmin && addPrefix) { prfxUserId = "a:"; }
       try {
-        curdate = instance.curDate();
+        curdate = instance.get().curDate();
       } catch (Exception ignore) { }
     }
     log.debug("AUTO-FILL-USER-ID:{}{}", prfxUserId, userId, isAdmin, isUser);

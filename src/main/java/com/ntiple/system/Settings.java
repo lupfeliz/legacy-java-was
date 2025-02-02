@@ -40,11 +40,14 @@ import javax.annotation.PostConstruct;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ntiple.Application;
+import com.ntiple.commons.ObjectStore;
 import com.ntiple.config.JasyptConfig;
 
 import lombok.Getter;
@@ -53,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component @Getter @Setter
 public class Settings {
-  private static Settings instance;
+  private static final ObjectStore<Settings> instance = new ObjectStore<>();
 
   @Value("${system.profile}") private String profile;
 
@@ -82,13 +85,15 @@ public class Settings {
   private List<String> notAllowedUserId;
 
   @Autowired private ApplicationContext appctx;
+  private ConfigurableListableBeanFactory beanFactory;
 
   /** YML 셋팅맷 */
   private Map<String, Object> settingMap;
 
   @PostConstruct public void init() {
     log.trace("INIT:{}", Settings.class);
-    instance = this;
+    instance.set(this);
+    this.beanFactory = ((ConfigurableApplicationContext) this.getAppctx()).getBeanFactory();
     reload();
   }
 
@@ -96,15 +101,15 @@ public class Settings {
   private static final Pattern PTN_ENCPATTERN = Pattern.compile("ENC\\(([a-zA-Z0-9\\/+=]+)\\)");
 
   public static String getProfile() {
-    return instance.profile;
+    return instance.get().profile;
   }
 
   public static boolean isProfile(String... profiles) {
     boolean ret = false;
-    log.debug("CHECK:{}{} / {}", "", profiles, instance.profile);
+    log.debug("CHECK:{}{} / {}", "", profiles, instance.get().profile);
     if (profiles != null) {
       for (String v : profiles) {
-        if (instance.profile.equals(v)) {
+        if (instance.get().profile.equals(v)) {
           return true;
         }
       }
@@ -114,10 +119,10 @@ public class Settings {
 
   public static Settings getInstance() {
     if (instance == null) {
-      instance = new Settings();
-      instance.reload();
+      instance.set(new Settings());
+      instance.get().reload();
     }
-    return instance;
+    return instance.get();
   }
 
   public Object getProperty(String key) {

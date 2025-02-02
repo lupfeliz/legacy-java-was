@@ -8,8 +8,6 @@
 package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
-import static com.ntiple.commons.ConvertUtil.list;
-import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.IOUtil.safeclose;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.ReflectionUtil.findConstructor;
@@ -46,7 +44,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -79,12 +77,9 @@ public class PersistentConfig {
 
   @Autowired Settings settings;
 
-  @PostConstruct
-  public void init() {
-    /** Bean 등록방법 */
-    Settings bean = Settings.getInstance();
-    ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
-    bf.registerSingleton(bean.getClass().getCanonicalName(), bean);
+  @PostConstruct public void init() {
+    log.debug("INIT PERSISTENT-CONFIG..");
+    // this.doConfig();
   }
 
   private static DataSource getJndiDataSource(String jndiName) {
@@ -154,6 +149,33 @@ public class PersistentConfig {
     }
   }
 
+  // public void doConfig() {
+  //   Class<?>clsArray[] = new Class[] {
+  //     com.ntiple.work.cmn01.Cmn01001Repository.class,
+  //     com.ntiple.work.sys01.Sys01001Repository.class,
+  //     com.ntiple.work.smp01.Smp01001Repository.class
+  //   };
+  //   for (Class<?> cls : clsArray) {
+  //     try {
+  //         Object bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
+  // log.debug("EXECUTE...:{}", mtd.getName());
+  //           String mname = mtd.getName();
+  //           // log.debug("EXECUTE:{} / {}", cls, mname);
+  //           switch (mname) {
+  //           case "toString": { return this.toString(); }
+  //           case "equals": { return this.equals(arg[0]); }
+  //           default: }
+  //           return null;
+  //         });
+  //         ConfigurableListableBeanFactory bf = settings.getBeanFactory();
+  // log.debug("REGISTER:{} / {}", cls, bean);
+  //         bf.registerResolvableDependency(cls, bean);
+  //     } catch (Exception e) {
+  //       log.debug("E:", e);
+  //     }
+  //   }
+  // }
+
   @Bean(name = DATASOURCE_MAIN) @Primary
   @ConfigurationProperties(prefix = "spring.datasource-main")
   DataSource datasourceMain() {
@@ -195,7 +217,8 @@ public class PersistentConfig {
           istream = resource.getInputStream(), (uri, lname, qname, depth, attr, ctx) -> {
           switch(cat(depth, qname)) {
           case "1mapper": {
-            info.setClassName(xmlAttr(attr, "namespace"));
+            String clsName = xmlAttr(attr, "namespace");
+            info.setClassName(clsName);
             // log.debug("MAPPER FOUND:{}", info.getClassName());
           } break;
           case "2select": case "2update": case "2insert": case "2delete": {
@@ -224,13 +247,14 @@ public class PersistentConfig {
   SqlSessionTemplate sqlSessionTemplateMain(@Autowired @Qualifier(SQLFACTORY_MAIN) SqlSessionFactory fac) {
     SqlSessionTemplate ret = new SqlSessionTemplate(fac);
     MapperContext config = mapperContext.get(SQLFACTORY_MAIN);
-    ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
+    ApplicationContext appctx = settings.getAppctx();
+    ConfigurableListableBeanFactory bf = settings.getBeanFactory();
     log.debug("INFO:{}", config.getMapperList());
     LOOP1: for (final MapperInfo info : config.getMapperList()) {
       try {
         Object bean = null;
         Class<?> cls = Class.forName(info.getClassName());
-        log.debug("MAPPER-CLASS:{}", cls, bean);
+        // log.debug("MAPPER-CLASS:{}", cls, bean);
         LOOP2: for (Method method : cls.getMethods()) {
           String mname = method.getName();
           String qtype = info.getMethods().get(mname);
@@ -254,6 +278,11 @@ public class PersistentConfig {
         }
         bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
           String mname = mtd.getName();
+          // log.debug("EXECUTE:{} / {}", cls, mname);
+          switch (mname) {
+          case "toString": { return this.toString(); }
+          case "equals": { return this.equals(arg[0]); }
+          default: }
           String ns = cat(info.className, ".", mname);
           Map<String, Object> pmap = new LinkedHashMap<>();
           String qtype = info.getMethods().get(mname);
@@ -262,7 +291,6 @@ public class PersistentConfig {
           for (int inx = 0; pnames != null && inx < pnames.length && inx < arg.length; inx++) { pmap.put(pnames[inx], arg[inx]); }
           Object res = null;
           switch (qtype) {
-          case "toString": { res = this.toString(); } break;
           case "selectList": { res = ret.selectList(ns, pmap); } break;
           case "select": { res = ret.selectOne(ns, pmap); } break;
           case "update": { res = ret.update(ns, pmap); } break;
@@ -272,6 +300,7 @@ public class PersistentConfig {
           return res;
         });
         // log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
+        // bf.destroyBean(appctx.getBean(cls));
         log.debug("REGISTER-BEAN:{} / {}", cls, bean);
         bf.registerResolvableDependency(cls, bean);
       } catch (Exception e) { log.debug("E:", e); }
