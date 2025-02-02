@@ -98,12 +98,6 @@ public class PersistentConfig {
     private Map<String, String[]> params = new LinkedHashMap<>();
   }
 
-  // @Getter @Setter @ToString @Builder
-  // public static class MapperConfig {
-  //   Resource[] resources;
-  //   List<MapperInfo> mapperList;
-  // }
-
   public static final void applyTypeProcess(SqlSessionFactoryBean fb, String... pkgs) {
     final List<Class<?>> alsLst = new ArrayList<>();
     final List<TypeHandler<?>> hndLst = new ArrayList<>();
@@ -149,11 +143,6 @@ public class PersistentConfig {
     // log.debug("CHECK-RESOURCES:{}{}", "", resolver.getResources("com/ntiple/work/**/*.class"));
     Resource[] resources = resolver.getResources(ptnRsrc);
     final List<MapperInfo> mapperList = new ArrayList<>();
-    // final MapperConfig config = MapperConfig.builder()
-    //   .resources(resources)
-    //   .mapperList(new ArrayList<>())
-    //   .build();
-    // mapperContext.put(SQLFACTORY_MAIN, config);
     qsFactoryBean.setMapperLocations(resources);
     for (Resource resource : resources) {
       InputStream istream = null;
@@ -185,8 +174,6 @@ public class PersistentConfig {
     {
       /** 트랜잭션 매니저 등록 */
       beanFactory.registerSingleton(nameSqltrnx, new DataSourceTransactionManager(source));
-    }
-    {
       /** SQL 템플릴 생성 */
       SqlSessionTemplate qstp = new SqlSessionTemplate(qsfc);
       // log.debug("INFO:{}", mapperList);
@@ -210,7 +197,6 @@ public class PersistentConfig {
             }
             info.getParams().put(mname, params);
             if (List.class.isAssignableFrom(rtype) && "select".equals(qtype)) { info.methods.put(mname, "selectList"); }
-            // String[] params = info.params.get(mname);
             // log.debug("METHOD:{} / {} / {}",
             //   mname,
             //   info.getMethods().get(mname), 
@@ -241,7 +227,6 @@ public class PersistentConfig {
             return res;
           });
           // log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
-          // beanFactory.destroyBean(appctx.getBean(cls));
           /** SQL맵 등록 */
           log.debug("REGISTER-BEAN:{} / {}", cls, bean);
           beanFactory.registerResolvableDependency(cls, bean);
@@ -277,122 +262,6 @@ public class PersistentConfig {
       "mapper/**/*.xml", "com.ntiple.work", "com.ntiple.system");
     return ret;
   }
-
-  // @Bean(name = SQLFACTORY_MAIN)
-  // SqlSessionFactory sqlSessionFactoryMain() throws Exception {
-  //   log.debug("================================================================================");
-  //   log.debug("sqlSessionFactoryMain");
-  //   SqlSessionFactoryBean qss = new SqlSessionFactoryBean();
-  //   qss.setDataSource(datasourceMain());
-  //   qss.setConfigLocation(settings.getAppctx().getResource("classpath:mybatis-config.xml"));
-  //   ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-  //   // log.debug("CHECK-RESOURCES:{}{}", "", resolver.getResources("com/ntiple/work/**/*.class"));
-  //   Resource[] resources = resolver.getResources("mapper/**/*.xml");
-  //   final MapperConfig config = MapperConfig.builder()
-  //     .resources(resources)
-  //     .mapperList(new ArrayList<>())
-  //     .build();
-  //   mapperContext.put(SQLFACTORY_MAIN, config);
-  //   qss.setMapperLocations(resources);
-  //   for (Resource resource : resources) {
-  //     InputStream istream = null;
-  //     final MapperInfo info = new MapperInfo();
-  //     try {
-  //       parseXML(c -> { },
-  //         istream = resource.getInputStream(), (uri, lname, qname, depth, attr, ctx) -> {
-  //         switch(cat(depth, qname)) {
-  //         case "1mapper": {
-  //           String clsName = xmlAttr(attr, "namespace");
-  //           info.setClassName(clsName);
-  //           // log.debug("MAPPER FOUND:{}", info.getClassName());
-  //         } break;
-  //         case "2select": case "2update": case "2insert": case "2delete": {
-  //           String key = xmlAttr(attr, "id");
-  //           info.getMethods().put(key, qname);
-  //           // log.debug("MAPPER-METHOD FOUND:{} / {}", qname, key);
-  //         } break;
-  //         default: }
-  //       }, (uri, lname, qname, depth, ctx) -> {
-  //       }, (ch, st, len, depth, ctx) -> {
-  //       });
-  //     } finally { safeclose(istream); }
-  //     config.mapperList.add(info);
-  //     // log.debug("INFO:{}", info);
-  //   }
-  //   applyTypeProcess(qss, "com.ntiple.work", "com.ntiple.system");
-  //   return qss.getObject();
-  // }
-
-  // @Bean(name = SQLTRANSCT_MAIN)
-  // DataSourceTransactionManager transactionManagerMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource dataSource) {
-  //   return new DataSourceTransactionManager(dataSource);
-  // }
-
-  // @Bean(name = SQLTEMPLTE_MAIN)
-  // SqlSessionTemplate sqlSessionTemplateMain(@Autowired @Qualifier(SQLFACTORY_MAIN) SqlSessionFactory fac) {
-  //   SqlSessionTemplate ret = new SqlSessionTemplate(fac);
-  //   MapperConfig config = mapperContext.get(SQLFACTORY_MAIN);
-  //   // ApplicationContext appctx = settings.getAppctx();
-  //   ConfigurableListableBeanFactory bfac = settings.getBeanFactory();
-  //   log.debug("INFO:{}", config.getMapperList());
-  //   LOOP1: for (final MapperInfo info : config.getMapperList()) {
-  //     try {
-  //       Object bean = null;
-  //       Class<?> cls = Class.forName(info.getClassName());
-  //       // log.debug("MAPPER-CLASS:{}", cls, bean);
-  //       LOOP2: for (Method method : cls.getMethods()) {
-  //         String mname = method.getName();
-  //         String qtype = info.getMethods().get(mname);
-  //         if (qtype == null) { continue LOOP2; }
-  //         Class<?> rtype = method.getReturnType();
-  //         Annotation[][] anns = method.getParameterAnnotations();
-  //         String[] params = new String[anns.length];
-  //         for (int ainx = 0; ainx < anns.length; ainx++) {
-  //           for (Annotation a : anns[ainx]) {
-  //             if (a instanceof Param) { params[ainx] = ((Param) a).value(); }
-  //           }
-  //         }
-  //         info.getParams().put(mname, params);
-  //         if (List.class.isAssignableFrom(rtype) && "select".equals(qtype)) { info.methods.put(mname, "selectList"); }
-  //         // String[] params = info.params.get(mname);
-  //         log.debug("METHOD:{} / {} / {}",
-  //           mname,
-  //           info.getMethods().get(mname), 
-  //           info.getParams().get(mname));
-  //         continue LOOP2;
-  //       }
-  //       bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
-  //         String mname = mtd.getName();
-  //         // log.debug("EXECUTE:{} / {}", cls, mname);
-  //         switch (mname) {
-  //         case "toString": { return this.toString(); }
-  //         case "equals": { return this.equals(arg[0]); }
-  //         default: }
-  //         String ns = cat(info.className, ".", mname);
-  //         Map<String, Object> pmap = new LinkedHashMap<>();
-  //         String qtype = info.getMethods().get(mname);
-  //         String[] pnames = info.getParams().get(mname);
-  //         if (qtype == null) { return null; }
-  //         for (int inx = 0; pnames != null && inx < pnames.length && inx < arg.length; inx++) { pmap.put(pnames[inx], arg[inx]); }
-  //         Object res = null;
-  //         switch (qtype) {
-  //         case "selectList": { res = ret.selectList(ns, pmap); } break;
-  //         case "select": { res = ret.selectOne(ns, pmap); } break;
-  //         case "update": { res = ret.update(ns, pmap); } break;
-  //         case "insert": { res = ret.insert(ns, pmap); } break;
-  //         case "delete": { res = ret.delete(ns, pmap); } break;
-  //         default: }
-  //         return res;
-  //       });
-  //       // log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
-  //       // bfac.destroyBean(appctx.getBean(cls));
-  //       log.debug("REGISTER-BEAN:{} / {}", cls, bean);
-  //       bfac.registerResolvableDependency(cls, bean);
-  //     } catch (Exception e) { log.debug("E:", e); }
-  //     continue LOOP1;
-  //   }
-  //   return ret;
-  // }
 
   @Bean(name = DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
