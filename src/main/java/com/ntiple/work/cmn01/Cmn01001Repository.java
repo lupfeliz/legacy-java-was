@@ -10,13 +10,11 @@ package com.ntiple.work.cmn01;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.ntiple.work.cmn01.Cmn01001Entity.CmmnFile;
 import com.ntiple.work.cmn01.Cmn01001Entity.Code;
 
-@Mapper
 public interface Cmn01001Repository {
 
   /** cl_cd, cd, sn, cd_nm 4개 칼럼만 조회 */
