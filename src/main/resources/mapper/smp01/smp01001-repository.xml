@@ -11,10 +11,19 @@
   <!-- [ 샘플조회 -->
   <select id='findSample' parameterType='map' resultType='SampleArticle'>
     SELECT
-      COUNT(*)
-    FROM
-      ARTICLE
+      *
+    FROM (
+      SELECT
+        ROW_NUMBER () OVER () AS rnum,
+        *
+      FROM
+        ARTICLE
+      <trim prefixOverrides='AND|OR'>
+      </trim> 
+    ) A
+    WHERE
     <trim prefixOverrides='AND|OR'>
+      AND rnum &lt; 10;
     </trim> 
   </select>
   <!-- ] 샘플조회 -->

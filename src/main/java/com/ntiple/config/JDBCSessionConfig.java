@@ -131,7 +131,7 @@ public class JDBCSessionConfig {
     private ConversionService converter = createDefaultConversionService();
     @Bean ConversionService blobToObjectConverter() { return converter; }
     public CustomSessionRepository(DataSource dss) {
-      DataSource dsr = cast(settings.getAppctx().getBean("datasourceDss"), DataSource.class);
+      DataSource dsr = cast(settings.getAppctx().getBean(PersistentConfig.DATASOURCE_DSS), DataSource.class);
       this.dbc = new JdbcTemplate(dsr);
       this.tdc = new TransactionTemplate(new DataSourceTransactionManager(dsr));
       List<String> list = null;

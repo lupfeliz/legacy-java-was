@@ -16,6 +16,7 @@ import static com.ntiple.commons.IOUtil.ostream;
 import static com.ntiple.commons.IOUtil.passthrough;
 import static com.ntiple.commons.IOUtil.reader;
 import static com.ntiple.commons.IOUtil.safeclose;
+import static com.ntiple.commons.ReflectionUtil.isPrimeType;
 import static com.ntiple.commons.ValuesUtil.codeSplit;
 import static com.ntiple.commons.WebUtil.curResponse;
 import static com.ntiple.commons.WebUtil.getUri;
@@ -926,7 +927,7 @@ public class Cmn01001Service {
     if (prm == null) { return prm; }
     T ret = prm;
     Class<?> cls = prm.getClass();
-    if (CU.isPrimeType(cls)) { return prm; }
+    if (isPrimeType(cls)) { return prm; }
     log.trace("CHECK1:{} : {}", cls.getSimpleName(), cls.isAnnotationPresent(SecureOut.class));
     if (cls.isAnnotationPresent(SecureOut.class)) {
       Field[] fields = cls.getDeclaredFields();

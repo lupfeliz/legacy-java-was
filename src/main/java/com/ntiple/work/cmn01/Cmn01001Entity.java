@@ -194,9 +194,11 @@ public class Cmn01001Entity {
     private List<T> list;
 
     public Pageable getPageable() {
-      int page = 0;
-      int rowStart = this.rowStart;
-      int rowCount = this.rowCount;
+      Integer page = 0;
+      Integer rowStart = this.rowStart;
+      Integer rowCount = this.rowCount;
+      if (rowStart == null) { rowStart = 0; }
+      if (rowCount == null) { rowCount = 0; }
       if (rowStart > 0 && rowCount > 0) { page = rowStart / rowCount; }
       if (rowCount < 1) { rowCount = 1; }
       if (page < 1) { page = 0; }

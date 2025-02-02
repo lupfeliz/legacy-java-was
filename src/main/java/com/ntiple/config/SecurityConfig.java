@@ -162,7 +162,8 @@ public class SecurityConfig {
         /** 웹리소스 */
         .requestMatchers(reqWeb).permitAll()
         .anyRequest()
-          .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+          .permitAll()
+          // .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
       )
       /* 관리자, 예비사용자, 사용자, 협력사 */
       // /** 폼 로그인 불가 */

@@ -14,11 +14,14 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ntiple.commons.CryptoUtil;
 import com.ntiple.work.cmn01.Cmn01001Entity.Login;
 import com.ntiple.work.cmn01.Cmn01001Entity.Result;
+import com.ntiple.work.cmn01.Cmn01001Entity.SearchEntity;
+import com.ntiple.work.smp01.Smp01001Entity.SampleArticle;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class Smp01001ApiService {
 
   @PostConstruct public void init() { }
+
+  @Autowired private Smp01001Repository repo;
 
   public Map<String, Object> smp01001a01() throws Exception { 
     Map<String, Object> ret = newMap();
@@ -47,6 +52,12 @@ public class Smp01001ApiService {
     String dec = CryptoUtil.RSA.decrypt(1, key, msg);
     Map<String, Object> ret = newMap();
     ret.put("dec", dec);
+    return ret;
+  }
+
+  public SearchEntity<SampleArticle> smp01001a04(Map<String, Object> prm) throws Exception{
+    SearchEntity<SampleArticle> ret = new SearchEntity<>();
+    ret.setList(repo.findSample(prm));
     return ret;
   }
 }

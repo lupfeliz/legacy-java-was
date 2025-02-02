@@ -9,12 +9,14 @@ package com.ntiple.work.smp01;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Mapper;
+// import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+// import com.ntiple.config.PersistentConfig.MapperMain;
 import com.ntiple.work.smp01.Smp01001Entity.SampleArticle;
 
-@Mapper
+// @Mapper
+// @MapperMain
 public interface Smp01001Repository {
   
   List<SampleArticle> findSample(@Param("prm") Object prm) throws Exception;
