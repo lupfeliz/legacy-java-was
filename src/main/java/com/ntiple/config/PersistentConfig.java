@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.Alias;
 import org.apache.ibatis.type.TypeHandler;
@@ -114,6 +115,7 @@ public class PersistentConfig {
   public static class MapperInfo {
     private String className;
     private Map<String, String> methods = new LinkedHashMap<>();
+    private Map<String, String[]> params = new LinkedHashMap<>();
   }
 
   @Getter @Setter @ToString @Builder
@@ -222,61 +224,59 @@ public class PersistentConfig {
   SqlSessionTemplate sqlSessionTemplateMain(@Autowired @Qualifier(SQLFACTORY_MAIN) SqlSessionFactory fac) {
     SqlSessionTemplate ret = new SqlSessionTemplate(fac);
     MapperContext config = mapperContext.get(SQLFACTORY_MAIN);
+    ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
     log.debug("INFO:{}", config.getMapperList());
-    for (final MapperInfo info : config.getMapperList()) {
+    LOOP1: for (final MapperInfo info : config.getMapperList()) {
       try {
         Object bean = null;
         Class<?> cls = Class.forName(info.getClassName());
         log.debug("MAPPER-CLASS:{}", cls, bean);
-        for (Method method : cls.getMethods()) {
-          log.debug("METHOD:{} / {}", method.getName(), info.getMethods().get(method.getName()));
+        LOOP2: for (Method method : cls.getMethods()) {
+          String mname = method.getName();
+          String qtype = info.getMethods().get(mname);
+          if (qtype == null) { continue LOOP2; }
+          Class<?> rtype = method.getReturnType();
+          Annotation[][] anns = method.getParameterAnnotations();
+          String[] params = new String[anns.length];
+          for (int ainx = 0; ainx < anns.length; ainx++) {
+            for (Annotation a : anns[ainx]) {
+              if (a instanceof Param) { params[ainx] = ((Param) a).value(); }
+            }
+          }
+          info.getParams().put(mname, params);
+          if (List.class.isAssignableFrom(rtype) && "select".equals(qtype)) { info.methods.put(mname, "selectList"); }
+          // String[] params = info.params.get(mname);
+          log.debug("METHOD:{} / {} / {}",
+            mname,
+            info.getMethods().get(mname), 
+            info.getParams().get(mname));
+          continue LOOP2;
         }
-        // bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
-        //   String mname = mtd.getName();
-        //   switch (info.methods.get(mname)) {
-        //   case "select": {
-        //   } break;
-        //   case "update": {
-        //   } break;
-        //   case "insert": {
-        //   } break;
-        //   case "delete": {
-        //   } break;
-        //   default: }
-        //   return null;
-        // });
-        // ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
+        bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
+          String mname = mtd.getName();
+          String ns = cat(info.className, ".", mname);
+          Map<String, Object> pmap = new LinkedHashMap<>();
+          String qtype = info.getMethods().get(mname);
+          String[] pnames = info.getParams().get(mname);
+          if (qtype == null) { return null; }
+          for (int inx = 0; pnames != null && inx < pnames.length && inx < arg.length; inx++) { pmap.put(pnames[inx], arg[inx]); }
+          Object res = null;
+          switch (qtype) {
+          case "toString": { res = this.toString(); } break;
+          case "selectList": { res = ret.selectList(ns, pmap); } break;
+          case "select": { res = ret.selectOne(ns, pmap); } break;
+          case "update": { res = ret.update(ns, pmap); } break;
+          case "insert": { res = ret.insert(ns, pmap); } break;
+          case "delete": { res = ret.delete(ns, pmap); } break;
+          default: }
+          return res;
+        });
         // log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
-        // bf.registerResolvableDependency(cls, bean);
+        log.debug("REGISTER-BEAN:{} / {}", cls, bean);
+        bf.registerResolvableDependency(cls, bean);
       } catch (Exception e) { log.debug("E:", e); }
+      continue LOOP1;
     }
-    // try {
-    //   log.debug("--------------------------------------------------------------------------------");
-    //   Object res = ret.selectList("com.ntiple.work.smp01.Smp01001Repository.findSample", convert(new Object[][] {
-    //     { "prm", convert(new Object[][] {
-    //         { "test", "TEST" }
-    //       }, newMap()) }
-    //   }, newMap()));
-    //   log.debug("CHECK:{}", res);
-    // } catch (Exception e) {
-    //   log.debug("E:{}", e.getMessage());
-    // }
-    try {
-      Object bean = null;
-      Class<?> cls = com.ntiple.work.smp01.Smp01001Repository.class;
-      bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
-        String mname = mtd.getName();
-        log.debug("CHECK:{} / {} / {}", prx, mname, arg);
-        switch (mname) {
-        case "toString": { return this.toString(); }
-        case "findSample": { return list(newMap(), newMap()); }
-        default: }
-        return null;
-      });
-      ConfigurableListableBeanFactory bf = ((ConfigurableApplicationContext) settings.getAppctx()).getBeanFactory();
-      log.debug("CHECK:{} / {} / {}", cls.isInstance(bean), bean, bean.getClass());
-      bf.registerResolvableDependency(cls, bean);
-    } catch (Exception e) { log.debug("E:", e); }
     return ret;
   }
 
