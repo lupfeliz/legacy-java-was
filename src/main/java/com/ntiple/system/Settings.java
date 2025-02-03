@@ -118,7 +118,7 @@ public class Settings {
   }
 
   public static Settings getInstance() {
-    if (instance == null) {
+    if (instance.get() == null) {
       instance.set(new Settings());
       instance.get().reload();
     }

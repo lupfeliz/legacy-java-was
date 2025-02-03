@@ -93,16 +93,16 @@ public class TestUtil {
     return ret;
   }
 
-  public static SqlSessionTemplate initDb() {
+  public static SqlSessionTemplate initDb(String dbname) {
     SqlSessionTemplate ret = null;
     try {
       ClassLoader loader = null;
       Settings settings = Settings.getInstance();
-      log.debug("TEST:{}", settings.getProperty("spring.datasource-dss.dbsession-query.create-session"));
-      String driver = cast(settings.getProperty("spring.datasource-dss.driver-class-name"), "");
-      String jdburl = cast(settings.getProperty("spring.datasource-dss.jdbc-url"), "");
-      String jdbusr = cast(settings.getProperty("spring.datasource-dss.username"), "");
-      String jdbpsw = cast(settings.getProperty("spring.datasource-dss.password"), "");
+      log.debug("SETTINGS:{}", settings);
+      String driver = cast(settings.getProperty(cat("spring.datasource-", dbname, ".driver-class-name")), "");
+      String jdburl = cast(settings.getProperty(cat("spring.datasource-", dbname, ".jdbc-url")), "");
+      String jdbusr = cast(settings.getProperty(cat("spring.datasource-", dbname, ".username")), "");
+      String jdbpsw = cast(settings.getProperty(cat("spring.datasource-", dbname, ".password")), "");
       HikariDataSource source = new HikariDataSource();
       source.setDriverClassName(driver);
       source.setJdbcUrl(jdburl);
@@ -112,13 +112,13 @@ public class TestUtil {
       SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
       fb.setDataSource(source);
       fb.setConfigLocation(new FileUrlResource(loader.getResource("mybatis-config.xml")));
-      PersistentConfig.applyTypeProcess(fb, "com.ntiple.work", "com.ntiple.system");
+      PersistentConfig.applyTypeProcess(fb, "com.wooribank.sgg.work", "com.wooribank.sgg.system");
       ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-      Resource[] resource = resolver.getResources("mapper/**/*.xml");
-      fb.setMapperLocations(resource);
+      Resource[] resources = resolver.getResources("mapper/**/*.xml");
+      fb.setMapperLocations(resources);
       ret = new SqlSessionTemplate(fb.getObject());
-      log.info("RESOURCES:{}{}", "", resource);
-      log.info("SQLTMP:{}{}", "", ret);
+      log.debug("RESOURCES:{}{}", "", resources);
+      log.debug("SQLTMP:{}{}", "", ret);
     } catch (Exception e) {
       log.debug("E:", e);
     }

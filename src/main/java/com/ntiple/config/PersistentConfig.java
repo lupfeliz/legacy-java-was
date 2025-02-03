@@ -37,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -101,7 +103,7 @@ public class PersistentConfig {
   public static final void applyTypeProcess(SqlSessionFactoryBean fb, String... pkgs) {
     final List<Class<?>> alsLst = new ArrayList<>();
     final List<TypeHandler<?>> hndLst = new ArrayList<>();
-    log.debug("APPLY-TYPE-PROCESS..");
+    log.debug("APPLY-TYPE-PROCESS..:{}{}", "", pkgs);
     ClassWorker.workClasses(Application.class.getClassLoader(), cls -> {
       Annotation[] ans = cls.getAnnotations();
       for (Annotation an : ans) {
@@ -127,6 +129,7 @@ public class PersistentConfig {
   }
 
   public SqlSessionFactory configSqlSession(DataSource source,
+    ApplicationContext appctx,
     String nameDatasrc,
     String nameSqlfctr,
     String nameSqltmpl,
@@ -135,10 +138,10 @@ public class PersistentConfig {
     String ptnRsrc, String... pkgs) throws Exception {
     // log.debug("================================================================================");
     // log.debug("configSqlSession");
-    ConfigurableListableBeanFactory beanFactory = settings.getBeanFactory();
+    ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) appctx).getBeanFactory();
     SqlSessionFactoryBean qsFactoryBean = new SqlSessionFactoryBean();
     qsFactoryBean.setDataSource(source);
-    qsFactoryBean.setConfigLocation(settings.getAppctx().getResource(pthMyaatis));
+    qsFactoryBean.setConfigLocation(appctx.getResource(pthMyaatis));
     ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
     // log.debug("CHECK-RESOURCES:{}{}", "", resolver.getResources("com/ntiple/work/**/*.class"));
     Resource[] resources = resolver.getResources(ptnRsrc);
@@ -196,13 +199,18 @@ public class PersistentConfig {
               }
             }
             info.getParams().put(mname, params);
-            if (List.class.isAssignableFrom(rtype) && "select".equals(qtype)) { info.methods.put(mname, "selectList"); }
+            if (List.class.isAssignableFrom(rtype) && "select".equals(qtype)) {
+              info.methods.put(mname, "selectList");
+            } else if (Iterable.class.isAssignableFrom(rtype) && "select".equals(qtype)) {
+              info.methods.put(mname, "selectIter");
+            }
             // log.debug("METHOD:{} / {} / {}",
             //   mname,
             //   info.getMethods().get(mname), 
             //   info.getParams().get(mname));
             continue LOOP2;
           }
+          // bean = qstp.getMapper(cls);
           bean = Proxy.newProxyInstance(cls.getClassLoader(), array(cls), (prx, mtd, arg) -> {
             String mname = mtd.getName();
             // log.debug("EXECUTE:{} / {}", cls, mname);
@@ -219,6 +227,7 @@ public class PersistentConfig {
             Object res = null;
             switch (qtype) {
             case "selectList": { res = qstp.selectList(ns, pmap); } break;
+            case "selectIter": { res = qstp.selectCursor(ns, pmap); } break;
             case "select": { res = qstp.selectOne(ns, pmap); } break;
             case "update": { res = qstp.update(ns, pmap); } break;
             case "insert": { res = qstp.insert(ns, pmap); } break;
@@ -254,6 +263,7 @@ public class PersistentConfig {
         .build();
     }
     configSqlSession(ret,
+      settings.getAppctx(),
       DATASOURCE_MAIN,
       SQLFACTORY_MAIN,
       SQLTEMPLTE_MAIN,

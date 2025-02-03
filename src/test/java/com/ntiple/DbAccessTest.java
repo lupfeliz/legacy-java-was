@@ -29,7 +29,7 @@ public class DbAccessTest {
   @Test public void test1() throws Exception {
     if (!TestUtil.isEnabled("test1", TestLevel.MANUAL)) { return; }
     System.setProperty("spring.profiles.active", "my");
-    SqlSessionTemplate sst = TestUtil.initDb();
+    SqlSessionTemplate sst = TestUtil.initDb("main");
     Smp01001Repository mapper = sst.getMapper(Smp01001Repository.class);
     Date ctime = new Date();
     for (int inx = 0; inx < 1000; inx++) {
@@ -51,9 +51,9 @@ public class DbAccessTest {
   }
 
   @Test public void test2() throws Exception {
-    if (!TestUtil.isEnabled("test1", TestLevel.MANUAL)) { return; }
+    if (!TestUtil.isEnabled("test2", TestLevel.MANUAL)) { return; }
     System.setProperty("spring.profiles.active", "my");
-    SqlSessionTemplate sst = TestUtil.initDb();
+    SqlSessionTemplate sst = TestUtil.initDb("main");
     Smp01001Repository mapper = sst.getMapper(Smp01001Repository.class);
     Integer count = mapper.countSample(convert(new String[][] {
       {"", ""}

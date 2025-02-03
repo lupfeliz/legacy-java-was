@@ -321,7 +321,7 @@ public class Cmn01001Service {
   
   public static Code getCode(String clCd, String cd) throws Exception {
     Code ret = null;
-    if (instance == null) { return ret; }
+    if (instance.get() == null) { return ret; }
     List<Code> lst = null;
     if (cachedCode != null && cachedCode.containsKey(clCd)) {
       lst = cachedCode.get(clCd);
