@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.spring.SqlSessionTemplate;
 
 import com.ntiple.TestUtil.TestLevel;
+import com.ntiple.commons.SimpleLogger;
 import com.ntiple.work.smp01.Smp01001Repository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DbAccessTest {
   @Test public void test1() throws Exception {
     if (!TestUtil.isEnabled("test1", TestLevel.MANUAL)) { return; }
+    SimpleLogger.setSrcLogger(log);
     System.setProperty("spring.profiles.active", "my");
     SqlSessionTemplate sst = TestUtil.initDb("main");
     Smp01001Repository mapper = sst.getMapper(Smp01001Repository.class);

@@ -7,6 +7,7 @@
  **/
 package com.ntiple;
 
+import static com.ntiple.commons.MybatisConfigUtil.applyTypeProcess;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
 
@@ -20,7 +21,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import com.ntiple.config.PersistentConfig;
 import com.ntiple.system.Settings;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -112,7 +112,7 @@ public class TestUtil {
       SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
       fb.setDataSource(source);
       fb.setConfigLocation(new FileUrlResource(loader.getResource("mybatis-config.xml")));
-      PersistentConfig.applyTypeProcess(fb, "com.wooribank.sgg.work", "com.wooribank.sgg.system");
+      applyTypeProcess(fb, loader, "com.ntiple.work");
       ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
       Resource[] resources = resolver.getResources("mapper/**/*.xml");
       fb.setMapperLocations(resources);
