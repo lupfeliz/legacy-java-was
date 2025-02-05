@@ -187,6 +187,31 @@ public class SimpleTest {
       log.debug("RESULT:{}", sb);
   }
 
+  @Test
+  public void testHttpClient2() throws Exception {
+    if (!TestUtil.isEnabled("testHttpClient2", TestLevel.MANUAL)) { return; }
+    StringBuilder sb = new StringBuilder();
+    httpWorker()
+      .url("http://localhost:8080/api/smp/smp01001a04")
+      .headers(convert(new Object[][] {
+        { "Host", "devsup.ntiple.com" }
+      }, newMap()))
+      .method(p -> p.POST())
+      .charset(UTF8)
+      .contentType(p -> p.APPLICATION_JSON())
+      .contents(convert(new String[][]{
+        { "loginId", "1234" }
+      }, newMap()))
+      .agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0")
+      .work((stat, stream, hdr, ctx) -> {
+        try {
+          sb.append(readAsString(stream));
+        } catch (Exception ignore) { }
+        return null;
+      });
+      log.debug("RESULT:{}", sb);
+  }
+
   @Test public void testSort() throws Exception {
     if (!TestUtil.isEnabled("testSort", TestLevel.MANUAL)) { return; }
     List<MenuEntry> list = new ArrayList<>();

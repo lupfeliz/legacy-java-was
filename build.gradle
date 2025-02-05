@@ -161,9 +161,6 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'de.larsgrefer.sass:sass-embedded-host:4.0.0-m1'
   implementation 'com.ntiple:ntiple-utils:0.0.4-1'
-  implementation 'org.reflections:reflections:0.10.2'
-  implementation 'org.graalvm.js:js:21.3.12'
-  implementation 'org.graalvm.js:js-scriptengine:21.3.12'
 
   /** file-based library */
   implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -182,27 +179,23 @@ dependencies {
   testImplementation 'org.junit.vintage:junit-vintage-engine'
 }
 
-tasks.named('test') { useJUnitPlatform() }
-tasks.test { useJUnitPlatform() }
-test { useJUnitPlatform() }
-
 task prebuildHook() {
   dependsOn(build)
   dependsOn(bootRun)
 }
 
-build {
-}
-
-/** sass 컴파일러 warning 제거 */
-tasks.withType(JavaCompile) { options.warnings = false }
+build { }
 
 test {
+  useJUnitPlatform()
   String tstlvl = System.properties['project.build.test']
   if (tstlvl == null || ''.equals(tstlvl)) { tstlvl = 'SIMPLE' }
   systemProperty('project.build.test', tstlvl)
   reports.html.required = false
 }
+
+/** sass 컴파일러 warning 제거 */
+tasks.withType(JavaCompile) { options.warnings = false }
 
 bootRun {
   systemProperty('spring.profiles.active', PROFILE)
