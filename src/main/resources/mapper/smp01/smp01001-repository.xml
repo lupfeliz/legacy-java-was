@@ -64,4 +64,19 @@
     )
   </insert>
   <!-- ] 샘플 입력 -->
+
+  <!-- [ 샘플테스트 -->
+  <select id='dbTest' parameterType='map' resultType='cmap'>
+  SELECT
+    #{prm.#test} AS test1,
+    '${@com.ntiple.work.smp01.Smp01001ApiService@testStr('abc')}' AS test2,
+    '${@com.ntiple.work.smp01.Smp01001ApiService@testStr(prm.value)}' AS test3
+    <if test='@com.ntiple.work.smp01.Smp01001ApiService@testStr(#{prm.value}) == "[test]"'>
+      ,'CCCC' AS test4
+    </if>
+    <if test='@com.ntiple.work.smp01.Smp01001ApiService@testStr("abc") == "[abc]"'>
+      ,'DDDD' AS test5
+    </if>
+  </select>
+  <!-- ] 샘플테스트 -->
 </mapper>

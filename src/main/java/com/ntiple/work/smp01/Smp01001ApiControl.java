@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ntiple.work.cmn01.Cmn01001Entity.Login;
+import com.ntiple.work.cmn01.Cmn01001Entity.Result;
 import com.ntiple.work.cmn01.Cmn01001Entity.SearchEntity;
 import com.ntiple.work.smp01.Smp01001Entity.SampleArticle;
 
@@ -58,5 +59,11 @@ public class Smp01001ApiControl {
   @PostMapping("smp01001a04")
   public SearchEntity<SampleArticle> smp01001a04(@RequestBody Map<String, Object> prm) throws Exception {
     return service.smp01001a04(prm);
+  }
+
+  @Operation(summary = "테스트API (smp01001a05)", tags = { CONTROLLER_TAG1 })
+  @PostMapping("smp01001a05")
+  public Result<Object> smp01001a05(@RequestBody Map<String, Object> prm) throws Exception {
+    return service.smp01001a05(prm);
   }
 }

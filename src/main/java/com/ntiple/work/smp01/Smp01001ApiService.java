@@ -7,20 +7,24 @@
  **/
 package com.ntiple.work.smp01;
 
+import static com.ntiple.commons.ConvertUtil.array;
 import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.ReflectionUtil.cast;
+import static com.ntiple.commons.StringUtil.cat;
 
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.proxy.Proxy;
 import org.springframework.stereotype.Service;
 
 import com.ntiple.commons.CryptoUtil;
 import com.ntiple.work.cmn01.Cmn01001Entity.Login;
 import com.ntiple.work.cmn01.Cmn01001Entity.Result;
 import com.ntiple.work.cmn01.Cmn01001Entity.SearchEntity;
+import com.ntiple.work.cmn01.Cmn01001Repository;
 import com.ntiple.work.smp01.Smp01001Entity.SampleArticle;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +34,8 @@ public class Smp01001ApiService {
 
   @PostConstruct public void init() { }
 
-  @Autowired private Smp01001Repository repo;
+  @Autowired private Smp01001Repository smpRepo;
+  @Autowired private Cmn01001Repository cmnRepo;
 
   public Map<String, Object> smp01001a01() throws Exception { 
     Map<String, Object> ret = newMap();
@@ -57,7 +62,29 @@ public class Smp01001ApiService {
 
   public SearchEntity<SampleArticle> smp01001a04(Map<String, Object> prm) throws Exception{
     SearchEntity<SampleArticle> ret = new SearchEntity<>();
-    ret.setList(repo.findSample(prm));
+    ret.setList(smpRepo.findSample(prm));
     return ret;
+  }
+
+  public Result<Object> smp01001a05(Map<String, Object> prm) throws Exception {
+    Result<Object> ret = new Result<>();
+    // ret.setData(String.valueOf(smpRepo.dbTest(prm)));
+    Object obj = prm;
+    obj = Proxy.newProxyInstance(this.getClass().getClassLoader(), array(Map.class), (prx, mtd, arg) -> {
+      switch (mtd.getName()) {
+      case "get": {
+        log.debug("ARG:{}{} / {}", "", arg[0], arg[0].getClass());
+        return arg[0];
+      }
+      }
+      return null;
+    });
+    ret.setData(smpRepo.dbTest(obj, prm));
+    return ret;
+  }
+
+  public static String testStr(String str) {
+    log.debug("STR:{}", str);
+    return cat("[", str, "]");
   }
 }

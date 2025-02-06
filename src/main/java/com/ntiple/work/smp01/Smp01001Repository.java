@@ -20,4 +20,6 @@ public interface Smp01001Repository {
   Integer countSample(@Param("prm") Object prm) throws Exception;
 
   Integer addSample(@Param("prm") Object prm) throws Exception;
+
+  Object dbTest(@Param("prm") Object prm, @Param("prm2") Object prm2) throws Exception;
 }

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootApplication
 public class Application {
   public static void main(String[] args) {
+    com.ntiple.commons.SimpleLogger.setSrcLogger(log);
     String profile = System.getProperty("spring.profiles.active");
     if (profile == null || "".equals(profile)) {
       System.setProperty("spring.profiles.active", "local");
