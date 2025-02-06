@@ -8,9 +8,12 @@
 package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
+import static com.ntiple.commons.ConvertUtil.convert;
 import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.MybatisConfigUtil.getJndiDataSource;
 import static com.ntiple.commons.ReflectionUtil.cast;
+
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -56,8 +59,12 @@ public class PersistentConfig {
     String jndi = cast(settings.getProperty("spring.datasource-main.jndi-name"), "");
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
+    Map<String, Object> props = convert(new Object[][] {
+      { "@test", "test" },
+      { "!test", "test" }
+    }, newMap());
     MybatisConfigUtil.configSqlSession(ret, this, settings.getAppctx(),
-      DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, newMap(),
+      DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, props,
       "classpath:mybatis-config.xml", "mapper/**/*.xml",
       array("com.ntiple.work", "com.ntiple.system"));
     return ret;

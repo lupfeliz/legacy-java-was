@@ -74,6 +74,9 @@ public class Smp01001ApiService {
       switch (mtd.getName()) {
       case "get": {
         log.debug("ARG:{}{} / {}", "", arg[0], arg[0].getClass());
+        if ("v".equals(arg[0])) {
+          return prm;
+        }
         return arg[0];
       }
       }
@@ -83,9 +86,9 @@ public class Smp01001ApiService {
     return ret;
   }
 
-  public static String testStr(String str) {
-    String ret = cat("[", str, "]");
-    log.debug("STR:{} / {}", str, ret);
+  public static String testStr(Object arg) {
+    String ret = cat("[", arg, "]");
+    log.debug("STR:{} / {}", arg, ret);
     return ret;
   }
 }
