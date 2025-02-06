@@ -84,7 +84,8 @@ public class Smp01001ApiService {
   }
 
   public static String testStr(String str) {
-    log.debug("STR:{}", str);
-    return cat("[", str, "]");
+    String ret = cat("[", str, "]");
+    log.debug("STR:{} / {}", str, ret);
+    return ret;
   }
 }
