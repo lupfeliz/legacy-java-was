@@ -9,18 +9,14 @@ package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
 import static com.ntiple.commons.ConvertUtil.newMap;
-import static com.ntiple.commons.MybatisConfigUtil.applyTypeProcess;
 import static com.ntiple.commons.MybatisConfigUtil.getJndiDataSource;
 import static com.ntiple.commons.ReflectionUtil.cast;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -28,13 +24,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.FileUrlResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
-import com.ntiple.Application;
 import com.ntiple.commons.FunctionUtil.Fn2at;
 import com.ntiple.commons.MybatisConfigUtil;
 import com.ntiple.commons.ObjectStore;
@@ -94,31 +85,5 @@ public class PersistentConfig {
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
     return ret;
-  }
-
-  static Map<String, Object[]> maps = new LinkedHashMap<>();
-
-  public static void generateTemplate(String namespace) {
-    SqlSessionTemplate ret = null;
-    try {
-      ClassLoader loader = Application.class.getClassLoader();
-      SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
-      // fb.setDataSource(source);
-      fb.setConfigLocation(new FileUrlResource(loader.getResource("mybatis-config.xml")));
-      applyTypeProcess(fb, loader, array("com.ntiple.work", "com.ntiple.system"));
-      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-      Resource[] resources = resolver.getResources("mapper/**/*.xml");
-      fb.setMapperLocations(resources);
-      ret = new SqlSessionTemplate(fb.getObject());
-      log.debug("RESOURCES:{}{}", "", resources);
-      log.debug("SQLTMP:{}{}", "", ret);
-      maps.put(namespace, new Object[] {
-        fb,
-        ret,
-        new Object()
-      });
-    } catch (Exception e) {
-      log.debug("E:", e);
-    }
   }
 }
