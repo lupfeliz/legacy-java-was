@@ -7,6 +7,7 @@
  **/
 package com.ntiple;
 
+import static com.ntiple.commons.ConvertUtil.array;
 import static com.ntiple.commons.MybatisConfigUtil.applyTypeProcess;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
@@ -110,9 +111,9 @@ public class TestUtil {
       source.setPassword(jdbpsw);
       loader = Application.class.getClassLoader();
       SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
-      fb.setDataSource(source);
+      // fb.setDataSource(source);
       fb.setConfigLocation(new FileUrlResource(loader.getResource("mybatis-config.xml")));
-      applyTypeProcess(fb, loader, "com.ntiple.work");
+      applyTypeProcess(fb, loader, array("com.ntiple.work"));
       ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
       Resource[] resources = resolver.getResources("mapper/**/*.xml");
       fb.setMapperLocations(resources);

@@ -8,31 +8,42 @@
 package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
-import static com.ntiple.commons.ConvertUtil.convert;
 import static com.ntiple.commons.ConvertUtil.newMap;
+import static com.ntiple.commons.MybatisConfigUtil.applyTypeProcess;
 import static com.ntiple.commons.MybatisConfigUtil.getJndiDataSource;
 import static com.ntiple.commons.ReflectionUtil.cast;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.stereotype.Component;
 
+import com.ntiple.Application;
+import com.ntiple.commons.FunctionUtil.Fn2at;
 import com.ntiple.commons.MybatisConfigUtil;
+import com.ntiple.commons.ObjectStore;
 import com.ntiple.system.Settings;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @Configuration
+@Slf4j @Configuration @Component @Order(1)
 public class PersistentConfig {
 
   public static final String DATASOURCE_MAIN = "data-source-main";
@@ -41,15 +52,16 @@ public class PersistentConfig {
   public static final String SQLTEMPLTE_MAIN = "sql-template-main";
   public static final String DATASOURCE_DSS = "data-source-dss";
 
+  private static final ObjectStore<Map<String, Object>> props = new ObjectStore<>();
   @Autowired Settings settings;
 
   @PostConstruct public void init() {
     log.debug("INIT PERSISTENT-CONFIG..");
-    ApplicationContext appctx = settings.getAppctx();
-    new Thread(() -> {
-      appctx.getBean(DATASOURCE_MAIN);
-      appctx.getBean(DATASOURCE_DSS);
-    }).start();
+    // ApplicationContext appctx = settings.getAppctx();
+    // new Thread(() -> {
+    //   appctx.getBean(DATASOURCE_MAIN);
+    //   appctx.getBean(DATASOURCE_DSS);
+    // }).start();
   }
 
   @Bean(name = DATASOURCE_MAIN) @Primary
@@ -59,16 +71,20 @@ public class PersistentConfig {
     String jndi = cast(settings.getProperty("spring.datasource-main.jndi-name"), "");
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
-    Map<String, Object> props = convert(new Object[][] {
-      { "@test", "test" },
-      { "!test", "test" }
-    }, newMap());
-    MybatisConfigUtil.configSqlSession(ret, this, settings.getAppctx(),
-      DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, props,
-      "classpath:mybatis-config.xml", "mapper/**/*.xml",
-      array("com.ntiple.work", "com.ntiple.system"));
+    registerDss.apply(settings.getAppctx(), ret);
+    // convert(new Object[][] {
+    //   { "@test", "test" },
+    //   { "!test", "test" }
+    // }, props);
     return ret;
   }
+
+  private static Fn2at<Object, DataSource, Object> registerDss = MybatisConfigUtil.configSqlSession(
+    PersistentConfig.class,
+    DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, props.getAsync(() -> newMap()),
+    "classpath:mybatis-config.xml", "mapper/**/*.xml",
+    array("com.ntiple.work", "com.ntiple.system"));
+
 
   @Bean(name = DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
@@ -78,5 +94,31 @@ public class PersistentConfig {
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
     return ret;
+  }
+
+  static Map<String, Object[]> maps = new LinkedHashMap<>();
+
+  public static void generateTemplate(String namespace) {
+    SqlSessionTemplate ret = null;
+    try {
+      ClassLoader loader = Application.class.getClassLoader();
+      SqlSessionFactoryBean fb = new SqlSessionFactoryBean();
+      // fb.setDataSource(source);
+      fb.setConfigLocation(new FileUrlResource(loader.getResource("mybatis-config.xml")));
+      applyTypeProcess(fb, loader, array("com.ntiple.work", "com.ntiple.system"));
+      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+      Resource[] resources = resolver.getResources("mapper/**/*.xml");
+      fb.setMapperLocations(resources);
+      ret = new SqlSessionTemplate(fb.getObject());
+      log.debug("RESOURCES:{}{}", "", resources);
+      log.debug("SQLTMP:{}{}", "", ret);
+      maps.put(namespace, new Object[] {
+        fb,
+        ret,
+        new Object()
+      });
+    } catch (Exception e) {
+      log.debug("E:", e);
+    }
   }
 }
