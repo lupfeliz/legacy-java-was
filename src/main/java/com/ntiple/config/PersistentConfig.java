@@ -43,17 +43,18 @@ public class PersistentConfig {
   public static final String SQLTEMPLTE_MAIN = "sql-template-main";
   public static final String DATASOURCE_DSS = "data-source-dss";
 
-  private static final ObjectStore<Map<String, Object>> props = new ObjectStore<>();
+  private static final ObjectStore<Map<String, Object>> params = new ObjectStore<>();
   @Autowired Settings settings;
 
   @PostConstruct public void init() {
     log.debug("INIT PERSISTENT-CONFIG..");
-    // ApplicationContext appctx = settings.getAppctx();
-    // new Thread(() -> {
-    //   appctx.getBean(DATASOURCE_MAIN);
-    //   appctx.getBean(DATASOURCE_DSS);
-    // }).start();
   }
+
+  public Map<String, Object> getSharedParams() { return params.get(); }
+  private static Fn2at<Object, DataSource, Object> registerDss = MybatisConfigUtil.configSqlSession(
+    PersistentConfig.class,
+    DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, params.getAsync(() -> newMap()),
+    "classpath:mybatis-config.xml", "mapper/**/*.xml", array("com.ntiple.work", "com.ntiple.system"));
 
   @Bean(name = DATASOURCE_MAIN) @Primary
   @ConfigurationProperties(prefix = "spring.datasource-main")
@@ -63,19 +64,8 @@ public class PersistentConfig {
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
     registerDss.apply(settings.getAppctx(), ret);
-    // convert(new Object[][] {
-    //   { "@test", "test" },
-    //   { "!test", "test" }
-    // }, props);
     return ret;
   }
-
-  private static Fn2at<Object, DataSource, Object> registerDss = MybatisConfigUtil.configSqlSession(
-    PersistentConfig.class,
-    DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, props.getAsync(() -> newMap()),
-    "classpath:mybatis-config.xml", "mapper/**/*.xml",
-    array("com.ntiple.work", "com.ntiple.system"));
-
 
   @Bean(name = DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
