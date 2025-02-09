@@ -9,7 +9,8 @@ package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
 import static com.ntiple.commons.ConvertUtil.newMap;
-import static com.ntiple.commons.MybatisConfigUtil.getJndiDataSource;
+import static com.ntiple.commons.MybatisSpringbootUtil.configSqlSession;
+import static com.ntiple.commons.MybatisSpringbootUtil.getJndiDataSource;
 import static com.ntiple.commons.ReflectionUtil.cast;
 
 import java.util.Map;
@@ -27,7 +28,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.ntiple.commons.FunctionUtil.Fn2at;
-import com.ntiple.commons.MybatisConfigUtil;
 import com.ntiple.commons.ObjectStore;
 import com.ntiple.system.Settings;
 import com.zaxxer.hikari.HikariDataSource;
@@ -51,7 +51,7 @@ public class PersistentConfig {
   }
 
   public Map<String, Object> getSharedParams() { return params.get(); }
-  private static Fn2at<Object, DataSource, Object> registerDss = MybatisConfigUtil.configSqlSession(
+  private static Fn2at<Object, DataSource, Object> registerDss = configSqlSession(
     PersistentConfig.class,
     DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, params.getAsync(() -> newMap()),
     "classpath:mybatis-config.xml", "mapper/**/*.xml", array("com.ntiple.work", "com.ntiple.system"));
