@@ -19,8 +19,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.Proxy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ntiple.commons.CryptoUtil;
+import com.ntiple.config.PersistentConfig;
 import com.ntiple.work.cmn01.Cmn01001Entity.Login;
 import com.ntiple.work.cmn01.Cmn01001Entity.Result;
 import com.ntiple.work.cmn01.Cmn01001Entity.SearchEntity;
@@ -63,6 +65,18 @@ public class Smp01001ApiService {
   public SearchEntity<SampleArticle> smp01001a04(Map<String, Object> prm) throws Exception{
     SearchEntity<SampleArticle> ret = new SearchEntity<>();
     ret.setList(smpRepo.findSample(prm));
+    return ret;
+  }
+
+  @Transactional(PersistentConfig.SQLTRANSCT_MAIN)
+  public Result<Object> smp01001a06(Map<String, Object> prm) throws Exception {
+    Result<Object> ret = new Result<>();
+    smpRepo.addSample(SampleArticle.builder()
+      .title("OK")
+      .build());
+    if (ret.getData() == null) {
+      throw new RuntimeException("");
+    }
     return ret;
   }
 

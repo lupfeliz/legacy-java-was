@@ -11,6 +11,7 @@ import static com.ntiple.commons.ConvertUtil.array;
 import static com.ntiple.commons.ConvertUtil.newMap;
 import static com.ntiple.commons.MybatisSpringbootUtil.configSqlSession;
 import static com.ntiple.commons.MybatisSpringbootUtil.getJndiDataSource;
+import static com.ntiple.commons.MybatisSpringbootUtil.ORMRegsitrator;
 import static com.ntiple.commons.ReflectionUtil.cast;
 
 import java.util.Map;
@@ -18,24 +19,25 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+import org.springframework.lang.NonNull;
 
-import com.ntiple.commons.FunctionUtil.Fn2at;
 import com.ntiple.commons.ObjectStore;
 import com.ntiple.system.Settings;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @Configuration @Component @Order(1)
-public class PersistentConfig {
+@Slf4j @Configuration
+public class PersistentConfig implements ApplicationContextAware {
 
   public static final String DATASOURCE_MAIN = "data-source-main";
   public static final String SQLFACTORY_MAIN = "sql-factory-main";
@@ -46,13 +48,20 @@ public class PersistentConfig {
   private static final ObjectStore<Map<String, Object>> params = new ObjectStore<>();
   @Autowired Settings settings;
 
-  @PostConstruct public void init() {
-    log.debug("INIT PERSISTENT-CONFIG..");
+  @Override public void setApplicationContext(@NonNull ApplicationContext appctx) throws BeansException {
+    try {
+      registerMain.registMappers(appctx);
+    } catch (Exception e) { log.debug("E:", e); }
+    new Thread(() -> {
+      appctx.getBean(DATASOURCE_MAIN);
+      appctx.getBean(DATASOURCE_DSS);
+    }).start();
   }
 
+  @PostConstruct public void init() throws Exception { log.debug("INIT PERSISTENT-CONFIG.."); }
+
   public Map<String, Object> getSharedParams() { return params.get(); }
-  private static Fn2at<Object, DataSource, Object> registerDss = configSqlSession(
-    PersistentConfig.class,
+  ORMRegsitrator registerMain = configSqlSession(PersistentConfig.class,
     DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, params.getAsync(() -> newMap()),
     "classpath:mybatis-config.xml", "mapper/**/*.xml", array("com.ntiple.work", "com.ntiple.system"));
 
@@ -63,7 +72,7 @@ public class PersistentConfig {
     String jndi = cast(settings.getProperty("spring.datasource-main.jndi-name"), "");
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
-    registerDss.apply(settings.getAppctx(), ret);
+    registerMain.setDataSource(settings.getAppctx(), ret);
     return ret;
   }
 

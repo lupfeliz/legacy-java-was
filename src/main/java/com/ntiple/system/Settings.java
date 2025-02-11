@@ -38,11 +38,14 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 
 import org.jasypt.encryption.StringEncryptor;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -55,7 +58,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @Component @Getter @Setter
-public class Settings {
+public class Settings implements ApplicationContextAware {
   private static final ObjectStore<Settings> instance = new ObjectStore<>();
 
   @Value("${system.profile}") private String profile;
@@ -90,12 +93,13 @@ public class Settings {
   /** YML 셋팅맷 */
   private Map<String, Object> settingMap;
 
-  @PostConstruct public void init() {
-    log.trace("INIT:{}", Settings.class);
+  @Override public void setApplicationContext(@NonNull ApplicationContext appctx) throws BeansException {
     instance.set(this);
     this.beanFactory = ((ConfigurableApplicationContext) this.getAppctx()).getBeanFactory();
     reload();
   }
+
+  @PostConstruct public void init() { log.trace("INIT:{}", Settings.class); }
 
   private static final Pattern PTN_PLACEHOLDER = Pattern.compile("[$][{]([a-zA-Z0-9_.-]+)([:].*){0,1}[}]");
   private static final Pattern PTN_ENCPATTERN = Pattern.compile("ENC\\(([a-zA-Z0-9\\/+=]+)\\)");
