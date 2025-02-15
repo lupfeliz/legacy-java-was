@@ -1804,6 +1804,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     capacity = 0;
     cacheList = [];
     cacheMap = {};
+    debounceMap = {};
     expiry = 0;
     constructor(capacity, expiry = 1000 * 10) {
       this.capacity = capacity;
@@ -1811,41 +1812,71 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       this.cacheMap = {};
       this.expiry = expiry;
     };
-    get(key) {
+    get(key, expiry = -1) {
       let node = this.cacheMap[key];
-      if (node === undefined) { return undefined; };
+      // log.debug("NODE:", key, node);
+      if (node === U) { return U; };
+      // log.debug("CHECK-EXPIRE:", node.expire < new Date().getTime());
       if (node.expire < new Date().getTime()) {
         this.remove(key);
-        return undefined;
+        return U;
       };
-      node.expire = new Date().getTime() + this.expiry;
+      if (expiry < 0) { expiry = this.expiry; };
+      if (expiry > 0) { node.expire = new Date().getTime() + expiry; };
       this.moveToHead(node);
       return node.value;
     };
-    put(key, value) {
+    async getOrFetch(key, callback, delay, expiry = -1) {
+      let ret = U;
+      const self = this;
+      // log.debug("GET-ASYNC:", key, self.get(key, 0));
+      if ((ret = self.get(key, 0)) === U) {
+        // log.debug("GET-FROM-API:", key);
+        self.put(key, ret = await callback(), expiry);
+      };
+      return ret;
+    };
+    async getAsync(key, callback, delay, expiry = -1) {
+      let ret = U;
+      const self = this;
+      // log.debug("GET-ASYNC:", key, self.get(key, 0));
+      if ((ret = self.get(key, 0)) !== U) {
+        // log.debug("GET-FROM-CACHE:", key);
+        if (self.debounceMap[key]) {
+          clearTimeout(self.debounceMap[key]);
+          delete self.debounceMap[key];
+        };
+        self.debounceMap[key] = setTimeout(async function() { self.put(key, await callback(), expiry); }, delay);
+      } else {
+        // log.debug("GET-FROM-API:", key);
+        self.put(key, ret = await callback(), expiry);
+      };
+      return ret;
+    };
+    put(key, value, expiry = -1) {
       let node = this.cacheMap[key];
-      if (node !== undefined) {
+      if (node !== U) {
         node.value = value;
-        node.expire - new Date().getTime() + this.expiry;
+        if (expiry < 0) { expiry = this.expiry; };
+        if (expiry > 0) { node.expire = new Date().getTime() + expiry; };
         this.moveToHead(node);
         return;
       };
       let newNode = new DoublyLinkedNode(key, value);
       this.cacheList.addFirst(newNode);
-      newNode.expire = new Date().getTime() + this.expiry;
-      if (this.cacheList.size() > this.capacity) {
-        this.removeLeast();
-      }
+      if (expiry < 0) { expiry = this.expiry; };
+      if (expiry > 0) { newNode.expire = new Date().getTime() + expiry; };
+      if (this.cacheList.size() > this.capacity) { this.removeLeast(); };
       this.cacheMap[key] = newNode;
     };
     remove(key) {
       let node = this.cacheMap[key];
       delete this.cacheMap[key];
-      if (node === undefined) { return; };
+      if (node === U) { return; };
       this.cacheList.remove(node);
     };
     size() { return this.cacheList.size(); };
-    dump() { this.cacheList.dump(this.capacity); };
+    // dump() { this.cacheList.dump(this.capacity); };
     moveToHead(node) {
       this.cacheList.remove(node);
       this.cacheList.addFirst(node);
@@ -1853,7 +1884,7 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     removeLeast() {
       let size = this.cacheList.size();
       let tail = this.cacheList.removeLast();
-      for (let inx = size; tail !== undefined && inx > this.capacity; inx--) {
+      for (let inx = size; tail !== U && inx > this.capacity; inx--) {
         let prev = tail.prev;
         delete this.cacheMap[tail.key];
         this.cacheList.remove(tail);
@@ -1865,41 +1896,51 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     keyIter() {
       let node = this.cacheList.head;
       return {
-        hasNext() { return node !== undefined && node.next !== undefined; },
+        hasNext() { return node !== U && node.next !== U; },
         next() {
-          if (node === undefined) { return undefined; };
+          if (node === U) { return U; };
           let ret = node.key;
           node = node.next;
           return ret;
         }
       };
     };
-    stringify() { return this.cacheList.stringify(); };
+    stringify() {
+      return JSON.stringify(this.cacheList.dump());
+    };
     parse(str) {
-      let list = JSON.parse(str);
-      let prev = undefined;
-      let node = this.cacheList.head = this.cacheList.tail = undefined;
+      let list =JSON.parse(str);
+      let prev = U;
+      let node = this.cacheList.head = this.cacheList.tail = U;
       for (const itm of list) {
-        let value = itm.v;
-        if (value.startsWith("n:")) {
-          value = Number(value.substring(2));
-        } else if (value.startsWith("s:")) {
-          value = value.substring(2);
-        } else if (value.startsWith("o:")) {
-          value = JSON.parse(value.substring(2));
-        };
-        node = new DoublyLinkedNode(itm.k, value);
+        node = new DoublyLinkedNode(itm.k, itm.v);
         node.expire = Number(itm.t);
-        if (prev === undefined) {
+        if (prev === U) {
           this.cacheList.head = node;
         } else {
           prev.next = node;
-        }
+        };
         node.prev = prev;
         this.cacheList.tail = node;
         this.cacheMap[itm.k] = node;
         prev = node;
       };
+    };
+    clear() {
+      clear(this.cacheMap);
+      this.cacheList.clear();
+    };
+    saveToStorage(key) {
+      if (!key) { return; };
+      try {
+        window.localStorage.setItem(key, this.stringify());
+      } catch (e) { log.debug("E:", e); };
+    };
+    loadFromStorage(key) {
+      if (!key) { return; };
+      try {
+        this.parse(window.localStorage.getItem(key));
+      } catch (e) { log.debug("E:", e); };
     };
   };
   class DoublyLinkedNode {
@@ -1914,8 +1955,8 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     };
   };
   class DoublyLinkedList {
-    head = undefined;
-    tail = undefined;
+    head = U;
+    tail = U;
     addFirst(node) {
       if (this.isEmpty()) {
         this.head = this.tail = node;
@@ -1928,15 +1969,15 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
     remove(node) {
       if (node === this.head) {
         this.head = this.head.next;
-        if (this.heead !== undefined) { this.head.prev = undefined; };
+        if (this.heead !== U) { this.head.prev = U; };
       } else if (node === this.tail) {
         this.tail = this.tail.prev;
-        if (this.tail !== undefined) { this.tail.next = undefined; };
+        if (this.tail !== U) { this.tail.next = U; };
       };
-      if (node.prev !== undefined) { node.prev.next = node.next; };
-      if (node.next !== undefined) { node.next.prev = node.prev; };
-      node.next = undefined;
-      node.prev = undefined;
+      if (node.prev !== U) { node.prev.next = node.next; };
+      if (node.next !== U) { node.next.prev = node.prev; };
+      node.next = U;
+      node.prev = U;
     };
     removeLast() {
       if (this.isEmpty()) { return; };
@@ -1945,64 +1986,61 @@ function initEntryScript(callback, { vars, pagevars, log, cbase }) {
       return last;
     };
     isEmpty() {
-      return this.head === undefined;
+      return this.head === U;
     };
     removeExpired() {
       let node = this.tail;
-      let prev = undefined;
+      let prev = U;
       let curtime = new Date().getTime();
-      LOOP: while (node !== undefined) {
+      LOOP: while (node !== U) {
         if (node.expire < curtime) {
           prev = node.prev;
           this.remove(node);
           node = prev;
           continue LOOP;
-        }
-        if (node.prev !== undefined) { break LOOP; }
+        };
+        if (node.prev !== U) { break LOOP; };
         node = node.prev;
       };
     };
     size() {
       let size = 0;
       let node = this.head;
-      while (node !== undefined) {
+      while (node !== U) {
         size += 1;
-        if (node.next === undefined) { break; };
+        if (node.next === U) { break; };
         node = node.next;
       };
       return size;
     };
-    dump(limit) {
+    clear() {
       let size = 0;
       let node = this.head;
-      while (node !== undefined && size < limit) {
-        log.debug("NODE:", node);
-        size += 1;
-        if (node.next === undefined) { break; };
+      while (node !== U) {
+        if (node.next === U) { break; };
+        tmp = node;
         node = node.next;
+        tmp.next = U;
+        tmp.prev = U;
       };
+      this.head = U;
+      this.tail = U;
+      return size;
     };
-    stringify() {
+    dump() {
       let ret = "";
-      let size = 0;
+      // let size = 0;
       let node = this.head;
-      while (node !== undefined) {
+      let list = [];
+      while (node !== U) {
         if (ret) { ret = `${ret},`; };
         let value = node.value;
-        if (typeof value === "string") {
-          value = `s:${value}`;
-        } else if (typeof value === "number") {
-          value = `n:${value}`;
-        } else {
-          value = `o:${JSON.stringify(value)}`;
-        }
-        ret = `${ret}{"k":"${node.key}","v":"${value}","t":${node.expire}}`;
-        size += 1;
-        if (node.next === undefined) { break; };
+        list.push({ k: node.key, v: value, t: node.expire });
+        // size += 1;
+        if (node.next === U) { break; };
         node = node.next;
       };
-      if (ret) { ret = `[${ret}]`; };
-      return ret;
+      return list;
     };
   };
 
