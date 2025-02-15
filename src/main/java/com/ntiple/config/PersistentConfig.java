@@ -53,14 +53,14 @@ public class PersistentConfig implements ApplicationContextAware {
   @Autowired Settings settings;
 
   @Override public void setApplicationContext(@NonNull ApplicationContext appctx) throws BeansException {
-    registerMain.registMappers(appctx);
+    configMain.registMappers(appctx);
   }
 
   @PostConstruct public void init() throws Exception { log.debug("INIT PERSISTENT-CONFIG.."); }
 
   public Map<String, Object> getSharedParams() { return params.get(); }
-  private static final MybatisConfig<SqlSessionFactory, SqlSessionTemplate> registerMain = configMybatis(
-    PersistentConfig.class, params.getAsync(() -> newMap()),
+  private static final MybatisConfig<SqlSessionFactory, SqlSessionTemplate>
+    configMain = configMybatis(PersistentConfig.class, params.getAsync(() -> newMap()),
     "classpath:mybatis-config.xml", "mapper/**/*.xml",
     array("com.ntiple.work", "com.ntiple.system"));
 
@@ -73,17 +73,16 @@ public class PersistentConfig implements ApplicationContextAware {
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
     return ret;
   }
-
   @Bean(name = SQLTRANSCT_MAIN)
   DataSourceTransactionManager transactionManagerMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) {
     return new DataSourceTransactionManager(source);
   }
   @Bean(name = SQLFACTORY_MAIN)
   SqlSessionFactory sqlSessionFactoryMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) {
-    return registerMain.getSqlFactory(settings.getAppctx(), source);
+    return configMain.getSqlFactory(settings.getAppctx(), source);
   }
   @Bean(name = SQLTEMPLTE_MAIN)
-  SqlSessionTemplate sqlSessionTemplateMain() { return registerMain.getSqlTemplate(); }
+  SqlSessionTemplate sqlSessionTemplateMain() { return configMain.getSqlTemplate(); }
 
   @Bean(name = DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
