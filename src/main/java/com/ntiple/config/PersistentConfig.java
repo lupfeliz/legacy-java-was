@@ -9,9 +9,9 @@ package com.ntiple.config;
 
 import static com.ntiple.commons.ConvertUtil.array;
 import static com.ntiple.commons.ConvertUtil.newMap;
-import static com.ntiple.commons.MybatisSpringbootUtil.configSqlSession;
-import static com.ntiple.commons.MybatisSpringbootUtil.getJndiDataSource;
-import static com.ntiple.commons.MybatisSpringbootUtil.ORMRegsitrator;
+import static com.ntiple.commons.MybatisConfigUtil.configMybatis;
+import static com.ntiple.commons.MybatisConfigUtil.getJndiDataSource;
+import static com.ntiple.commons.MybatisConfigUtil.MybatisConfig;
 import static com.ntiple.commons.ReflectionUtil.cast;
 
 import java.util.Map;
@@ -19,8 +19,11 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.lang.NonNull;
 
 import com.ntiple.commons.ObjectStore;
@@ -49,21 +53,16 @@ public class PersistentConfig implements ApplicationContextAware {
   @Autowired Settings settings;
 
   @Override public void setApplicationContext(@NonNull ApplicationContext appctx) throws BeansException {
-    try {
-      registerMain.registMappers(appctx);
-    } catch (Exception e) { log.debug("E:", e); }
-    new Thread(() -> {
-      appctx.getBean(DATASOURCE_MAIN);
-      appctx.getBean(DATASOURCE_DSS);
-    }).start();
+    registerMain.registMappers(appctx);
   }
 
   @PostConstruct public void init() throws Exception { log.debug("INIT PERSISTENT-CONFIG.."); }
 
   public Map<String, Object> getSharedParams() { return params.get(); }
-  ORMRegsitrator registerMain = configSqlSession(PersistentConfig.class,
-    DATASOURCE_MAIN, SQLFACTORY_MAIN, SQLTEMPLTE_MAIN, SQLTRANSCT_MAIN, params.getAsync(() -> newMap()),
-    "classpath:mybatis-config.xml", "mapper/**/*.xml", array("com.ntiple.work", "com.ntiple.system"));
+  private static final MybatisConfig<SqlSessionFactory, SqlSessionTemplate> registerMain = configMybatis(
+    PersistentConfig.class, params.getAsync(() -> newMap()),
+    "classpath:mybatis-config.xml", "mapper/**/*.xml",
+    array("com.ntiple.work", "com.ntiple.system"));
 
   @Bean(name = DATASOURCE_MAIN) @Primary
   @ConfigurationProperties(prefix = "spring.datasource-main")
@@ -72,8 +71,24 @@ public class PersistentConfig implements ApplicationContextAware {
     String jndi = cast(settings.getProperty("spring.datasource-main.jndi-name"), "");
     if (jndi != null && !"".equals(jndi)) { ret = getJndiDataSource(jndi); }
     if (ret == null) { ret = DataSourceBuilder.create().type(HikariDataSource.class).build(); }
-    registerMain.setDataSource(settings.getAppctx(), ret);
     return ret;
+  }
+
+  @Bean(name = SQLTRANSCT_MAIN)
+  DataSourceTransactionManager transactionManagerMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) throws Exception {
+    return new DataSourceTransactionManager(source);
+  }
+
+  @Bean(name = SQLFACTORY_MAIN)
+  SqlSessionFactory sqlSessionFactoryMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) throws Exception {
+    // return cast(registerMain.getSqlFactory(settings.getAppctx(), source), SqlSessionFactory.class);
+    return registerMain.getSqlFactory(settings.getAppctx(), source);
+  }
+
+  @Bean(name = SQLTEMPLTE_MAIN)
+  SqlSessionTemplate sqlSessionTemplateMain() throws Exception {
+    // return cast(registerMain.getSqlTemplate(), SqlSessionTemplate.class);
+    return registerMain.getSqlTemplate();
   }
 
   @Bean(name = DATASOURCE_DSS)

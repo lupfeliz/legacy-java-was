@@ -8,7 +8,7 @@
 package com.ntiple;
 
 import static com.ntiple.commons.ConvertUtil.array;
-import static com.ntiple.commons.MybatisSpringbootUtil.applyTypeProcess;
+import static com.ntiple.commons.MybatisConfigUtil.applyTypeProcess;
 import static com.ntiple.commons.ReflectionUtil.cast;
 import static com.ntiple.commons.StringUtil.cat;
 
