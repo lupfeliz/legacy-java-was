@@ -75,21 +75,15 @@ public class PersistentConfig implements ApplicationContextAware {
   }
 
   @Bean(name = SQLTRANSCT_MAIN)
-  DataSourceTransactionManager transactionManagerMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) throws Exception {
+  DataSourceTransactionManager transactionManagerMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) {
     return new DataSourceTransactionManager(source);
   }
-
   @Bean(name = SQLFACTORY_MAIN)
-  SqlSessionFactory sqlSessionFactoryMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) throws Exception {
-    // return cast(registerMain.getSqlFactory(settings.getAppctx(), source), SqlSessionFactory.class);
+  SqlSessionFactory sqlSessionFactoryMain(@Autowired @Qualifier(DATASOURCE_MAIN) DataSource source) {
     return registerMain.getSqlFactory(settings.getAppctx(), source);
   }
-
   @Bean(name = SQLTEMPLTE_MAIN)
-  SqlSessionTemplate sqlSessionTemplateMain() throws Exception {
-    // return cast(registerMain.getSqlTemplate(), SqlSessionTemplate.class);
-    return registerMain.getSqlTemplate();
-  }
+  SqlSessionTemplate sqlSessionTemplateMain() { return registerMain.getSqlTemplate(); }
 
   @Bean(name = DATASOURCE_DSS)
   @ConfigurationProperties(prefix = "spring.datasource-dss")
